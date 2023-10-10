@@ -165,7 +165,7 @@ object ViewHolder {
         params.width = iconRadius * 2
         params.height = iconRadius * 2
 
-        var viewLeft: IconView? = null
+        var viewLeft: IconView?
         IconLayoutAlgorithm.getIconCenterPos(context, true, idx, total).let {
             params.x = it.first - iconRadius
             params.y = it.second - iconRadius
@@ -178,7 +178,7 @@ object ViewHolder {
             }
         }
 
-        var viewRight: IconView? = null
+        var viewRight: IconView?
         IconLayoutAlgorithm.getIconCenterPos(context, false, idx, total).let {
             params.x = it.first - iconRadius
             params.y = it.second - iconRadius

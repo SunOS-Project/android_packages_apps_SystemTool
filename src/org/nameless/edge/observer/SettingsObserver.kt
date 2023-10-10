@@ -13,10 +13,11 @@ import android.os.UserHandle
 import android.provider.Settings
 import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
 
-import com.android.internal.util.nameless.CustomUtils
 import com.android.internal.util.nameless.UserSwitchReceiver
 
+import org.nameless.edge.PickerDataCache
 import org.nameless.edge.util.Constants
+import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 
 class SettingsObserver(
@@ -43,11 +44,18 @@ class SettingsObserver(
 
         val validAppList = getMiniWindowAppsSettings(context)
             ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
-                CustomUtils.isPackageInstalled(context, it, false)
-            }?.filterIndexed { i, _ -> i < Constants.circleMaxIcon }?: emptyList()
-        validAppList.forEachIndexed {
-            i, v -> ViewHolder.addIconView(context, v, i + 1, validAppList.size)
+                PackageInfoCache.isPackageAvailable(it) }?: emptyList()
+
+        PickerDataCache.updatePinnedPackages(validAppList.toMutableSet())
+
+        validAppList.forEachIndexed { i, v ->
+            if (i >= Constants.circleMaxIcon - 1) {
+                return@forEachIndexed
+            }
+            ViewHolder.addIconView(context, v, i + 1, validAppList.size + 1)
         }
+        ViewHolder.addIconView(context, Constants.PACKAGE_NAME,
+                validAppList.size + 1, validAppList.size + 1)
     }
 
     private fun updateAll() {
@@ -78,6 +86,15 @@ class SettingsObserver(
         fun putMiniWindowAppsSettings(context: Context, apps: String) {
             Settings.System.putStringForUser(context.contentResolver,
                 EDGE_TOOL_MINI_WINDOW_APPS, apps, UserHandle.USER_CURRENT)
+        }
+
+        fun getMiniWindowAppsSet(context: Context): MutableSet<String> {
+            return mutableSetOf<String>().apply {
+                (getMiniWindowAppsSettings(context)
+                    ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
+                        PackageInfoCache.isPackageAvailable(it)
+                    }?: emptyList()).forEach { app -> add(app) }
+            }
         }
     }
 }

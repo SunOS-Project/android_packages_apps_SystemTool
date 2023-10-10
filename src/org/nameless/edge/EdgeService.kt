@@ -15,6 +15,7 @@ import org.nameless.edge.observer.PackageStateObserver
 import org.nameless.edge.observer.ScreenStateReceiver
 import org.nameless.edge.observer.SettingsObserver
 import org.nameless.edge.observer.StartBroadcastReceiver
+import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 import org.nameless.edge.view.DimmerView
 
@@ -37,6 +38,8 @@ class EdgeService : Service() {
         if (!DimmerView.addDimmerView(this)) {
             stopSelf()
         }
+
+        handler.post { PackageInfoCache.initPackageList(this) }
 
         packageStateObserver = PackageStateObserver(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)

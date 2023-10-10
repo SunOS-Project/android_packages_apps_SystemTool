@@ -8,4 +8,11 @@
     <!-- App name -->
     <string name="app_name" translatable="false">EdgeTool</string>
 
+    <!-- All Apps Picker -->
+    <string name="all_apps_picker_title">More Apps</string>
+    <string name="pinned_apps_title">Pinned Apps (Long press to unpin)</string>
+    <string name="all_apps_title">All Apps (Long press to pin)</string>
+    <string name="info_no_pinned_app">No Pinned Apps</string>
+    <string name="info_all_apps_pinned">All Apps are pinned</string>
+
 </resources>

@@ -5,6 +5,7 @@
 android_app {
     name: "EdgeTool",
     certificate: "platform",
+    defaults: ["SettingsLibDefaults"],
     optimize: {
         enabled: true,
         obfuscate: true,

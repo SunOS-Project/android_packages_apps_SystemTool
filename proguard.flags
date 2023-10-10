@@ -1,3 +1,4 @@
--keep class org.nameless.edge.* {
-  *;
-}
+-keep class org.nameless.edge.AllAppsPickerActivity
+-keep class org.nameless.edge.BootCompletedReceiver
+-keep class org.nameless.edge.EdgeService
+-keep class org.nameless.edge.view.ExpandableGridView

@@ -16,11 +16,13 @@ import android.widget.ImageView
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
 
-import com.android.internal.util.nameless.CustomUtils
-
+import org.nameless.edge.AllAppsPickerActivity
+import org.nameless.edge.R
 import org.nameless.edge.util.Constants
+import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 import org.nameless.wm.PopUpBroadcastConstants.ACTION_START_MINI_WINDOW
+import org.nameless.wm.PopUpBroadcastConstants.EXTRA_ACTIVITY_NAME
 import org.nameless.wm.PopUpBroadcastConstants.EXTRA_PACKAGE_NAME
 
 class IconView(
@@ -36,11 +38,21 @@ class IconView(
     private var downTime = 0L
 
     init {
-        CustomUtils.getAppIcon(context, packageName, true /* useDefault */)?.let {
-            setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
-                cornerRadius = 1000f
-                setAntiAlias(true)
-            })
+        if (Constants.PACKAGE_NAME.equals(packageName)) {
+            context.resources.getDrawable(R.drawable.ic_more)?.let {
+                setBackgroundColor(context.resources.getColor(R.color.icon_all_apps_color))
+                setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
+                    cornerRadius = 1000f
+                    setAntiAlias(true)
+                })
+            }
+        } else {
+            PackageInfoCache.getIconDrawable(packageName)?.let {
+                setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
+                    cornerRadius = 1000f
+                    setAntiAlias(true)
+                })
+            }
         }
         scaleX = 1f / Constants.iconFocusedScaleRatio
         scaleY = 1f / Constants.iconFocusedScaleRatio
@@ -103,7 +115,16 @@ class IconView(
 
         private val SCALE_ANIMATION_DURATION = 150L
 
-        private fun sendMiniWindowBroadcast(context: Context, packageName: String) {
+        fun sendMiniWindowBroadcast(context: Context, packageName: String) {
+            if (Constants.PACKAGE_NAME.equals(packageName)) {
+                context.sendBroadcastAsUser(Intent().apply {
+                    action = ACTION_START_MINI_WINDOW
+                    putExtra(EXTRA_PACKAGE_NAME, Constants.PACKAGE_NAME)
+                    putExtra(EXTRA_ACTIVITY_NAME, AllAppsPickerActivity::class.java.name)
+                }, UserHandle.SYSTEM)
+                return
+            }
+
             context.sendBroadcastAsUser(Intent().apply {
                 action = ACTION_START_MINI_WINDOW
                 putExtra(EXTRA_PACKAGE_NAME, packageName)

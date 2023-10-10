@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 Nameless-AOSP
+     SPDX-License-Identifier: Apache-2.0
+-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:paddingStart="24dp"
+            android:textSize="16dp"
+            android:text="@string/pinned_apps_title" />
+
+        <TextView
+            android:id="@+id/text_no_pined_app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:textSize="26dp"
+            android:text="@string/info_no_pinned_app" />
+
+        <org.nameless.edge.view.ExpandableGridView
+            android:id="@+id/grid_pinned_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="4" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="28dp"
+            android:layout_marginHorizontal="24dp"
+            android:background="#888888" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:textSize="16dp"
+            android:text="@string/all_apps_title" />
+
+        <TextView
+            android:id="@+id/text_all_apps_pinned"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="160dp"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:textSize="26dp"
+            android:text="@string/info_all_apps_pinned" />
+
+        <org.nameless.edge.view.ExpandableGridView
+            android:id="@+id/grid_all_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="160dp"
+            android:numColumns="4" />
+    </LinearLayout>
+</ScrollView>

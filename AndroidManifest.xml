@@ -28,6 +28,13 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".AllAppsPickerActivity"
+            android:exported="true"
+            android:label="@string/all_apps_picker_title"
+            android:theme="@style/Theme.SubSettingsBase">
+        </activity>
+
         <service
             android:name=".EdgeService">
         </service>

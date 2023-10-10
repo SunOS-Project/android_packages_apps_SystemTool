@@ -1,0 +1,33 @@
+//
+//   Copyright (C) 2023 Nameless-AOSP
+//   SPDX-License-Identifier: Apache-2.0
+//
+android_app {
+    name: "EdgeTool",
+    certificate: "platform",
+    optimize: {
+        enabled: true,
+        obfuscate: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+    platform_apis: true,
+    privileged: true,
+    required: [
+        "privapp_whitelist_edge",
+    ],
+    srcs: [
+        "src/**/*.kt",
+    ],
+    system_ext_specific: true,
+    static_libs: [
+        "androidx.core_core-ktx",
+    ],
+}
+   
+prebuilt_etc {
+    name: "privapp_whitelist_edge",
+    sub_dir: "permissions",
+    src: "privapp-permissions-org.nameless.edge.xml",
+    filename_from_src: true,
+    system_ext_specific: true,
+}

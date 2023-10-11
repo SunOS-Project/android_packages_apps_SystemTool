@@ -60,6 +60,7 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         }
         pinnedAppsGridView?.setOnItemLongClickListener { _, _, position, _ ->
             pinnedAppsAdapter?.remove(position)?.let { item ->
+                pinnedPackages?.remove(item.packageName)
                 val prevIdx = PackageInfoCache.availablePackages.filterNot {
                     pinnedPackages?.contains(it) ?: false }.indexOf(item.packageName)
                 if (prevIdx != -1) {
@@ -67,7 +68,6 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
                 } else {
                     allAppsAdapter?.add(item)
                 }
-                pinnedPackages?.remove(item.packageName)
                 ++allAppsSize
                 --pinnedAppSize
             }

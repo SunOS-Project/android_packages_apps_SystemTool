@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
+import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
 import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
 
 import com.android.internal.util.nameless.UserSwitchReceiver
@@ -22,7 +23,7 @@ import org.nameless.edge.util.ViewHolder
 
 class SettingsObserver(
     private val context: Context,
-    handler: Handler
+    private val handler: Handler
 ) : ContentObserver(handler) {
 
     private val userSwitchReceiver = object: UserSwitchReceiver(context) {
@@ -35,6 +36,11 @@ class SettingsObserver(
         when (uri.lastPathSegment) {
             EDGE_TOOL_MINI_WINDOW_APPS -> {
                 updateMiniWindowApps()
+            }
+            DISPLAY_RESOLUTION_WIDTH -> {
+                handler.postDelayed({
+                    ViewHolder.relocateIconView(context)
+                }, 1000L)
             }
         }
     }
@@ -66,6 +72,9 @@ class SettingsObserver(
         context.contentResolver.run {
             registerContentObserver(
                 Settings.System.getUriFor(EDGE_TOOL_MINI_WINDOW_APPS),
+                false, this@SettingsObserver, UserHandle.USER_ALL)
+            registerContentObserver(
+                Settings.System.getUriFor(DISPLAY_RESOLUTION_WIDTH),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
         }
         userSwitchReceiver.setListening(true)

@@ -204,7 +204,7 @@ object ViewHolder {
         }
     }
 
-    private fun relocateIconView(context: Context) {
+    fun relocateIconView(context: Context) {
         hideForAll()
 
         if (getWindowManager(context) == null) {

@@ -20,9 +20,9 @@ object IconLayoutAlgorithm {
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
         format = PixelFormat.RGBA_8888
         flags = LayoutParams.FLAG_NOT_TOUCHABLE
+        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY
         gravity = Gravity.TOP or Gravity.LEFT
         layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        alpha = 0.8f
     }
 
     fun getIconCenterPos(context: Context, isLeft: Boolean, idx: Int, total: Int): Pair<Int, Int> {

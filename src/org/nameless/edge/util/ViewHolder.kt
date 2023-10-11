@@ -213,14 +213,16 @@ object ViewHolder {
         }
 
         val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
+        val iconRadius = IconLayoutAlgorithm.getIconRadius(context)
+        params.width = iconRadius * 2
+        params.height = iconRadius * 2
         iconViewsLeft.forEachIndexed { i, v ->
             IconLayoutAlgorithm.getIconCenterPos(context, true, i + 1, iconViewsLeft.size).let {
-                params.x = it.first - v.radius
-                params.y = it.second - v.radius
-                params.width = v.radius * 2
-                params.height = v.radius * 2
+                params.x = it.first - iconRadius
+                params.y = it.second - iconRadius
                 v.centerPosX = it.first
                 v.centerPosY = it.second
+                v.radius = iconRadius
                 try {
                     wm?.updateViewLayout(v, params)
                     logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=true")
@@ -231,12 +233,11 @@ object ViewHolder {
         }
         iconViewsRight.forEachIndexed { i, v ->
             IconLayoutAlgorithm.getIconCenterPos(context, false, i + 1, iconViewsRight.size).let {
-                params.x = it.first - v.radius
-                params.y = it.second - v.radius
-                params.width = v.radius * 2
-                params.height = v.radius * 2
+                params.x = it.first - iconRadius
+                params.y = it.second - iconRadius
                 v.centerPosX = it.first
                 v.centerPosY = it.second
+                v.radius = iconRadius
                 try {
                     wm?.updateViewLayout(v, params)
                     logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=false")

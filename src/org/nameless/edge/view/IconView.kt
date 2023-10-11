@@ -30,7 +30,7 @@ class IconView(
     val packageName: String,
     var centerPosX: Int,
     var centerPosY: Int,
-    val radius: Int
+    var radius: Int
 ) : ImageView(context) {
 
     private var fromDown = false

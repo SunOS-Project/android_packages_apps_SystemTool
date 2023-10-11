@@ -16,6 +16,8 @@ import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
 
 import com.android.internal.util.nameless.UserSwitchReceiver
 
+import kotlin.math.min
+
 import org.nameless.edge.PickerDataCache
 import org.nameless.edge.util.Constants
 import org.nameless.edge.util.PackageInfoCache
@@ -54,14 +56,14 @@ class SettingsObserver(
 
         PickerDataCache.updatePinnedPackages(validAppList.toMutableSet())
 
+        val total = min(validAppList.size + 1, Constants.circleMaxIcon)
         validAppList.forEachIndexed { i, v ->
             if (i >= Constants.circleMaxIcon - 1) {
                 return@forEachIndexed
             }
-            ViewHolder.addIconView(context, v, i + 1, validAppList.size + 1)
+            ViewHolder.addIconView(context, v, i + 1, total)
         }
-        ViewHolder.addIconView(context, Constants.PACKAGE_NAME,
-                validAppList.size + 1, validAppList.size + 1)
+        ViewHolder.addIconView(context, Constants.PACKAGE_NAME, total, total)
     }
 
     private fun updateAll() {

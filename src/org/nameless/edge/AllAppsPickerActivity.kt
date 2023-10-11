@@ -6,6 +6,7 @@
 package org.nameless.edge
 
 import android.os.Bundle
+import android.os.PowerManager
 import android.widget.GridView
 import android.widget.TextView
 
@@ -38,9 +39,13 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
     private var pinnedAppSize = 0
     private var allAppsSize = 0
 
+    private var powerManager: PowerManager? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.all_apps_picker)
+
+        powerManager = getSystemService(PowerManager::class.java)
 
         pinnedPackages = PickerDataCache.pinnedPackages?.toMutableSet() ?: mutableSetOf<String>()
 
@@ -57,6 +62,7 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         pinnedAppsGridView?.setOnItemClickListener { _, _, position, _ ->
             IconView.sendMiniWindowBroadcast(this,
                 PickerDataCache.pinnedAppsItems[position].packageName)
+            finish()
         }
         pinnedAppsGridView?.setOnItemLongClickListener { _, _, position, _ ->
             pinnedAppsAdapter?.remove(position)?.let { item ->
@@ -89,6 +95,7 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         allAppsGridView?.setOnItemClickListener { _, _, position, _ ->
             IconView.sendMiniWindowBroadcast(this,
                 PickerDataCache.allAppsItems[position].packageName)
+            finish()
         }
         allAppsGridView?.setOnItemLongClickListener { _, _, position, _ ->
             allAppsAdapter?.remove(position)?.let {
@@ -115,6 +122,13 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         noPinnedAppsText = findViewById(R.id.text_no_pined_app)
         allAppsPinnedText = findViewById(R.id.text_all_apps_pinned)
         updateViewsVisibility()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!(powerManager?.isInteractive() ?: true)) {
+            finish()
+        }
     }
 
     private fun updatePinnedAppsSettings() {

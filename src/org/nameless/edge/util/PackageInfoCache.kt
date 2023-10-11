@@ -8,9 +8,8 @@ package org.nameless.edge.util
 import android.content.Context
 import android.content.pm.ApplicationInfo.FLAG_SYSTEM
 import android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
+import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.drawable.Drawable
-
-import com.android.internal.util.nameless.CustomUtils
 
 import java.text.Collator
 
@@ -36,7 +35,7 @@ object PackageInfoCache {
         }.forEach {
             availablePackages.add(it.packageName)
             caches[it.packageName] = Pair(
-                CustomUtils.getAppIcon(context, it.packageName, true),
+                getAppIcon(context, it.packageName),
                 it.applicationInfo.loadLabel(context.packageManager).toString()
             )
         }
@@ -60,17 +59,46 @@ object PackageInfoCache {
         availablePackages.remove(packageName)
         caches.remove(packageName)
 
-        if (newApp || CustomUtils.isPackageInstalled(context, packageName, false)) {
+        if (newApp || isPackageInstalled(context, packageName)) {
             availablePackages.add(packageName)
             caches[packageName] = Pair(
-                CustomUtils.getAppIcon(context, packageName, true),
-                CustomUtils.getAppName(context, packageName)?: DEFAULT_LABEL
+                getAppIcon(context, packageName),
+                getAppName(context, packageName)?: DEFAULT_LABEL
             )
 
             availablePackages.sortWith(AppComparator())
         }
 
         PickerDataCache.onAvailablePackagesChanged()
+    }
+
+    private fun getAppName(context: Context, packageName: String): String? {
+        try {
+            return context.packageManager.getPackageInfo(packageName, 0)
+                    .applicationInfo.loadLabel(context.packageManager).toString()
+        } catch (e: NameNotFoundException) {
+            return null
+        }
+    }
+
+    private fun getAppIcon(context: Context, packageName: String): Drawable? {
+        var loadIcon: Drawable? = null
+        try {
+            loadIcon = context.packageManager.getApplicationIcon(packageName)
+        } catch (e: NameNotFoundException) {}
+        if (loadIcon == null) {
+            loadIcon = context.packageManager.defaultActivityIcon
+        }
+        return loadIcon
+    }
+
+    private fun isPackageInstalled(context: Context, packageName: String): Boolean {
+        try {
+            return context.packageManager.getPackageInfo(packageName, 0)
+                    .applicationInfo.enabled
+        } catch (e: NameNotFoundException) {
+            return false
+        }
     }
 
     internal class AppComparator : Comparator<String> {

@@ -56,8 +56,15 @@ object PackageInfoCache {
     }
 
     fun onPackageStateChanged(context: Context, packageName: String, newApp: Boolean = false) {
-        availablePackages.remove(packageName)
-        caches.remove(packageName)
+        if (isSystemApp(context, packageName) &&
+                !Constants.miniWindowSystemAppsWhitelist.contains(packageName)) {
+            return
+        }
+
+        if (!newApp) {
+            availablePackages.remove(packageName)
+            caches.remove(packageName)
+        }
 
         if (newApp || isPackageInstalled(context, packageName)) {
             availablePackages.add(packageName)
@@ -96,6 +103,16 @@ object PackageInfoCache {
         try {
             return context.packageManager.getPackageInfo(packageName, 0)
                     .applicationInfo.enabled
+        } catch (e: NameNotFoundException) {
+            return false
+        }
+    }
+
+    private fun isSystemApp(context: Context, packageName: String): Boolean {
+        try {
+            context.packageManager.getPackageInfo(packageName, 0).applicationInfo.let {
+                return (it.flags and FLAG_SYSTEM) != 0 || (it.flags and FLAG_UPDATED_SYSTEM_APP) != 0
+            }
         } catch (e: NameNotFoundException) {
             return false
         }

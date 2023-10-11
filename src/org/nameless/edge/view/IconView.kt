@@ -39,8 +39,7 @@ class IconView(
 
     init {
         if (Constants.PACKAGE_NAME.equals(packageName)) {
-            context.resources.getDrawable(R.drawable.ic_more)?.let {
-                setBackgroundColor(context.resources.getColor(R.color.icon_all_apps_color))
+            context.resources.getDrawable(R.drawable.ic_more_app)?.let {
                 setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
                     cornerRadius = 1000f
                     setAntiAlias(true)

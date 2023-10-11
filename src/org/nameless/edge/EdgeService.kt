@@ -39,7 +39,7 @@ class EdgeService : Service() {
             stopSelf()
         }
 
-        handler.post { PackageInfoCache.initPackageList(this) }
+        PackageInfoCache.initPackageList(this)
 
         packageStateObserver = PackageStateObserver(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)

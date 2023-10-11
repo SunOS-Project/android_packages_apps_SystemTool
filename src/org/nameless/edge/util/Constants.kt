@@ -22,7 +22,7 @@ object Constants {
 
     val circleMaxIcon = 6  // Per app gap = 90° / (circleMaxIcon - 1)
 
-    val miniWindowSystemAppsWhitelist = listOf<String>(
+    val miniWindowSystemAppsWhitelist = setOf<String>(
         "com.android.chrome",
         "com.android.settings",
         "com.android.vending",

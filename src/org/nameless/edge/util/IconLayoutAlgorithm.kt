@@ -19,7 +19,8 @@ object IconLayoutAlgorithm {
     private val iconLayoutParams = LayoutParams().apply {
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
         format = PixelFormat.RGBA_8888
-        flags = LayoutParams.FLAG_NOT_TOUCHABLE
+        flags = LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                LayoutParams.FLAG_NOT_TOUCHABLE
         privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY
         gravity = Gravity.TOP or Gravity.LEFT
         layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
@@ -32,8 +33,14 @@ object IconLayoutAlgorithm {
         if (idx > total) {
             throw Exception("getIconCenterPos, index of icon cannot be larger than total icons!")
         }
-        val width = context.resources.displayMetrics.widthPixels
-        val height = context.resources.displayMetrics.heightPixels
+        var width = 0
+        var height = 0
+        ViewHolder.getWindowManager(context)?.currentWindowMetrics?.bounds?.let {
+            width = it.width()
+            height = it.height()
+        } ?: {
+            throw Exception("getIconCenterPos, WindowManager is null!")
+        }
         val radius = min(width, height) * Constants.circleRadiusRatio
         val iconRadius = min(width, height) * Constants.iconSizeRatio / 2
         var circleCenterX = if (width > height) Constants.circleCenterXLand else Constants.circleCenterXPort
@@ -52,8 +59,14 @@ object IconLayoutAlgorithm {
     }
 
     fun getIconRadius(context: Context): Int {
-        val width = context.resources.displayMetrics.widthPixels
-        val height = context.resources.displayMetrics.heightPixels
+        var width = 0
+        var height = 0
+        ViewHolder.getWindowManager(context)?.currentWindowMetrics?.bounds?.let {
+            width = it.width()
+            height = it.height()
+        } ?: {
+            throw Exception("getIconRadius, WindowManager is null!")
+        }
         var iconRadius = min(width, height) / 2 * Constants.iconSizeRatio
         return iconRadius.toInt()
     }

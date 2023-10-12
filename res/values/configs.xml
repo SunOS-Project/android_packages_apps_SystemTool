@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 Nameless-AOSP
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+
+    <integer name="gesture_min_time_threshold">200</integer>
+    <integer name="gesture_corner_deg_threshold">20</integer>
+
+    <dimen name="gestures_drag_threshold">55dp</dimen>
+
+</resources>

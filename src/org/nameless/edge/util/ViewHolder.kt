@@ -102,6 +102,8 @@ object ViewHolder {
         }
 
         logD(TAG, "showForAll: isLeft=$isLeft")
+        currentlyVisible = true
+
         views.forEach {
             it.postOnAnimation {
                 iconViewsShowing.add(it)
@@ -113,8 +115,6 @@ object ViewHolder {
         dimmerView?.postOnAnimation {
             dimmerView?.isVisible = true
         }
-
-        currentlyVisible = true
     }
 
     fun hideForAll() {
@@ -129,6 +129,8 @@ object ViewHolder {
         }
 
         logD(TAG, "hideForAll")
+        currentlyVisible = false
+
         iconViewsShowing.forEach {
             it.postOnAnimation {
                 it.animate().alpha(0f).setDuration(CROSSFADE_ANIMATION_DURATION).setListener(
@@ -147,7 +149,6 @@ object ViewHolder {
         }
 
         iconViewsShowing.clear()
-        currentlyVisible = false
     }
 
     fun safelyClearIconViews(context: Context) {

@@ -50,6 +50,7 @@ class DimmerView(context: Context) : View(context) {
             type = LayoutParams.TYPE_APPLICATION_OVERLAY
             format = PixelFormat.RGBA_8888
             flags = LayoutParams.FLAG_DIM_BEHIND or
+                    LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     LayoutParams.FLAG_NOT_FOCUSABLE
             layoutInDisplayCutoutMode =
                     LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

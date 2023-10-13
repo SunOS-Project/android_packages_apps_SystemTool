@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
+import android.provider.Settings.Secure.NAVIGATION_MODE
 import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
 import android.provider.Settings.System.EDGE_TOOL_GESTURE_ENABLED
 import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
@@ -45,7 +46,7 @@ class SettingsObserver(
             EDGE_TOOL_MINI_WINDOW_APPS -> {
                 updateMiniWindowApps()
             }
-            DISPLAY_RESOLUTION_WIDTH -> {
+            DISPLAY_RESOLUTION_WIDTH, NAVIGATION_MODE -> {
                 handler.postDelayed({
                     ViewHolder.relocateIconView(context)
                 }, 1000L)
@@ -95,6 +96,9 @@ class SettingsObserver(
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.System.getUriFor(DISPLAY_RESOLUTION_WIDTH),
+                false, this@SettingsObserver, UserHandle.USER_ALL)
+            registerContentObserver(
+                Settings.Secure.getUriFor(NAVIGATION_MODE),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
         }
         userSwitchReceiver.setListening(true)

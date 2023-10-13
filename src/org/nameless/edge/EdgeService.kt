@@ -137,6 +137,10 @@ class EdgeService : Service() {
             return
         }
         if (event.action == MotionEvent.ACTION_DOWN) {
+            if (!(settingsObserver?.isGestureEnabled() ?: true)) {
+                fromDown = false
+                return
+            }
             if ((event.x > touchRegionX.first && event.x < touchRegionX.second)
                     || event.y < touchRegionY) {
                 fromDown = false

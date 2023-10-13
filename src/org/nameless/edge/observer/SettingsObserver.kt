@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
 import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
+import android.provider.Settings.System.EDGE_TOOL_GESTURE_ENABLED
 import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
 
 import com.android.internal.util.nameless.UserSwitchReceiver
@@ -28,6 +29,8 @@ class SettingsObserver(
     private val handler: Handler
 ) : ContentObserver(handler) {
 
+    private var gestureEnabled = true
+
     private val userSwitchReceiver = object: UserSwitchReceiver(context) {
         override fun onUserSwitched() {
             updateAll()
@@ -36,6 +39,9 @@ class SettingsObserver(
 
     override fun onChange(selfChange: Boolean, uri: Uri) {
         when (uri.lastPathSegment) {
+            EDGE_TOOL_GESTURE_ENABLED -> {
+                updateGestureEnabled()
+            }
             EDGE_TOOL_MINI_WINDOW_APPS -> {
                 updateMiniWindowApps()
             }
@@ -45,6 +51,12 @@ class SettingsObserver(
                 }, 1000L)
             }
         }
+    }
+
+    private fun updateGestureEnabled() {
+        gestureEnabled = Settings.System.getIntForUser(
+            context.contentResolver, EDGE_TOOL_GESTURE_ENABLED,
+            1, UserHandle.USER_CURRENT) == 1
     }
 
     private fun updateMiniWindowApps() {
@@ -67,11 +79,17 @@ class SettingsObserver(
     }
 
     private fun updateAll() {
+        updateGestureEnabled()
         updateMiniWindowApps()
     }
 
+    fun isGestureEnabled() = gestureEnabled
+
     fun register() {
         context.contentResolver.run {
+            registerContentObserver(
+                Settings.System.getUriFor(EDGE_TOOL_GESTURE_ENABLED),
+                false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.System.getUriFor(EDGE_TOOL_MINI_WINDOW_APPS),
                 false, this@SettingsObserver, UserHandle.USER_ALL)

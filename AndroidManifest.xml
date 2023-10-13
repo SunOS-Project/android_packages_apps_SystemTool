@@ -35,6 +35,13 @@
             android:theme="@style/Theme.SubSettingsBase">
         </activity>
 
+        <activity
+            android:name=".ManageAppsActivity"
+            android:exported="true"
+            android:label="@string/manage_apps_title"
+            android:theme="@style/Theme.SubSettingsBase">
+        </activity>
+
         <service
             android:name=".EdgeService">
         </service>

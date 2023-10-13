@@ -23,7 +23,7 @@ import org.nameless.edge.view.GridItem
 import org.nameless.edge.view.GridItemAdapter
 import org.nameless.edge.view.IconView
 
-class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
+open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
 
     private var pinnedAppsGridView: GridView? = null
     private var allAppsGridView: GridView? = null
@@ -59,10 +59,12 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         }
         pinnedAppsGridView?.adapter = pinnedAppsAdapter
         pinnedAppSize = PickerDataCache.pinnedAppsItems.size
-        pinnedAppsGridView?.setOnItemClickListener { _, _, position, _ ->
-            IconView.sendMiniWindowBroadcast(this,
-                PickerDataCache.pinnedAppsItems[position].packageName)
-            finish()
+        if (allowStartApp()) {
+            pinnedAppsGridView?.setOnItemClickListener { _, _, position, _ ->
+                IconView.sendMiniWindowBroadcast(this,
+                    PickerDataCache.pinnedAppsItems[position].packageName)
+                finish()
+            }
         }
         pinnedAppsGridView?.setOnItemLongClickListener { _, _, position, _ ->
             pinnedAppsAdapter?.remove(position)?.let { item ->
@@ -92,10 +94,12 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         }
         allAppsGridView?.adapter = allAppsAdapter
         allAppsSize = PickerDataCache.allAppsItems.size
-        allAppsGridView?.setOnItemClickListener { _, _, position, _ ->
-            IconView.sendMiniWindowBroadcast(this,
-                PickerDataCache.allAppsItems[position].packageName)
-            finish()
+        if (allowStartApp()) {
+            allAppsGridView?.setOnItemClickListener { _, _, position, _ ->
+                IconView.sendMiniWindowBroadcast(this,
+                    PickerDataCache.allAppsItems[position].packageName)
+                finish()
+            }
         }
         allAppsGridView?.setOnItemLongClickListener { _, _, position, _ ->
             allAppsAdapter?.remove(position)?.let {
@@ -126,10 +130,14 @@ class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
 
     override fun onStop() {
         super.onStop()
-        if (!(powerManager?.isInteractive() ?: true)) {
+        if (finishOnStop() && !(powerManager?.isInteractive() ?: true)) {
             finish()
         }
     }
+
+    open fun allowStartApp() = true
+
+    open fun finishOnStop() = true
 
     private fun updatePinnedAppsSettings() {
         SettingsObserver.putMiniWindowAppsSettings(this, (pinnedPackages?: emptySet()).joinToString(";"))

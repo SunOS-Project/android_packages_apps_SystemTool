@@ -23,6 +23,7 @@ import kotlin.math.min
 
 import org.nameless.edge.consumer.AppCircleInputConsumer
 import org.nameless.edge.consumer.InputConsumer
+import org.nameless.edge.observer.GameStateReceiver
 import org.nameless.edge.observer.PackageStateObserver
 import org.nameless.edge.observer.ScreenStateReceiver
 import org.nameless.edge.observer.SettingsObserver
@@ -34,6 +35,7 @@ import org.nameless.edge.view.DimmerView
 
 class EdgeService : Service() {
 
+    private var gameStateReceiver: GameStateReceiver? = null
     private var packageStateObserver: PackageStateObserver? = null
     private var screenStateReceiver: ScreenStateReceiver? = null
     private var settingsObserver: SettingsObserver? = null
@@ -66,12 +68,14 @@ class EdgeService : Service() {
 
         PackageInfoCache.initPackageList(this)
 
+        gameStateReceiver = GameStateReceiver(this, handler)
         packageStateObserver = PackageStateObserver(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)
         settingsObserver = SettingsObserver(this, handler)
         systemStateReceiver = SystemStateReceiver(this, handler)
 
         settingsObserver?.register()
+        gameStateReceiver?.register()
         screenStateReceiver?.register()
         systemStateReceiver?.register()
         packageStateObserver?.register()
@@ -88,6 +92,7 @@ class EdgeService : Service() {
         packageStateObserver?.unregister()
         systemStateReceiver?.unregister()
         screenStateReceiver?.unregister()
+        gameStateReceiver?.unregister()
         settingsObserver?.unregister()
 
         super.onDestroy()
@@ -142,12 +147,16 @@ class EdgeService : Service() {
             return
         }
         if (event.action == MotionEvent.ACTION_DOWN) {
+            if ((event.x > touchRegionX.first && event.x < touchRegionX.second)
+                    || event.y < touchRegionY) {
+                fromDown = false
+                return
+            }
             if (!(settingsObserver?.isGestureEnabled() ?: true)) {
                 fromDown = false
                 return
             }
-            if ((event.x > touchRegionX.first && event.x < touchRegionX.second)
-                    || event.y < touchRegionY) {
+            if (gameStateReceiver?.isInGameMode() ?: false) {
                 fromDown = false
                 return
             }

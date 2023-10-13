@@ -26,6 +26,7 @@ import org.nameless.edge.consumer.InputConsumer
 import org.nameless.edge.observer.PackageStateObserver
 import org.nameless.edge.observer.ScreenStateReceiver
 import org.nameless.edge.observer.SettingsObserver
+import org.nameless.edge.observer.SystemStateReceiver
 import org.nameless.edge.util.Constants
 import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
@@ -36,6 +37,7 @@ class EdgeService : Service() {
     private var packageStateObserver: PackageStateObserver? = null
     private var screenStateReceiver: ScreenStateReceiver? = null
     private var settingsObserver: SettingsObserver? = null
+    private var systemStateReceiver: SystemStateReceiver? = null
 
     private var inputEventReceiver: InputEventReceiver? = null
     private var inputMonitorCompat: InputMonitorCompat? = null
@@ -67,9 +69,11 @@ class EdgeService : Service() {
         packageStateObserver = PackageStateObserver(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)
         settingsObserver = SettingsObserver(this, handler)
+        systemStateReceiver = SystemStateReceiver(this, handler)
 
         settingsObserver?.register()
         screenStateReceiver?.register()
+        systemStateReceiver?.register()
         packageStateObserver?.register()
 
         updateGestureTouchRegion()
@@ -82,6 +86,7 @@ class EdgeService : Service() {
         disposeEventHandlers()
 
         packageStateObserver?.unregister()
+        systemStateReceiver?.unregister()
         screenStateReceiver?.unregister()
         settingsObserver?.unregister()
 

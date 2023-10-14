@@ -31,7 +31,6 @@ class DimmerView(context: Context) : View(context) {
         }
     })
 
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?: return true
         ViewHolder.iconViewsShowing.forEach {

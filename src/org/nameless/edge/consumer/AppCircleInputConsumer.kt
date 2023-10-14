@@ -119,6 +119,6 @@ class AppCircleInputConsumer(
     }
 
     public fun squaredHypot(x: Float, y: Float): Float {
-        return x * x + y * y;
+        return x * x + y * y
     }
 }

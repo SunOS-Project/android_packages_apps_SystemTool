@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.SystemClock
 import android.os.UserHandle
 import android.view.HapticFeedbackConstants
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.ImageView
 
@@ -55,6 +56,16 @@ class IconView(
         }
         scaleX = 1f / Constants.iconFocusedScaleRatio
         scaleY = 1f / Constants.iconFocusedScaleRatio
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (ViewHolder.currentlyVisible &&
+                event.keyCode == KeyEvent.KEYCODE_BACK &&
+                event.action == KeyEvent.ACTION_UP) {
+            ViewHolder.hideForAll()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {

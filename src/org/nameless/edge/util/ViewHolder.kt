@@ -8,7 +8,6 @@ package org.nameless.edge.util
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.content.res.Configuration.ORIENTATION_UNDEFINED
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 
@@ -31,8 +30,6 @@ object ViewHolder {
     private val iconViewsLeft: MutableList<IconView> = mutableListOf()
     private val iconViewsRight: MutableList<IconView> = mutableListOf()
     val iconViewsShowing: MutableList<IconView> = mutableListOf()
-
-    private var lastOrientation = ORIENTATION_UNDEFINED
 
     var currentlyVisible = false
     var allowVisible = true
@@ -198,11 +195,8 @@ object ViewHolder {
         }
     }
 
-    fun onScreenOrientationChanged(context: Context, newOrientation: Int) {
-        if (newOrientation != lastOrientation) {
-            lastOrientation = newOrientation
-            relocateIconView(context)
-        }
+    fun onScreenRotationChanged(context: Context) {
+        relocateIconView(context)
     }
 
     fun relocateIconView(context: Context) {

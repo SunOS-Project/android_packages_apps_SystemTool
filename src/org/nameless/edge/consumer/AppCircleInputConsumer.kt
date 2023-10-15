@@ -16,6 +16,7 @@ import com.android.systemui.shared.system.InputMonitorCompat
 import java.util.function.Consumer
 
 import org.nameless.edge.R
+import org.nameless.edge.util.IconLayoutAlgorithm
 import org.nameless.edge.util.ViewHolder
 
 class AppCircleInputConsumer(
@@ -57,6 +58,7 @@ class AppCircleInputConsumer(
                 downPos.set(ev.x, ev.y)
                 lastPos.set(downPos)
                 timeFraction = 0f
+                ViewHolder.dimmerView?.offsetX = IconLayoutAlgorithm.navbarHeight
             }
             MotionEvent.ACTION_MOVE -> {
                 if (ViewHolder.currentlyVisible) {
@@ -90,6 +92,7 @@ class AppCircleInputConsumer(
                 if (ViewHolder.currentlyVisible) {
                     ViewHolder.dimmerView?.onTouchEvent(ev)
                 }
+                ViewHolder.dimmerView?.offsetX = 0
                 passedSlop = false
             }
         }

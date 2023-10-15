@@ -20,6 +20,8 @@ import org.nameless.wm.PopUpDebugHelper.logE
 
 class DimmerView(context: Context) : View(context) {
 
+    var offsetX = 0
+
     init {
         ViewHolder.dimmerView = this
     }
@@ -34,7 +36,7 @@ class DimmerView(context: Context) : View(context) {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?: return true
         ViewHolder.iconViewsShowing.forEach {
-            if (it.inTouchRegion(event.x, event.y)) {
+            if (it.inTouchRegion(event.x - offsetX, event.y)) {
                 return it.onTouchEvent(event)
             }
             it.resetState()

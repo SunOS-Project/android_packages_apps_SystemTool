@@ -25,6 +25,7 @@ import org.nameless.edge.consumer.AppCircleInputConsumer
 import org.nameless.edge.consumer.InputConsumer
 import org.nameless.edge.observer.GameStateReceiver
 import org.nameless.edge.observer.PackageStateObserver
+import org.nameless.edge.observer.RotationWatcher
 import org.nameless.edge.observer.ScreenStateReceiver
 import org.nameless.edge.observer.SettingsObserver
 import org.nameless.edge.observer.SystemStateReceiver
@@ -37,6 +38,7 @@ class EdgeService : Service() {
 
     private var gameStateReceiver: GameStateReceiver? = null
     private var packageStateObserver: PackageStateObserver? = null
+    private var rotationWatcher: RotationWatcher? = null
     private var screenStateReceiver: ScreenStateReceiver? = null
     private var settingsObserver: SettingsObserver? = null
     private var systemStateReceiver: SystemStateReceiver? = null
@@ -70,10 +72,12 @@ class EdgeService : Service() {
 
         gameStateReceiver = GameStateReceiver(this, handler)
         packageStateObserver = PackageStateObserver(this, handler)
+        rotationWatcher = RotationWatcher(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)
         settingsObserver = SettingsObserver(this, handler)
         systemStateReceiver = SystemStateReceiver(this, handler)
 
+        rotationWatcher?.startWatch()
         settingsObserver?.register()
         gameStateReceiver?.register()
         screenStateReceiver?.register()
@@ -94,12 +98,13 @@ class EdgeService : Service() {
         screenStateReceiver?.unregister()
         gameStateReceiver?.unregister()
         settingsObserver?.unregister()
+        rotationWatcher?.stopWatch()
 
         super.onDestroy()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        ViewHolder.onScreenOrientationChanged(this, newConfig.orientation)
+    fun onDisplayRotated() {
+        ViewHolder.onScreenRotationChanged(this)
         updateGestureTouchRegion()
     }
 

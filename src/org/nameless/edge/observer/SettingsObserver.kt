@@ -23,6 +23,7 @@ import kotlin.math.min
 import org.nameless.edge.EdgeService
 import org.nameless.edge.PickerDataCache
 import org.nameless.edge.util.Constants
+import org.nameless.edge.util.IconLayoutAlgorithm
 import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 
@@ -49,6 +50,7 @@ class SettingsObserver(
             }
             DISPLAY_RESOLUTION_WIDTH, NAVIGATION_MODE -> {
                 handler.postDelayed({
+                    updateNavbarHeight()
                     ViewHolder.relocateIconView(service)
                     service.updateGestureTouchRegion()
                 }, 1000L)
@@ -81,9 +83,15 @@ class SettingsObserver(
         ViewHolder.addIconView(service, Constants.PACKAGE_NAME, total, total)
     }
 
+    private fun updateNavbarHeight() {
+        IconLayoutAlgorithm.gesturalMode = isGesturalMode(service)
+        IconLayoutAlgorithm.updateNarbarHeight(service)
+    }
+
     private fun updateAll() {
         updateGestureEnabled()
         updateMiniWindowApps()
+        updateNavbarHeight()
     }
 
     fun isGestureEnabled() = gestureEnabled
@@ -113,6 +121,8 @@ class SettingsObserver(
     }
 
     companion object {
+        private val GESTURAL_MODE = 2
+
         fun getMiniWindowAppsSettings(context: Context): String? {
             return Settings.System.getStringForUser(context.contentResolver,
                 EDGE_TOOL_MINI_WINDOW_APPS, UserHandle.USER_CURRENT)
@@ -130,6 +140,12 @@ class SettingsObserver(
                         PackageInfoCache.isPackageAvailable(it)
                     }?: emptyList()).forEach { app -> add(app) }
             }
+        }
+
+        private fun isGesturalMode(context: Context): Boolean {
+            return Settings.Secure.getIntForUser(context.contentResolver,
+                NAVIGATION_MODE, GESTURAL_MODE, UserHandle.USER_CURRENT
+            ) == GESTURAL_MODE
         }
     }
 }

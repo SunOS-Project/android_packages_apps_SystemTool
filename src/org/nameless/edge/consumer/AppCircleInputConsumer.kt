@@ -7,7 +7,6 @@ package org.nameless.edge.consumer
 
 import android.content.Context
 import android.graphics.PointF
-import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 
@@ -31,20 +30,15 @@ class AppCircleInputConsumer(
     private var passedSlop = false
 
     private var distance = 0f
-    private var timeFraction = 0f
-
-    private var dragTime = 0L
 
     private val angleThreshold: Int
     private val dragDistThreshold: Float
     private val squaredSlop: Float
-    private val timeThreshold: Long
 
     init {
         context.resources.let { res ->
             angleThreshold = res.getInteger(R.integer.gesture_corner_deg_threshold)
             dragDistThreshold = res.getDimension(R.dimen.gestures_drag_threshold)
-            timeThreshold = res.getInteger(R.integer.gesture_min_time_threshold).toLong()
         }
 
         ViewConfiguration.get(context).scaledTouchSlop.toFloat().let {
@@ -57,7 +51,6 @@ class AppCircleInputConsumer(
             MotionEvent.ACTION_DOWN -> {
                 downPos.set(ev.x, ev.y)
                 lastPos.set(downPos)
-                timeFraction = 0f
                 ViewHolder.dimmerView?.offsetX = IconLayoutAlgorithm.navbarHeight
             }
             MotionEvent.ACTION_MOVE -> {
@@ -71,7 +64,6 @@ class AppCircleInputConsumer(
                     if (squaredHypot(lastPos.x - downPos.x, lastPos.y - downPos.y) > squaredSlop) {
                         passedSlop = true
                         startDragPos.set(lastPos.x, lastPos.y)
-                        dragTime = SystemClock.uptimeMillis()
                         if (isValidGestureAngle(downPos.x - lastPos.x, downPos.y - lastPos.y)) {
                             setActive(ev)
                         }
@@ -82,8 +74,6 @@ class AppCircleInputConsumer(
                         (lastPos.x - startDragPos.x).toDouble(),
                         (lastPos.y - startDragPos.y).toDouble()).toFloat()
                     if (distance >= 0) {
-                        val diff = SystemClock.uptimeMillis() - dragTime
-                        timeFraction = Math.min(diff * 1f / timeThreshold, 1f)
                         maybeShowDimmerView(ev, fromLeft)
                     }
                 }
@@ -103,8 +93,7 @@ class AppCircleInputConsumer(
     }
 
     private fun maybeShowDimmerView(ev: MotionEvent, fromLeft: Boolean) {
-        if (distance >= dragDistThreshold && timeFraction >= 1f
-                    && !ViewHolder.currentlyVisible) {
+        if (distance >= dragDistThreshold && !ViewHolder.currentlyVisible) {
             ViewHolder.showForAll(fromLeft)
         }
     }

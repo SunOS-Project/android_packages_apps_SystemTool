@@ -9,8 +9,8 @@ object Constants {
 
     val PACKAGE_NAME = "org.nameless.edge"
 
-    val gestureRegionShort = 0.135f  // 1440 * gestureRegionShort
-    val gestureRegionLong = 0.042f  // 3168 * gestureRegionLong
+    val gestureRegionShort = 0.145f  // 1440 * gestureRegionShort
+    val gestureRegionLong = 0.045f  // 3168 * gestureRegionLong
 
     val iconSizeRatio = 0.115f  // 132 / 1440 * iconFocusedScaleRatio
 

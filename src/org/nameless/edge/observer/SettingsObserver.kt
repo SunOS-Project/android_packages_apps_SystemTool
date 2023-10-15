@@ -20,19 +20,20 @@ import com.android.internal.util.nameless.UserSwitchReceiver
 
 import kotlin.math.min
 
+import org.nameless.edge.EdgeService
 import org.nameless.edge.PickerDataCache
 import org.nameless.edge.util.Constants
 import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 
 class SettingsObserver(
-    private val context: Context,
+    private val service: EdgeService,
     private val handler: Handler
 ) : ContentObserver(handler) {
 
     private var gestureEnabled = true
 
-    private val userSwitchReceiver = object: UserSwitchReceiver(context) {
+    private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
             updateAll()
         }
@@ -48,7 +49,8 @@ class SettingsObserver(
             }
             DISPLAY_RESOLUTION_WIDTH, NAVIGATION_MODE -> {
                 handler.postDelayed({
-                    ViewHolder.relocateIconView(context)
+                    ViewHolder.relocateIconView(service)
+                    service.updateGestureTouchRegion()
                 }, 1000L)
             }
         }
@@ -56,14 +58,14 @@ class SettingsObserver(
 
     private fun updateGestureEnabled() {
         gestureEnabled = Settings.System.getIntForUser(
-            context.contentResolver, EDGE_TOOL_GESTURE_ENABLED,
+            service.contentResolver, EDGE_TOOL_GESTURE_ENABLED,
             1, UserHandle.USER_CURRENT) == 1
     }
 
     private fun updateMiniWindowApps() {
-        ViewHolder.safelyClearIconViews(context)
+        ViewHolder.safelyClearIconViews(service)
 
-        val validAppList = getMiniWindowAppsSettings(context)
+        val validAppList = getMiniWindowAppsSettings(service)
             ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
                 PackageInfoCache.isPackageAvailable(it) }?: emptyList()
 
@@ -74,9 +76,9 @@ class SettingsObserver(
             if (i >= Constants.circleMaxIcon - 1) {
                 return@forEachIndexed
             }
-            ViewHolder.addIconView(context, v, i + 1, total)
+            ViewHolder.addIconView(service, v, i + 1, total)
         }
-        ViewHolder.addIconView(context, Constants.PACKAGE_NAME, total, total)
+        ViewHolder.addIconView(service, Constants.PACKAGE_NAME, total, total)
     }
 
     private fun updateAll() {
@@ -87,7 +89,7 @@ class SettingsObserver(
     fun isGestureEnabled() = gestureEnabled
 
     fun register() {
-        context.contentResolver.run {
+        service.contentResolver.run {
             registerContentObserver(
                 Settings.System.getUriFor(EDGE_TOOL_GESTURE_ENABLED),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
@@ -107,7 +109,7 @@ class SettingsObserver(
 
     fun unregister() {
         userSwitchReceiver.setListening(false)
-        context.contentResolver.unregisterContentObserver(this)
+        service.contentResolver.unregisterContentObserver(this)
     }
 
     companion object {

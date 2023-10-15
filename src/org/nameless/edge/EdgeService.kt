@@ -103,7 +103,7 @@ class EdgeService : Service() {
         updateGestureTouchRegion()
     }
 
-    private fun updateGestureTouchRegion() {
+    fun updateGestureTouchRegion() {
         var width = 0
         var height = 0
         ViewHolder.getWindowManager(this)?.currentWindowMetrics?.bounds?.let {

@@ -27,6 +27,7 @@ object PackageInfoCache {
 
     fun initPackageList(context: Context) {
         availablePackages.clear()
+        caches.clear()
 
         context.packageManager.getInstalledPackages(0).filter {
             Constants.miniWindowSystemAppsWhitelist.contains(it.packageName) ||

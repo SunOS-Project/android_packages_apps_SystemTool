@@ -38,6 +38,7 @@ class SettingsObserver(
 
     private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
+            PackageInfoCache.initPackageList(service)
             updateAll()
         }
     }

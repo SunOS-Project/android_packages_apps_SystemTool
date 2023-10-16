@@ -100,6 +100,9 @@ class EdgeService : Service() {
         settingsObserver?.unregister()
         rotationWatcher?.stopWatch()
 
+        ViewHolder.safelyClearIconViews(this)
+        ViewHolder.removeDimmerView(this)
+
         super.onDestroy()
     }
 

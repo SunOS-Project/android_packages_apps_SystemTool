@@ -30,7 +30,7 @@ class GameStateReceiver(
     }
 
     fun register() {
-        context.registerReceiver(this, IntentFilter().apply {
+        context.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(INTENT_GAME_SPACE_ENTER)
             addAction(INTENT_GAME_SPACE_STOP)
         }, null, handler)

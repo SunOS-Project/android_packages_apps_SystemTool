@@ -47,7 +47,7 @@ class ScreenStateReceiver(
     }
 
     fun register() {
-        context.registerReceiver(this, IntentFilter().apply {
+        context.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_SCREEN_OFF)
             addAction(ACTION_SCREEN_ON)
             addAction(ACTION_USER_PRESENT)

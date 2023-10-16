@@ -81,6 +81,22 @@ object ViewHolder {
         }
     }
 
+    fun removeDimmerView(context: Context) {
+        if (dimmerView == null) {
+            return
+        }
+        if (getWindowManager(context) == null) {
+            logE(TAG, "Failed to removeDimmerView: WindowManager is null")
+            return
+        }
+        try {
+            wm?.removeView(dimmerView)
+            logD(TAG, "removeDimmerView")
+        } catch (e: Exception) {
+            logE(TAG, "Exception on removeDimmerView")
+        }
+    }
+
     fun showForAll(isLeft: Boolean) {
         if (!allowVisible) {
             logD(TAG, "showForAll: Set visible is disabled, return early")

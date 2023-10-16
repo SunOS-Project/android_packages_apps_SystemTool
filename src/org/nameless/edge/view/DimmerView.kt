@@ -53,6 +53,7 @@ class DimmerView(context: Context) : View(context) {
             flags = LayoutParams.FLAG_DIM_BEHIND or
                     LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     LayoutParams.FLAG_NOT_FOCUSABLE
+            privateFlags = LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
             layoutInDisplayCutoutMode =
                     LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             dimAmount = 0.4f

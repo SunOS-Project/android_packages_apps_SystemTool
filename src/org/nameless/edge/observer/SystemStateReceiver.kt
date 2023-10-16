@@ -28,7 +28,7 @@ class SystemStateReceiver(
     }
 
     fun register() {
-        context.registerReceiver(this, IntentFilter().apply {
+        context.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
         }, null, handler)
     }

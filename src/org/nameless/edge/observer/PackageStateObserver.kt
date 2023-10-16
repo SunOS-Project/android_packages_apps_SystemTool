@@ -38,7 +38,7 @@ class PackageStateObserver(
     }
 
     fun register() {
-        context.registerReceiver(this, IntentFilter().apply {
+        context.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_PACKAGE_ADDED)
             addAction(ACTION_PACKAGE_CHANGED)
             addAction(ACTION_PACKAGE_FULLY_REMOVED)

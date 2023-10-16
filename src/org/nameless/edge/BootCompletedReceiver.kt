@@ -13,6 +13,6 @@ import android.os.UserHandle
 class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        context.startServiceAsUser(Intent(context, EdgeService::class.java), UserHandle.SYSTEM)
+        context.startServiceAsUser(Intent(context, EdgeService::class.java), UserHandle.CURRENT)
     }
 }

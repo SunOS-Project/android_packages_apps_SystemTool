@@ -21,7 +21,8 @@ object IconLayoutAlgorithm {
         format = PixelFormat.RGBA_8888
         flags = LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 LayoutParams.FLAG_NOT_TOUCHABLE
-        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY
+        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+                       LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
         gravity = Gravity.TOP or Gravity.LEFT
         layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
     }

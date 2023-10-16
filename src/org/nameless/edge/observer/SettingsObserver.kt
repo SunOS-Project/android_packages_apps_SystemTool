@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
 import android.provider.Settings.Secure.NAVIGATION_MODE
+import android.provider.Settings.Secure.USER_SETUP_COMPLETE
 import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
 import android.provider.Settings.System.EDGE_TOOL_GESTURE_ENABLED
 import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
@@ -33,6 +34,7 @@ class SettingsObserver(
 ) : ContentObserver(handler) {
 
     private var gestureEnabled = true
+    private var userSetuped = false
 
     private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
@@ -42,6 +44,9 @@ class SettingsObserver(
 
     override fun onChange(selfChange: Boolean, uri: Uri) {
         when (uri.lastPathSegment) {
+            USER_SETUP_COMPLETE -> {
+                updateUserSetuped()
+            }
             EDGE_TOOL_GESTURE_ENABLED -> {
                 updateGestureEnabled()
             }
@@ -56,6 +61,12 @@ class SettingsObserver(
                 }, 1000L)
             }
         }
+    }
+
+    private fun updateUserSetuped() {
+        userSetuped = Settings.Secure.getIntForUser(
+            service.contentResolver, USER_SETUP_COMPLETE,
+            0, UserHandle.USER_CURRENT) == 1
     }
 
     private fun updateGestureEnabled() {
@@ -89,15 +100,21 @@ class SettingsObserver(
     }
 
     private fun updateAll() {
+        updateUserSetuped()
         updateGestureEnabled()
         updateMiniWindowApps()
         updateNavbarHeight()
     }
 
+    fun isUserSetuped() = userSetuped
+
     fun isGestureEnabled() = gestureEnabled
 
     fun register() {
         service.contentResolver.run {
+            registerContentObserver(
+                Settings.Secure.getUriFor(USER_SETUP_COMPLETE),
+                false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.System.getUriFor(EDGE_TOOL_GESTURE_ENABLED),
                 false, this@SettingsObserver, UserHandle.USER_ALL)

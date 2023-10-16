@@ -157,6 +157,10 @@ class EdgeService : Service() {
                 fromDown = false
                 return
             }
+            if (!(settingsObserver?.isUserSetuped() ?: true)) {
+                fromDown = false
+                return
+            }
             if (!(settingsObserver?.isGestureEnabled() ?: true)) {
                 fromDown = false
                 return

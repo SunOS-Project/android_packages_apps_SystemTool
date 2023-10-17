@@ -14,6 +14,7 @@ import android.view.WindowManagerGlobal
 
 import org.nameless.edge.EdgeService
 import org.nameless.edge.util.IconLayoutAlgorithm
+import org.nameless.edge.util.ViewHolder
 import org.nameless.wm.PopUpDebugHelper.logE
 
 class RotationWatcher(
@@ -24,6 +25,7 @@ class RotationWatcher(
     var displayRotation = Surface.ROTATION_0
 
     override fun onRotationChanged(rotation: Int) {
+        ViewHolder.hideForAll()
         handler.postDelayed({
             if (rotation != displayRotation) {
                 displayRotation = rotation

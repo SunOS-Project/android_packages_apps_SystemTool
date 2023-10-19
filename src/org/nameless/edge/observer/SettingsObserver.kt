@@ -58,7 +58,6 @@ class SettingsObserver(
                 handler.postDelayed({
                     updateNavbarHeight()
                     ViewHolder.relocateIconView(service)
-                    service.updateGestureTouchRegion()
                 }, 1000L)
             }
         }

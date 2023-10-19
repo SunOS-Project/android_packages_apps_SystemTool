@@ -21,7 +21,6 @@ android_app {
     ],
     system_ext_specific: true,
     static_libs: [
-        "SystemUISharedLib",
         "androidx.core_core-ktx",
     ],
 }

@@ -55,7 +55,7 @@ class RotationWatcher(
         IconLayoutAlgorithm.rotationNeedsConsumeNavbar =
                 displayRotation == Surface.ROTATION_270
         IconLayoutAlgorithm.updateNarbarHeight(service)
-        service.onDisplayRotated()
+        ViewHolder.onScreenRotationChanged(service)
     }
 
     companion object {

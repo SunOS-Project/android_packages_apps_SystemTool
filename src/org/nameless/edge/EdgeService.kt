@@ -16,6 +16,7 @@ import org.nameless.edge.observer.RotationWatcher
 import org.nameless.edge.observer.ScreenStateReceiver
 import org.nameless.edge.observer.SettingsObserver
 import org.nameless.edge.observer.SystemStateReceiver
+import org.nameless.edge.observer.WindowModeGestureListener
 import org.nameless.edge.util.PackageInfoCache
 import org.nameless.edge.util.ViewHolder
 import org.nameless.edge.view.DimmerView
@@ -28,6 +29,7 @@ class EdgeService : Service() {
     private var screenStateReceiver: ScreenStateReceiver? = null
     private var settingsObserver: SettingsObserver? = null
     private var systemStateReceiver: SystemStateReceiver? = null
+    private var windowModeGestureListener: WindowModeGestureListener? = null
 
     private val handler = Handler()
 
@@ -50,6 +52,7 @@ class EdgeService : Service() {
         screenStateReceiver = ScreenStateReceiver(this, handler)
         settingsObserver = SettingsObserver(this, handler)
         systemStateReceiver = SystemStateReceiver(this, handler)
+        windowModeGestureListener = WindowModeGestureListener(this)
 
         rotationWatcher?.startWatch()
         settingsObserver?.register()
@@ -57,9 +60,11 @@ class EdgeService : Service() {
         screenStateReceiver?.register()
         systemStateReceiver?.register()
         packageStateObserver?.register()
+        windowModeGestureListener?.register()
     }
 
     override fun onDestroy() {
+        windowModeGestureListener?.unregister()
         packageStateObserver?.unregister()
         systemStateReceiver?.unregister()
         screenStateReceiver?.unregister()
@@ -71,5 +76,21 @@ class EdgeService : Service() {
         ViewHolder.removeDimmerView(this)
 
         super.onDestroy()
+    }
+
+    fun isGestureEnabled(): Boolean {
+        if (!(settingsObserver?.isUserSetuped() ?: true)) {
+            return false
+        }
+        if (!(settingsObserver?.isGestureEnabled() ?: true)) {
+            return false
+        }
+        if (gameStateReceiver?.isInGameMode() ?: false) {
+            return false
+        }
+        if (!ViewHolder.allowVisible) {
+            return false
+        }
+        return true
     }
 }

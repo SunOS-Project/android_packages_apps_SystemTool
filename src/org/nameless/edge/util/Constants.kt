@@ -9,11 +9,11 @@ object Constants {
 
     val PACKAGE_NAME = "org.nameless.edge"
 
-    val iconSizeRatio = 0.115f  // 132 / 1440 * iconFocusedScaleRatio
+    val iconSizeRatio = 0.123f  // 142 / 1440 * iconFocusedScaleRatio
 
     val iconFocusedScaleRatio = 1.25f
 
-    val circleRadiusRatio = 0.6f  // r = min(screenWidth, screenHeight) * circleRadiusRatio
+    val circleRadiusRatio = 0.64f  // r = min(screenWidth, screenHeight) * circleRadiusRatio
 
     val circleCenterXPort = 1.04f
     val circleCenterXLand = 1.0f

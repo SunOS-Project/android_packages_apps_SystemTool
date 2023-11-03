@@ -5,7 +5,6 @@
 android_app {
     name: "EdgeTool",
     certificate: "platform",
-    defaults: ["SettingsLibDefaults"],
     optimize: {
         enabled: true,
         obfuscate: true,
@@ -21,6 +20,7 @@ android_app {
     ],
     system_ext_specific: true,
     static_libs: [
+        "SettingsLib",
         "androidx.core_core-ktx",
     ],
 }

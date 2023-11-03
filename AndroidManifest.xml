@@ -32,14 +32,14 @@
             android:name=".AllAppsPickerActivity"
             android:exported="true"
             android:label="@string/all_apps_picker_title"
-            android:theme="@style/Theme.SubSettingsBase">
+            android:theme="@android:style/Theme.DeviceDefault.Settings">
         </activity>
 
         <activity
             android:name=".ManageAppsActivity"
             android:exported="true"
             android:label="@string/manage_apps_title"
-            android:theme="@style/Theme.SubSettingsBase">
+            android:theme="@android:style/Theme.DeviceDefault.Settings">
         </activity>
 
         <service

@@ -5,14 +5,13 @@
 
 package org.nameless.edge
 
+import android.app.Activity
 import android.os.Bundle
 import android.os.PowerManager
 import android.widget.GridView
 import android.widget.TextView
 
 import androidx.core.view.isVisible
-
-import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 
 import org.nameless.edge.R
 import org.nameless.edge.observer.SettingsObserver
@@ -23,7 +22,7 @@ import org.nameless.edge.view.GridItem
 import org.nameless.edge.view.GridItemAdapter
 import org.nameless.edge.view.IconView
 
-open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
+open class AllAppsPickerActivity : Activity() {
 
     private var pinnedAppsGridView: GridView? = null
     private var allAppsGridView: GridView? = null

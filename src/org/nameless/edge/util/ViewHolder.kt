@@ -17,6 +17,7 @@ import androidx.core.view.isVisible
 
 import org.nameless.edge.view.DimmerView
 import org.nameless.edge.view.IconView
+import org.nameless.wm.AppFocusManager
 import org.nameless.wm.PopUpDebugHelper.logD
 import org.nameless.wm.PopUpDebugHelper.logE
 
@@ -30,6 +31,7 @@ object ViewHolder {
 
     private const val ROTATE_REBOUND_ANGLE = 30f
 
+    private var afm: AppFocusManager? = null
     private var wm: WindowManager? = null
 
     var dimmerView: DimmerView? = null
@@ -39,6 +41,13 @@ object ViewHolder {
 
     var currentlyVisible = false
     var allowVisible = true
+
+    private fun getAppFocusManager(context: Context): AppFocusManager? {
+        if (afm == null) {
+            afm = context.getSystemService(AppFocusManager::class.java)
+        }
+        return afm
+    }
 
     fun getWindowManager(context: Context): WindowManager? {
         if (wm == null) {
@@ -162,6 +171,15 @@ object ViewHolder {
             }
         }
         dimmerView?.postOnAnimation {
+            dimmerView?.layoutParams =
+                (dimmerView?.layoutParams as LayoutParams)?.apply {
+                    if (getAppFocusManager(dimmerView!!.context)?.hasMiniWindowFocus() ?: false) {
+                        flags = flags and LayoutParams.FLAG_DIM_BEHIND.inv()
+                    } else {
+                        flags = flags or LayoutParams.FLAG_DIM_BEHIND
+                    }
+                }
+            wm.updateViewLayout(dimmerView, dimmerView!!.layoutParams)
             dimmerView?.isVisible = true
         }
     }

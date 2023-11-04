@@ -71,8 +71,10 @@ class WindowModeGestureListener(
         }
         if (!triggered) {
             triggered = true
-            ViewHolder.getWindowManager(service)?.currentWindowMetrics?.bounds?.let {
-                ViewHolder.showForAll(event.x <= it.width() / 2)
+            ViewHolder.getWindowManager(service)?.let {
+                it.currentWindowMetrics.bounds.let { bound ->
+                    ViewHolder.showForAll(event.x <= bound.width() / 2, it, bound)
+                }
             }
         } else if (ViewHolder.currentlyVisible) {
             ViewHolder.dimmerView?.post {

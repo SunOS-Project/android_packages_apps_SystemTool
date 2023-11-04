@@ -20,6 +20,7 @@ object IconLayoutAlgorithm {
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
         format = PixelFormat.RGBA_8888
         flags = LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 LayoutParams.FLAG_NOT_TOUCHABLE
         privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
                        LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS

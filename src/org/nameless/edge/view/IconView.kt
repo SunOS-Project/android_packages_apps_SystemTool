@@ -5,6 +5,8 @@
 
 package org.nameless.edge.view
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
@@ -14,6 +16,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.ImageView
 
+import androidx.core.animation.doOnEnd
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
 
@@ -36,7 +39,11 @@ class IconView(
 
     private var fromDown = false
     private var focused = false
+    private var scalingUp = false
+    private var scalingDown = false
     private var downTime = 0L
+
+    private var animatorSet: AnimatorSet? = null
 
     init {
         if (Constants.PACKAGE_NAME.equals(packageName)) {
@@ -82,9 +89,7 @@ class IconView(
 
                     if (!fromDown || SystemClock.uptimeMillis() - downTime >= FOCUSE_MIN_TIME_ON_DOWN) {
                         focused = true
-                        animate().scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(SCALE_ANIMATION_DURATION)
+                        playScaleUpAnimation()
                     }
                 }
             }
@@ -102,14 +107,51 @@ class IconView(
         return true
     }
 
+    fun playScaleUpAnimation() {
+        if (scalingDown) {
+            animatorSet?.removeAllListeners()
+            animatorSet?.cancel()
+            scalingDown = false
+        }
+        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX, 1f)
+            .setDuration(SCALE_ANIMATION_DURATION)
+        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY, 1f)
+            .setDuration(SCALE_ANIMATION_DURATION)
+        animatorSet = AnimatorSet().also {
+            it.playTogether(scaleXAnim, scaleYAnim)
+            it.doOnEnd {
+                if (!focused) {
+                    playScaleDownAnimation()
+                }
+                scalingUp = false
+            }
+            scalingUp = true
+            it.start()
+        }
+    }
+
+    fun playScaleDownAnimation() {
+        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX, 1f / Constants.iconFocusedScaleRatio)
+            .setDuration(SCALE_ANIMATION_DURATION)
+        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY, 1f / Constants.iconFocusedScaleRatio)
+            .setDuration(SCALE_ANIMATION_DURATION)
+        animatorSet = AnimatorSet().also {
+            it.playTogether(scaleXAnim, scaleYAnim)
+            it.doOnEnd {
+                scalingDown = false
+            }
+            scalingDown = true
+            it.start()
+        }
+    }
+
     fun resetState() {
         if (focused) {
             fromDown = false
             focused = false
-
-            animate().scaleX(1f / Constants.iconFocusedScaleRatio)
-                .scaleY(1f / Constants.iconFocusedScaleRatio)
-                .setDuration(SCALE_ANIMATION_DURATION)
+            if (!scalingUp) {
+                playScaleDownAnimation()
+            }
         }
     }
 

@@ -75,6 +75,6 @@ class PackageStateObserver(
     }
 
     companion object {
-        private val TAG = "EdgeTool::PackageStateObserver"
+        private const val TAG = "EdgeTool::PackageStateObserver"
     }
 }

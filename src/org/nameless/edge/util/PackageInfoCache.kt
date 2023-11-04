@@ -23,7 +23,7 @@ object PackageInfoCache {
     val availablePackages: MutableList<String> = mutableListOf()
     private val caches: MutableMap<String, Pair<Drawable?, String>> = mutableMapOf()
 
-    private val DEFAULT_LABEL = "Unknown"
+    private const val DEFAULT_LABEL = "Unknown"
 
     fun initPackageList(context: Context) {
         availablePackages.clear()

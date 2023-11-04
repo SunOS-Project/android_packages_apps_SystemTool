@@ -138,7 +138,7 @@ class SettingsObserver(
     }
 
     companion object {
-        private val GESTURAL_MODE = 2
+        private const val GESTURAL_MODE = 2
 
         fun getMiniWindowAppsSettings(context: Context): String? {
             return Settings.System.getStringForUser(context.contentResolver,

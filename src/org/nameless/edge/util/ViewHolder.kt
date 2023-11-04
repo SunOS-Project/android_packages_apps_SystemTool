@@ -22,13 +22,13 @@ import org.nameless.wm.PopUpDebugHelper.logE
 
 object ViewHolder {
 
-    private val TAG = "EdgeTool::ViewHolder"
+    private const val TAG = "EdgeTool::ViewHolder"
 
-    private val HIDE_ANIMATION_DURATION = 250L
-    private val REBOUND_ANIMATION_DURATION = 300L
-    private val SHOW_ANIMATION_DURATION = 120L
+    private const val HIDE_ANIMATION_DURATION = 250L
+    private const val REBOUND_ANIMATION_DURATION = 300L
+    private const val SHOW_ANIMATION_DURATION = 120L
 
-    private val ROTATE_REBOUND_ANGLE = 30f
+    private const val ROTATE_REBOUND_ANGLE = 30f
 
     private var wm: WindowManager? = null
 

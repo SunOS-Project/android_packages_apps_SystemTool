@@ -163,9 +163,9 @@ class IconView(
     }
 
     companion object {
-        private val FOCUSE_MIN_TIME_ON_DOWN = 100L
+        private const val FOCUSE_MIN_TIME_ON_DOWN = 100L
 
-        private val SCALE_ANIMATION_DURATION = 150L
+        private const val SCALE_ANIMATION_DURATION = 150L
 
         fun sendMiniWindowBroadcast(context: Context, packageName: String) {
             if (Constants.PACKAGE_NAME.equals(packageName)) {

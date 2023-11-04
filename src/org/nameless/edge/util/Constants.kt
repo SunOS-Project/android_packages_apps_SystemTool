@@ -7,20 +7,20 @@ package org.nameless.edge.util
 
 object Constants {
 
-    val PACKAGE_NAME = "org.nameless.edge"
+    const val PACKAGE_NAME = "org.nameless.edge"
 
-    val iconSizeRatio = 0.123f  // 142 / 1440 * iconFocusedScaleRatio
+    const val iconSizeRatio = 0.123f  // 142 / 1440 * iconFocusedScaleRatio
 
-    val iconFocusedScaleRatio = 1.25f
+    const val iconFocusedScaleRatio = 1.25f
 
-    val circleRadiusRatio = 0.64f  // r = min(screenWidth, screenHeight) * circleRadiusRatio
+    const val circleRadiusRatio = 0.64f  // r = min(screenWidth, screenHeight) * circleRadiusRatio
 
-    val circleCenterXPort = 1.04f
-    val circleCenterXLand = 1.0f
-    val circleCenterYPort = 1.0f
-    val circleCenterYLand = 1.01f
+    const val circleCenterXPort = 1.04f
+    const val circleCenterXLand = 1.0f
+    const val circleCenterYPort = 1.0f
+    const val circleCenterYLand = 1.01f
 
-    val circleMaxIcon = 6  // Per app gap = 90° / (circleMaxIcon - 1)
+    const val circleMaxIcon = 6  // Per app gap = 90° / (circleMaxIcon - 1)
 
     val miniWindowSystemAppsWhitelist = setOf<String>(
         "com.android.chrome",

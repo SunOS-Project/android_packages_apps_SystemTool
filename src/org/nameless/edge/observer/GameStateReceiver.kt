@@ -43,7 +43,7 @@ class GameStateReceiver(
     fun isInGameMode() = gameActive
 
     companion object {
-        private val INTENT_GAME_SPACE_ENTER = "org.nameless.gamespace.action.GAME_START"
-        private val INTENT_GAME_SPACE_STOP = "org.nameless.gamespace.action.GAME_STOP"
+        private const val INTENT_GAME_SPACE_ENTER = "org.nameless.gamespace.action.GAME_START"
+        private const val INTENT_GAME_SPACE_STOP = "org.nameless.gamespace.action.GAME_STOP"
     }
 }

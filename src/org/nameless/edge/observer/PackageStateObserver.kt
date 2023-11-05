@@ -12,6 +12,7 @@ import android.content.Intent.ACTION_PACKAGE_ADDED
 import android.content.Intent.ACTION_PACKAGE_CHANGED
 import android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED
 import android.content.Intent.ACTION_PACKAGE_REMOVED
+import android.content.Intent.EXTRA_REPLACING
 import android.content.IntentFilter
 import android.os.Handler
 
@@ -26,13 +27,17 @@ class PackageStateObserver(
     override fun onReceive(context: Context?, intent: Intent?) {
         when (intent?.action) {
             ACTION_PACKAGE_ADDED -> {
-                onPackageAdded(intent.data?.schemeSpecificPart)
+                if (!intent.getBooleanExtra(EXTRA_REPLACING, false)) {
+                    onPackageAdded(intent.data?.schemeSpecificPart)
+                }
             }
             ACTION_PACKAGE_CHANGED -> {
                 onPackageStateChanged(intent.data?.schemeSpecificPart)
             }
             ACTION_PACKAGE_FULLY_REMOVED, ACTION_PACKAGE_REMOVED -> {
-                onPackageRemoved(intent.data?.schemeSpecificPart)
+                if (!intent.getBooleanExtra(EXTRA_REPLACING, false)) {
+                    onPackageRemoved(intent.data?.schemeSpecificPart)
+                }
             }
         }
     }

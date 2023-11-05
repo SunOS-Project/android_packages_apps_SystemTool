@@ -51,6 +51,7 @@ class DimmerView(context: Context) : View(context) {
             type = LayoutParams.TYPE_APPLICATION_OVERLAY
             format = PixelFormat.RGBA_8888
             flags = LayoutParams.FLAG_DIM_BEHIND or
+                    LayoutParams.FLAG_HARDWARE_ACCELERATED or
                     LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     LayoutParams.FLAG_NOT_FOCUSABLE
             privateFlags = LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS

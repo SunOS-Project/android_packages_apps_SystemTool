@@ -19,10 +19,12 @@ object IconLayoutAlgorithm {
     private val iconLayoutParams = LayoutParams().apply {
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
         format = PixelFormat.RGBA_8888
-        flags = LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+        flags = LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                 LayoutParams.FLAG_NOT_TOUCHABLE
-        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+        privateFlags = LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION or
+                       LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
                        LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
         gravity = Gravity.TOP or Gravity.LEFT
         layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

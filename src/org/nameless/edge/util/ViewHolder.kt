@@ -27,7 +27,7 @@ object ViewHolder {
 
     private const val HIDE_ANIMATION_DURATION = 250L
     private const val REBOUND_ANIMATION_DURATION = 300L
-    private const val SHOW_ANIMATION_DURATION = 120L
+    private const val SHOW_ANIMATION_DURATION = 100L
 
     private const val ROTATE_REBOUND_ANGLE = 30f
 
@@ -132,18 +132,31 @@ object ViewHolder {
         logD(TAG, "showForAll: isLeft=$isLeft")
         currentlyVisible = true
 
+        dimmerView?.postOnAnimation {
+            dimmerView?.layoutParams =
+                (dimmerView?.layoutParams as LayoutParams)?.apply {
+                    if (getAppFocusManager(dimmerView!!.context)?.hasMiniWindowFocus() ?: false) {
+                        flags = flags and LayoutParams.FLAG_DIM_BEHIND.inv()
+                    } else {
+                        flags = flags or LayoutParams.FLAG_DIM_BEHIND
+                    }
+                }
+            wm.updateViewLayout(dimmerView, dimmerView!!.layoutParams)
+            dimmerView?.isVisible = true
+        }
+
         views.forEach {
             iconViewsShowing.add(it)
-            it.postOnAnimation {
-                val params = it.layoutParams as LayoutParams
-                val prevX = params.x
-                val prevY = params.y
-                params.x = if (isLeft) (-it.radius * 2) else (displayBounds.width() + it.radius * 2)
-                params.y = displayBounds.height() + it.radius * 2
-                params.alpha = 0f
-                val transX = params.x - prevX
-                val transY = params.y - prevY
+            val params = it.layoutParams as LayoutParams
+            val prevX = params.x
+            val prevY = params.y
+            params.x = if (isLeft) (-it.radius * 2) else (displayBounds.width() + it.radius * 2)
+            params.y = displayBounds.height() + it.radius * 2
+            params.alpha = 0f
+            val transX = params.x - prevX
+            val transY = params.y - prevY
 
+            it.postOnAnimation {
                 wm.updateViewLayout(it, params)
                 it.isVisible = true
 
@@ -169,18 +182,6 @@ object ViewHolder {
                     start()
                 }
             }
-        }
-        dimmerView?.postOnAnimation {
-            dimmerView?.layoutParams =
-                (dimmerView?.layoutParams as LayoutParams)?.apply {
-                    if (getAppFocusManager(dimmerView!!.context)?.hasMiniWindowFocus() ?: false) {
-                        flags = flags and LayoutParams.FLAG_DIM_BEHIND.inv()
-                    } else {
-                        flags = flags or LayoutParams.FLAG_DIM_BEHIND
-                    }
-                }
-            wm.updateViewLayout(dimmerView, dimmerView!!.layoutParams)
-            dimmerView?.isVisible = true
         }
     }
 
@@ -224,9 +225,10 @@ object ViewHolder {
                 }
             }
         }
-        dimmerView?.postOnAnimation {
+
+        dimmerView?.postOnAnimationDelayed({
             dimmerView?.isVisible = false
-        }
+        }, HIDE_ANIMATION_DURATION)
 
         iconViewsShowing.clear()
     }

@@ -15,11 +15,11 @@ import android.view.WindowManager.LayoutParams
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 
+import org.nameless.systemtool.util.Constants.logD
+import org.nameless.systemtool.util.Constants.logE
 import org.nameless.systemtool.view.DimmerView
 import org.nameless.systemtool.view.IconView
-import org.nameless.wm.AppFocusManager
-import org.nameless.wm.PopUpDebugHelper.logD
-import org.nameless.wm.PopUpDebugHelper.logE
+import org.nameless.view.AppFocusManager
 
 object ViewHolder {
 

@@ -16,8 +16,8 @@ import android.content.Intent.EXTRA_REPLACING
 import android.content.IntentFilter
 import android.os.Handler
 
+import org.nameless.systemtool.util.Constants.logD
 import org.nameless.systemtool.util.PackageInfoCache
-import org.nameless.wm.PopUpDebugHelper.logD
 
 class PackageStateObserver(
     private val context: Context,

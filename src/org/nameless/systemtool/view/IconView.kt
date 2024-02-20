@@ -25,9 +25,9 @@ import org.nameless.systemtool.R
 import org.nameless.systemtool.util.Constants
 import org.nameless.systemtool.util.PackageInfoCache
 import org.nameless.systemtool.util.ViewHolder
-import org.nameless.wm.PopUpBroadcastConstants.ACTION_START_MINI_WINDOW
-import org.nameless.wm.PopUpBroadcastConstants.EXTRA_ACTIVITY_NAME
-import org.nameless.wm.PopUpBroadcastConstants.EXTRA_PACKAGE_NAME
+import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
+import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
+import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
 
 class IconView(
     context: Context,

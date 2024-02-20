@@ -11,11 +11,11 @@ import android.view.WindowManagerGlobal
 
 import org.nameless.systemtool.EdgeService
 import org.nameless.systemtool.util.Constants
+import org.nameless.systemtool.util.Constants.logE
 import org.nameless.systemtool.util.IconLayoutAlgorithm
 import org.nameless.systemtool.util.ViewHolder
-import org.nameless.wm.ISystemGestureListener
-import org.nameless.wm.ISystemGestureListener.GESTURE_WINDOW_MODE
-import org.nameless.wm.PopUpDebugHelper.logE
+import org.nameless.view.ISystemGestureListener
+import org.nameless.view.ISystemGestureListener.GESTURE_WINDOW_MODE
 
 class WindowModeGestureListener(
     private val service: EdgeService

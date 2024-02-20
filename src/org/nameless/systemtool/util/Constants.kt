@@ -5,6 +5,10 @@
 
 package org.nameless.systemtool.util
 
+import android.util.Log
+
+import org.nameless.os.DebugConstants.DEBUG_SYSTEM_TOOL
+
 object Constants {
 
     const val PACKAGE_NAME = "org.nameless.systemtool"
@@ -42,4 +46,14 @@ object Constants {
         "org.lineageos.aperture",
         "org.nameless.gamespace"
     )
+
+    fun logD(tag: String, msg: String) {
+        if (DEBUG_SYSTEM_TOOL) {
+            Log.d(tag, msg)
+        }
+    }
+
+    fun logE(tag: String, msg: String) {
+        Log.e(tag, msg)
+    }
 }

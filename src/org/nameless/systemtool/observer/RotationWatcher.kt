@@ -13,9 +13,9 @@ import android.view.Surface
 import android.view.WindowManagerGlobal
 
 import org.nameless.systemtool.EdgeService
+import org.nameless.systemtool.util.Constants.logE
 import org.nameless.systemtool.util.IconLayoutAlgorithm
 import org.nameless.systemtool.util.ViewHolder
-import org.nameless.wm.PopUpDebugHelper.logE
 
 class RotationWatcher(
     private val service: EdgeService,

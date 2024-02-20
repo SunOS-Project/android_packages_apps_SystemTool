@@ -13,14 +13,13 @@ import android.os.UserHandle
 import android.provider.Settings
 import android.provider.Settings.Secure.NAVIGATION_MODE
 import android.provider.Settings.Secure.USER_SETUP_COMPLETE
-import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
-import android.provider.Settings.System.SYSTEM_TOOL_MINI_WINDOW_APPS
-import android.provider.Settings.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 
 import com.android.internal.util.nameless.UserSwitchReceiver
 
 import kotlin.math.min
 
+import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
+import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.EdgeService
 import org.nameless.systemtool.PickerDataCache
 import org.nameless.systemtool.util.Constants
@@ -54,11 +53,11 @@ class SettingsObserver(
             SYSTEM_TOOL_MINI_WINDOW_APPS -> {
                 updateMiniWindowApps()
             }
-            DISPLAY_RESOLUTION_WIDTH, NAVIGATION_MODE -> {
+            NAVIGATION_MODE -> {
                 handler.postDelayed({
                     updateNavbarHeight()
                     ViewHolder.relocateIconView(service)
-                }, 1000L)
+                }, 500L)
             }
         }
     }
@@ -120,9 +119,6 @@ class SettingsObserver(
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.System.getUriFor(SYSTEM_TOOL_MINI_WINDOW_APPS),
-                false, this@SettingsObserver, UserHandle.USER_ALL)
-            registerContentObserver(
-                Settings.System.getUriFor(DISPLAY_RESOLUTION_WIDTH),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.Secure.getUriFor(NAVIGATION_MODE),

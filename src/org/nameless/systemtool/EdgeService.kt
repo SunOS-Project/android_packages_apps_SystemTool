@@ -10,7 +10,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 
-import org.nameless.systemtool.observer.GameStateReceiver
+import org.nameless.systemtool.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.observer.PackageStateObserver
 import org.nameless.systemtool.observer.RotationWatcher
 import org.nameless.systemtool.observer.ScreenStateReceiver
@@ -23,7 +23,7 @@ import org.nameless.systemtool.view.DimmerView
 
 class EdgeService : Service() {
 
-    private var gameStateReceiver: GameStateReceiver? = null
+    private var displayResolutionChangeListener: DisplayResolutionChangeListener? = null
     private var packageStateObserver: PackageStateObserver? = null
     private var rotationWatcher: RotationWatcher? = null
     private var screenStateReceiver: ScreenStateReceiver? = null
@@ -46,7 +46,7 @@ class EdgeService : Service() {
 
         PackageInfoCache.initPackageList(this)
 
-        gameStateReceiver = GameStateReceiver(this, handler)
+        displayResolutionChangeListener = DisplayResolutionChangeListener(this, handler)
         packageStateObserver = PackageStateObserver(this, handler)
         rotationWatcher = RotationWatcher(this, handler)
         screenStateReceiver = ScreenStateReceiver(this, handler)
@@ -54,9 +54,9 @@ class EdgeService : Service() {
         systemStateReceiver = SystemStateReceiver(this, handler)
         windowModeGestureListener = WindowModeGestureListener(this)
 
+        displayResolutionChangeListener?.register()
         rotationWatcher?.startWatch()
         settingsObserver?.register()
-        gameStateReceiver?.register()
         screenStateReceiver?.register()
         systemStateReceiver?.register()
         packageStateObserver?.register()
@@ -68,9 +68,9 @@ class EdgeService : Service() {
         packageStateObserver?.unregister()
         systemStateReceiver?.unregister()
         screenStateReceiver?.unregister()
-        gameStateReceiver?.unregister()
         settingsObserver?.unregister()
         rotationWatcher?.stopWatch()
+        displayResolutionChangeListener?.unregister()
 
         ViewHolder.safelyClearIconViews(this)
         ViewHolder.removeDimmerView(this)
@@ -83,9 +83,6 @@ class EdgeService : Service() {
             return false
         }
         if (!(settingsObserver?.isGestureEnabled() ?: true)) {
-            return false
-        }
-        if (gameStateReceiver?.isInGameMode() ?: false) {
             return false
         }
         if (!ViewHolder.allowVisible) {

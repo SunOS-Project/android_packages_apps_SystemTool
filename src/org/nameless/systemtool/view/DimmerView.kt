@@ -15,8 +15,8 @@ import android.view.WindowManager.LayoutParams
 
 import androidx.core.view.isVisible
 
+import org.nameless.systemtool.util.Constants.logE
 import org.nameless.systemtool.util.ViewHolder
-import org.nameless.wm.PopUpDebugHelper.logE
 
 class DimmerView(context: Context) : View(context) {
 

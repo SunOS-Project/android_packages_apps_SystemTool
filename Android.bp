@@ -18,7 +18,6 @@ android_app {
     srcs: [
         "src/**/*.kt",
     ],
-    system_ext_specific: true,
     static_libs: [
         "SettingsLib",
         "androidx.core_core-ktx",
@@ -30,5 +29,4 @@ prebuilt_etc {
     sub_dir: "permissions",
     src: "privapp-permissions-org.nameless.systemtool.xml",
     filename_from_src: true,
-    system_ext_specific: true,
 }

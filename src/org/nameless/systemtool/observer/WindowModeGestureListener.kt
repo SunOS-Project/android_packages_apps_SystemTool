@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.observer
+package org.nameless.systemtool.observer
 
 import android.os.RemoteException
 import android.view.MotionEvent
 import android.view.WindowManagerGlobal
 
-import org.nameless.edge.EdgeService
-import org.nameless.edge.util.Constants
-import org.nameless.edge.util.IconLayoutAlgorithm
-import org.nameless.edge.util.ViewHolder
+import org.nameless.systemtool.EdgeService
+import org.nameless.systemtool.util.Constants
+import org.nameless.systemtool.util.IconLayoutAlgorithm
+import org.nameless.systemtool.util.ViewHolder
 import org.nameless.wm.ISystemGestureListener
 import org.nameless.wm.ISystemGestureListener.GESTURE_WINDOW_MODE
 import org.nameless.wm.PopUpDebugHelper.logE
@@ -84,6 +84,6 @@ class WindowModeGestureListener(
     }
 
     companion object {
-        private const val TAG = "EdgeTool::WindowModeGestureListener"
+        private const val TAG = "SystemTool::WindowModeGestureListener"
     }
 }

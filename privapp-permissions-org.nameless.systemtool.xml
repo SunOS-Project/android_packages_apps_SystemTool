@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <permissions>
-    <privapp-permissions package="org.nameless.edge">
+    <privapp-permissions package="org.nameless.systemtool">
         <permission name="android.permission.INTERACT_ACROSS_USERS" />
     </privapp-permissions>
 </permissions>

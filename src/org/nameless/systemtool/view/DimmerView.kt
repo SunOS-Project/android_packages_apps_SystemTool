@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.view
+package org.nameless.systemtool.view
 
 import android.content.Context
 import android.graphics.PixelFormat
@@ -15,7 +15,7 @@ import android.view.WindowManager.LayoutParams
 
 import androidx.core.view.isVisible
 
-import org.nameless.edge.util.ViewHolder
+import org.nameless.systemtool.util.ViewHolder
 import org.nameless.wm.PopUpDebugHelper.logE
 
 class DimmerView(context: Context) : View(context) {
@@ -45,7 +45,7 @@ class DimmerView(context: Context) : View(context) {
     }
 
     companion object {
-        private val TAG = "EdgeTool::DimmerView"
+        private val TAG = "SystemTool::DimmerView"
 
         private val dimmerLayoutParams = LayoutParams().apply {
             type = LayoutParams.TYPE_APPLICATION_OVERLAY

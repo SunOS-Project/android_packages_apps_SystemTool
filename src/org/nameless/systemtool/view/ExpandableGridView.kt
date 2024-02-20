@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.view
+package org.nameless.systemtool.view
 
 import android.content.Context
 import android.util.AttributeSet

@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.observer
+package org.nameless.systemtool.observer
 
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
@@ -15,7 +15,7 @@ import android.content.Intent.ACTION_USER_PRESENT
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.edge.util.ViewHolder
+import org.nameless.systemtool.util.ViewHolder
 
 class ScreenStateReceiver(
     private val context: Context,

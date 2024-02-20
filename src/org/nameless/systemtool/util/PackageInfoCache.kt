@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.util
+package org.nameless.systemtool.util
 
 import android.content.Context
 import android.content.pm.ApplicationInfo.FLAG_SYSTEM
@@ -15,8 +15,8 @@ import java.text.Collator
 
 import kotlin.Comparator
 
-import org.nameless.edge.PickerDataCache
-import org.nameless.edge.util.Constants
+import org.nameless.systemtool.PickerDataCache
+import org.nameless.systemtool.util.Constants
 
 object PackageInfoCache {
 

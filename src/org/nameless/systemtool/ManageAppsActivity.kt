@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge
+package org.nameless.systemtool
 
 import android.os.Bundle
 
-import org.nameless.edge.R
+import org.nameless.systemtool.R
 
 class ManageAppsActivity : AllAppsPickerActivity() {
 

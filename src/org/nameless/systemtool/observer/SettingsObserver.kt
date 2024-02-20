@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.observer
+package org.nameless.systemtool.observer
 
 import android.content.Context
 import android.database.ContentObserver
@@ -14,19 +14,19 @@ import android.provider.Settings
 import android.provider.Settings.Secure.NAVIGATION_MODE
 import android.provider.Settings.Secure.USER_SETUP_COMPLETE
 import android.provider.Settings.System.DISPLAY_RESOLUTION_WIDTH
-import android.provider.Settings.System.EDGE_TOOL_GESTURE_ENABLED
-import android.provider.Settings.System.EDGE_TOOL_MINI_WINDOW_APPS
+import android.provider.Settings.System.SYSTEM_TOOL_MINI_WINDOW_APPS
+import android.provider.Settings.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 
 import com.android.internal.util.nameless.UserSwitchReceiver
 
 import kotlin.math.min
 
-import org.nameless.edge.EdgeService
-import org.nameless.edge.PickerDataCache
-import org.nameless.edge.util.Constants
-import org.nameless.edge.util.IconLayoutAlgorithm
-import org.nameless.edge.util.PackageInfoCache
-import org.nameless.edge.util.ViewHolder
+import org.nameless.systemtool.EdgeService
+import org.nameless.systemtool.PickerDataCache
+import org.nameless.systemtool.util.Constants
+import org.nameless.systemtool.util.IconLayoutAlgorithm
+import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.util.ViewHolder
 
 class SettingsObserver(
     private val service: EdgeService,
@@ -48,10 +48,10 @@ class SettingsObserver(
             USER_SETUP_COMPLETE -> {
                 updateUserSetuped()
             }
-            EDGE_TOOL_GESTURE_ENABLED -> {
+            SYSTEM_TOOL_WINDOWING_MODE_GESTURE -> {
                 updateGestureEnabled()
             }
-            EDGE_TOOL_MINI_WINDOW_APPS -> {
+            SYSTEM_TOOL_MINI_WINDOW_APPS -> {
                 updateMiniWindowApps()
             }
             DISPLAY_RESOLUTION_WIDTH, NAVIGATION_MODE -> {
@@ -71,7 +71,7 @@ class SettingsObserver(
 
     private fun updateGestureEnabled() {
         gestureEnabled = Settings.System.getIntForUser(
-            service.contentResolver, EDGE_TOOL_GESTURE_ENABLED,
+            service.contentResolver, SYSTEM_TOOL_WINDOWING_MODE_GESTURE,
             1, UserHandle.USER_CURRENT) == 1
     }
 
@@ -116,10 +116,10 @@ class SettingsObserver(
                 Settings.Secure.getUriFor(USER_SETUP_COMPLETE),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
-                Settings.System.getUriFor(EDGE_TOOL_GESTURE_ENABLED),
+                Settings.System.getUriFor(SYSTEM_TOOL_WINDOWING_MODE_GESTURE),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
-                Settings.System.getUriFor(EDGE_TOOL_MINI_WINDOW_APPS),
+                Settings.System.getUriFor(SYSTEM_TOOL_MINI_WINDOW_APPS),
                 false, this@SettingsObserver, UserHandle.USER_ALL)
             registerContentObserver(
                 Settings.System.getUriFor(DISPLAY_RESOLUTION_WIDTH),
@@ -142,12 +142,12 @@ class SettingsObserver(
 
         fun getMiniWindowAppsSettings(context: Context): String? {
             return Settings.System.getStringForUser(context.contentResolver,
-                EDGE_TOOL_MINI_WINDOW_APPS, UserHandle.USER_CURRENT)
+                SYSTEM_TOOL_MINI_WINDOW_APPS, UserHandle.USER_CURRENT)
         }
 
         fun putMiniWindowAppsSettings(context: Context, apps: String) {
             Settings.System.putStringForUser(context.contentResolver,
-                EDGE_TOOL_MINI_WINDOW_APPS, apps, UserHandle.USER_CURRENT)
+            SYSTEM_TOOL_MINI_WINDOW_APPS, apps, UserHandle.USER_CURRENT)
         }
 
         fun getMiniWindowAppsSet(context: Context): MutableSet<String> {

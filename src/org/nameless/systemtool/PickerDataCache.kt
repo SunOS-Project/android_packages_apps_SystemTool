@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge
+package org.nameless.systemtool
 
-import org.nameless.edge.util.PackageInfoCache
-import org.nameless.edge.view.GridItem
-import org.nameless.edge.view.GridItemAdapter
+import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.view.GridItem
+import org.nameless.systemtool.view.GridItemAdapter
 
 object PickerDataCache {
 

@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge
+package org.nameless.systemtool
 
 import android.app.Activity
 import android.os.Bundle
@@ -13,14 +13,14 @@ import android.widget.TextView
 
 import androidx.core.view.isVisible
 
-import org.nameless.edge.R
-import org.nameless.edge.observer.SettingsObserver
-import org.nameless.edge.util.DensityHelper
-import org.nameless.edge.util.DensityHelper.DisplaySize
-import org.nameless.edge.util.PackageInfoCache
-import org.nameless.edge.view.GridItem
-import org.nameless.edge.view.GridItemAdapter
-import org.nameless.edge.view.IconView
+import org.nameless.systemtool.R
+import org.nameless.systemtool.observer.SettingsObserver
+import org.nameless.systemtool.util.DensityHelper
+import org.nameless.systemtool.util.DensityHelper.DisplaySize
+import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.view.GridItem
+import org.nameless.systemtool.view.GridItemAdapter
+import org.nameless.systemtool.view.IconView
 
 open class AllAppsPickerActivity : Activity() {
 

@@ -1,4 +1,4 @@
--keep class org.nameless.edge.AllAppsPickerActivity
--keep class org.nameless.edge.BootCompletedReceiver
--keep class org.nameless.edge.EdgeService
--keep class org.nameless.edge.view.ExpandableGridView
+-keep class org.nameless.systemtool.AllAppsPickerActivity
+-keep class org.nameless.systemtool.BootCompletedReceiver
+-keep class org.nameless.systemtool.EdgeService
+-keep class org.nameless.systemtool.view.ExpandableGridView

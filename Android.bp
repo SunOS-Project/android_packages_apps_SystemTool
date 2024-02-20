@@ -3,7 +3,7 @@
 //   SPDX-License-Identifier: Apache-2.0
 //
 android_app {
-    name: "EdgeTool",
+    name: "SystemTool",
     certificate: "platform",
     optimize: {
         enabled: true,
@@ -13,7 +13,7 @@ android_app {
     platform_apis: true,
     privileged: true,
     required: [
-        "privapp_whitelist_edge",
+        "privapp_whitelist_systemtool",
     ],
     srcs: [
         "src/**/*.kt",
@@ -26,9 +26,9 @@ android_app {
 }
    
 prebuilt_etc {
-    name: "privapp_whitelist_edge",
+    name: "privapp_whitelist_systemtool",
     sub_dir: "permissions",
-    src: "privapp-permissions-org.nameless.edge.xml",
+    src: "privapp-permissions-org.nameless.systemtool.xml",
     filename_from_src: true,
     system_ext_specific: true,
 }

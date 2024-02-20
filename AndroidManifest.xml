@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2023 Nameless-AOSP
+     Copyright (C) 2023-2024 Nameless-AOSP
      SPDX-License-Identifier: Apache-2.0
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:sharedUserId="android.uid.system"
-    package="org.nameless.edge"
+    package="org.nameless.systemtool"
     android:versionCode="1"
     android:versionName="1.0" >
 

@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.observer
+package org.nameless.systemtool.observer
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,7 +16,7 @@ import android.content.Intent.EXTRA_REPLACING
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.edge.util.PackageInfoCache
+import org.nameless.systemtool.util.PackageInfoCache
 import org.nameless.wm.PopUpDebugHelper.logD
 
 class PackageStateObserver(
@@ -80,6 +80,6 @@ class PackageStateObserver(
     }
 
     companion object {
-        private const val TAG = "EdgeTool::PackageStateObserver"
+        private const val TAG = "SystemTool::PackageStateObserver"
     }
 }

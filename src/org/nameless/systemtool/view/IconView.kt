@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.view
+package org.nameless.systemtool.view
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -20,11 +20,11 @@ import androidx.core.animation.doOnEnd
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
 
-import org.nameless.edge.AllAppsPickerActivity
-import org.nameless.edge.R
-import org.nameless.edge.util.Constants
-import org.nameless.edge.util.PackageInfoCache
-import org.nameless.edge.util.ViewHolder
+import org.nameless.systemtool.AllAppsPickerActivity
+import org.nameless.systemtool.R
+import org.nameless.systemtool.util.Constants
+import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.util.ViewHolder
 import org.nameless.wm.PopUpBroadcastConstants.ACTION_START_MINI_WINDOW
 import org.nameless.wm.PopUpBroadcastConstants.EXTRA_ACTIVITY_NAME
 import org.nameless.wm.PopUpBroadcastConstants.EXTRA_PACKAGE_NAME

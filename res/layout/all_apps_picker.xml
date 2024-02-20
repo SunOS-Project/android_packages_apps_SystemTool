@@ -30,7 +30,7 @@
             android:textSize="26dp"
             android:text="@string/info_no_pinned_app" />
 
-        <org.nameless.edge.view.ExpandableGridView
+        <org.nameless.systemtool.view.ExpandableGridView
             android:id="@+id/grid_pinned_apps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
             android:textSize="26dp"
             android:text="@string/info_all_apps_pinned" />
 
-        <org.nameless.edge.view.ExpandableGridView
+        <org.nameless.systemtool.view.ExpandableGridView
             android:id="@+id/grid_all_apps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

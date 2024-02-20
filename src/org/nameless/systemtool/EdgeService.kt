@@ -1,25 +1,25 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge
+package org.nameless.systemtool
 
 import android.app.Service
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 
-import org.nameless.edge.observer.GameStateReceiver
-import org.nameless.edge.observer.PackageStateObserver
-import org.nameless.edge.observer.RotationWatcher
-import org.nameless.edge.observer.ScreenStateReceiver
-import org.nameless.edge.observer.SettingsObserver
-import org.nameless.edge.observer.SystemStateReceiver
-import org.nameless.edge.observer.WindowModeGestureListener
-import org.nameless.edge.util.PackageInfoCache
-import org.nameless.edge.util.ViewHolder
-import org.nameless.edge.view.DimmerView
+import org.nameless.systemtool.observer.GameStateReceiver
+import org.nameless.systemtool.observer.PackageStateObserver
+import org.nameless.systemtool.observer.RotationWatcher
+import org.nameless.systemtool.observer.ScreenStateReceiver
+import org.nameless.systemtool.observer.SettingsObserver
+import org.nameless.systemtool.observer.SystemStateReceiver
+import org.nameless.systemtool.observer.WindowModeGestureListener
+import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.view.DimmerView
 
 class EdgeService : Service() {
 

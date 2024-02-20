@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.util
+package org.nameless.systemtool.util
 
 object Constants {
 
-    const val PACKAGE_NAME = "org.nameless.edge"
+    const val PACKAGE_NAME = "org.nameless.systemtool"
 
     const val iconSizeRatio = 0.123f  // 142 / 1440 * iconFocusedScaleRatio
 

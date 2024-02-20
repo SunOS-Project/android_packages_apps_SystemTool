@@ -1,9 +1,9 @@
 /*
- * Copyright (C) 2023 The Nameless-AOSP Project
+ * Copyright (C) 2023-2024 The Nameless-AOSP Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.edge.util
+package org.nameless.systemtool.util
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -15,15 +15,15 @@ import android.view.WindowManager.LayoutParams
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 
-import org.nameless.edge.view.DimmerView
-import org.nameless.edge.view.IconView
+import org.nameless.systemtool.view.DimmerView
+import org.nameless.systemtool.view.IconView
 import org.nameless.wm.AppFocusManager
 import org.nameless.wm.PopUpDebugHelper.logD
 import org.nameless.wm.PopUpDebugHelper.logE
 
 object ViewHolder {
 
-    private const val TAG = "EdgeTool::ViewHolder"
+    private const val TAG = "SystemTool::ViewHolder"
 
     private const val HIDE_ANIMATION_DURATION = 250L
     private const val REBOUND_ANIMATION_DURATION = 300L

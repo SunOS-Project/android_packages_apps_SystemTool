@@ -1,9 +1,10 @@
 //
-//   Copyright (C) 2023 Nameless-AOSP
+//   Copyright (C) 2023-2024 Nameless-AOSP
 //   SPDX-License-Identifier: Apache-2.0
 //
 android_app {
     name: "SystemTool",
+    defaults: ["SettingsLibDefaults"],
     certificate: "platform",
     optimize: {
         enabled: true,
@@ -16,12 +17,20 @@ android_app {
         "privapp_whitelist_systemtool",
     ],
     srcs: [
-        "src/**/*.kt",
+        "src/main/java/**/*.kt",
     ],
     static_libs: [
-        "SettingsLib",
         "androidx.core_core-ktx",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
+        "androidx.localbroadcastmanager_localbroadcastmanager",
+        "androidx.preference_preference",
+        "androidx.recyclerview_recyclerview",
+        "com.google.android.material_material",
     ],
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
 }
    
 prebuilt_etc {

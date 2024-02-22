@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
 import android.content.Context
 import android.database.ContentObserver
@@ -20,24 +20,24 @@ import kotlin.math.min
 
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
-import org.nameless.systemtool.EdgeService
-import org.nameless.systemtool.PickerDataCache
-import org.nameless.systemtool.util.Constants
-import org.nameless.systemtool.util.IconLayoutAlgorithm
-import org.nameless.systemtool.util.PackageInfoCache
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.common.Utils
+import org.nameless.systemtool.windowmode.PickerDataCache
+import org.nameless.systemtool.windowmode.util.Config
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.util.PackageInfoCache
+import org.nameless.systemtool.windowmode.ViewHolder
 
 class SettingsObserver(
-    private val service: EdgeService,
     private val handler: Handler
 ) : ContentObserver(handler) {
 
     private var gestureEnabled = true
-    private var userSetuped = false
+    private var userSetupCompleted = false
 
     private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
-            PackageInfoCache.initPackageList(service)
+            PackageInfoCache.initPackageList()
             updateAll()
         }
     }
@@ -45,7 +45,7 @@ class SettingsObserver(
     override fun onChange(selfChange: Boolean, uri: Uri) {
         when (uri.lastPathSegment) {
             USER_SETUP_COMPLETE -> {
-                updateUserSetuped()
+                updateUserSetupCompleted()
             }
             SYSTEM_TOOL_WINDOWING_MODE_GESTURE -> {
                 updateGestureEnabled()
@@ -56,14 +56,14 @@ class SettingsObserver(
             NAVIGATION_MODE -> {
                 handler.postDelayed({
                     updateNavbarHeight()
-                    ViewHolder.relocateIconView(service)
+                    ViewHolder.relocateIconView()
                 }, 500L)
             }
         }
     }
 
-    private fun updateUserSetuped() {
-        userSetuped = Settings.Secure.getIntForUser(
+    private fun updateUserSetupCompleted() {
+        userSetupCompleted = Settings.Secure.getIntForUser(
             service.contentResolver, USER_SETUP_COMPLETE,
             0, UserHandle.USER_CURRENT) == 1
     }
@@ -75,7 +75,7 @@ class SettingsObserver(
     }
 
     private fun updateMiniWindowApps() {
-        ViewHolder.safelyClearIconViews(service)
+        ViewHolder.safelyClearIconViews()
 
         val validAppList = getMiniWindowAppsSettings(service)
             ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
@@ -83,29 +83,29 @@ class SettingsObserver(
 
         PickerDataCache.updatePinnedPackages(validAppList.toMutableSet())
 
-        val total = min(validAppList.size + 1, Constants.circleMaxIcon)
+        val total = min(validAppList.size + 1, Config.circleMaxIcon)
         validAppList.forEachIndexed { i, v ->
-            if (i >= Constants.circleMaxIcon - 1) {
+            if (i >= Config.circleMaxIcon - 1) {
                 return@forEachIndexed
             }
-            ViewHolder.addIconView(service, v, i + 1, total)
+            ViewHolder.addIconView(v, i + 1, total)
         }
-        ViewHolder.addIconView(service, Constants.PACKAGE_NAME, total, total)
+        ViewHolder.addIconView(Utils.PACKAGE_NAME, total, total)
     }
 
     private fun updateNavbarHeight() {
         IconLayoutAlgorithm.gesturalMode = isGesturalMode(service)
-        IconLayoutAlgorithm.updateNarbarHeight(service)
+        IconLayoutAlgorithm.updateNavbarHeight()
     }
 
     private fun updateAll() {
-        updateUserSetuped()
+        updateUserSetupCompleted()
         updateGestureEnabled()
         updateMiniWindowApps()
         updateNavbarHeight()
     }
 
-    fun isUserSetuped() = userSetuped
+    fun isUserSetupCompleted() = userSetupCompleted
 
     fun isGestureEnabled() = gestureEnabled
 
@@ -144,15 +144,6 @@ class SettingsObserver(
         fun putMiniWindowAppsSettings(context: Context, apps: String) {
             Settings.System.putStringForUser(context.contentResolver,
             SYSTEM_TOOL_MINI_WINDOW_APPS, apps, UserHandle.USER_CURRENT)
-        }
-
-        fun getMiniWindowAppsSet(context: Context): MutableSet<String> {
-            return mutableSetOf<String>().apply {
-                (getMiniWindowAppsSettings(context)
-                    ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
-                        PackageInfoCache.isPackageAvailable(it)
-                    }?: emptyList()).forEach { app -> add(app) }
-            }
         }
 
         private fun isGesturalMode(context: Context): Boolean {

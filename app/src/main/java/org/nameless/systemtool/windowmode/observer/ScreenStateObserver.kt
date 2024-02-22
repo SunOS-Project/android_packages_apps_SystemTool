@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
-import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,14 +14,13 @@ import android.content.Intent.ACTION_USER_PRESENT
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.keyguardManager
 
 class ScreenStateReceiver(
-    private val context: Context,
     private val handler: Handler
 ) : BroadcastReceiver() {
-
-    private val keyguardManager = context.getSystemService(KeyguardManager::class.java)
 
     private var handledUnlock = false
 
@@ -47,7 +45,7 @@ class ScreenStateReceiver(
     }
 
     fun register() {
-        context.registerReceiverForAllUsers(this, IntentFilter().apply {
+        service.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_SCREEN_OFF)
             addAction(ACTION_SCREEN_ON)
             addAction(ACTION_USER_PRESENT)
@@ -55,6 +53,6 @@ class ScreenStateReceiver(
     }
 
     fun unregister() {
-        context.unregisterReceiver(this)
+        service.unregisterReceiver(this)
     }
 }

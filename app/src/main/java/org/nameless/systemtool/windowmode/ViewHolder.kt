@@ -3,23 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.util
+package org.nameless.systemtool.windowmode
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.graphics.Rect
-import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 
-import org.nameless.systemtool.util.Constants.logD
-import org.nameless.systemtool.util.Constants.logE
-import org.nameless.systemtool.view.DimmerView
-import org.nameless.systemtool.view.IconView
-import org.nameless.view.AppFocusManager
+import org.nameless.systemtool.common.Utils.logD
+import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.util.Shared.appFocusManager
+import org.nameless.systemtool.windowmode.util.Shared.dimmerView
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.windowManager
+import org.nameless.systemtool.windowmode.view.IconView
 
 object ViewHolder {
 
@@ -31,10 +32,6 @@ object ViewHolder {
 
     private const val ROTATE_REBOUND_ANGLE = 30f
 
-    private var afm: AppFocusManager? = null
-    private var wm: WindowManager? = null
-
-    var dimmerView: DimmerView? = null
     private val iconViewsLeft: MutableList<IconView> = mutableListOf()
     private val iconViewsRight: MutableList<IconView> = mutableListOf()
     val iconViewsShowing: MutableList<IconView> = mutableListOf()
@@ -42,77 +39,39 @@ object ViewHolder {
     var currentlyVisible = false
     var allowVisible = true
 
-    private fun getAppFocusManager(context: Context): AppFocusManager? {
-        if (afm == null) {
-            afm = context.getSystemService(AppFocusManager::class.java)
-        }
-        return afm
-    }
-
-    fun getWindowManager(context: Context): WindowManager? {
-        if (wm == null) {
-            wm = context.getSystemService(WindowManager::class.java)
-        }
-        return wm
-    }
-
-    private fun addView(
-        context: Context,
-        view: IconView?,
-        params: LayoutParams,
-        isLeft: Boolean
-    ): Boolean {
-        if (getWindowManager(context) == null) {
-            logE(TAG, "Failed to addView: WindowManager is null")
-            return false
-        }
+    private fun addView(view: IconView?, params: LayoutParams, isLeft: Boolean): Boolean {
         if (view == null) {
             return false
         }
         try {
-            wm?.addView(view, params)
+            windowManager.addView(view, params)
             logD(TAG, "addView: packageName=${view.packageName}, isLeft=$isLeft")
             return true
         } catch (e: Exception) {
-            logE(TAG, "Exception on addView for packageName=${view.packageName}, isLeft=$isLeft")
-            return false
+            logE(TAG, "Exception on addView for packageName=${view.packageName}, isLeft=$isLeft", e)
         }
+        return false
     }
 
-    private fun removeView(
-        context: Context,
-        view: IconView,
-        isLeft: Boolean
-    ) {
-        if (getWindowManager(context) == null) {
-            logE(TAG, "Failed to removeView: WindowManager is null")
-            return
-        }
+    private fun removeView(view: IconView, isLeft: Boolean) {
         try {
-            wm?.removeView(view)
+            windowManager.removeView(view)
             logD(TAG, "removeView: packageName=${view.packageName}, isLeft=$isLeft")
         } catch (e: Exception) {
-            logE(TAG, "Exception on removeView for packageName=${view.packageName}, isLeft=$isLeft")
+            logE(TAG, "Exception on removeView for packageName=${view.packageName}, isLeft=$isLeft", e)
         }
     }
 
-    fun removeDimmerView(context: Context) {
-        if (dimmerView == null) {
-            return
-        }
-        if (getWindowManager(context) == null) {
-            logE(TAG, "Failed to removeDimmerView: WindowManager is null")
-            return
-        }
+    fun removeDimmerView() {
         try {
-            wm?.removeView(dimmerView)
+            windowManager.removeView(dimmerView)
             logD(TAG, "removeDimmerView")
         } catch (e: Exception) {
-            logE(TAG, "Exception on removeDimmerView")
+            logE(TAG, "Exception on removeDimmerView", e)
         }
     }
 
-    fun showForAll(isLeft: Boolean, wm: WindowManager, displayBounds: Rect) {
+    fun showForAll(isLeft: Boolean, displayBounds: Rect) {
         if (!allowVisible) {
             logD(TAG, "showForAll: Set visible is disabled, return early")
             return
@@ -132,17 +91,17 @@ object ViewHolder {
         logD(TAG, "showForAll: isLeft=$isLeft")
         currentlyVisible = true
 
-        dimmerView?.postOnAnimation {
-            dimmerView?.layoutParams =
-                (dimmerView?.layoutParams as LayoutParams)?.apply {
-                    if (getAppFocusManager(dimmerView!!.context)?.hasMiniWindowFocus() ?: false) {
+        dimmerView.postOnAnimation {
+            dimmerView.layoutParams =
+                (dimmerView.layoutParams as LayoutParams).apply {
+                    if (appFocusManager.hasMiniWindowFocus()) {
                         flags = flags and LayoutParams.FLAG_DIM_BEHIND.inv()
                     } else {
                         flags = flags or LayoutParams.FLAG_DIM_BEHIND
                     }
                 }
-            wm.updateViewLayout(dimmerView, dimmerView!!.layoutParams)
-            dimmerView?.isVisible = true
+            windowManager.updateViewLayout(dimmerView, dimmerView.layoutParams)
+            dimmerView.isVisible = true
         }
 
         views.forEach {
@@ -157,7 +116,7 @@ object ViewHolder {
             val transY = params.y - prevY
 
             it.postOnAnimation {
-                wm.updateViewLayout(it, params)
+                windowManager.updateViewLayout(it, params)
                 it.isVisible = true
 
                 val rotateClockwise = ObjectAnimator.ofFloat(
@@ -168,7 +127,7 @@ object ViewHolder {
                             params.x = (prevX + (1f - a.animatedFraction) * transX).toInt()
                             params.y = (prevY + (1f - a.animatedFraction) * transY).toInt()
                             params.alpha = a.animatedFraction
-                            wm.updateViewLayout(it, params)
+                            windowManager.updateViewLayout(it, params)
                         }
                     }
                 val rotateRebound = ObjectAnimator.ofFloat(
@@ -226,57 +185,59 @@ object ViewHolder {
             }
         }
 
-        dimmerView?.postOnAnimationDelayed({
-            dimmerView?.isVisible = false
+        dimmerView.postOnAnimationDelayed({
+            dimmerView.isVisible = false
         }, HIDE_ANIMATION_DURATION)
 
         iconViewsShowing.clear()
     }
 
-    fun safelyClearIconViews(context: Context) {
+    fun safelyClearIconViews() {
         hideForAll()
 
-        iconViewsLeft.forEach { removeView(context, it, true) }
-        iconViewsRight.forEach { removeView(context, it, false) }
+        iconViewsLeft.forEach { removeView(it, true) }
+        iconViewsRight.forEach { removeView(it, false) }
         iconViewsLeft.clear()
         iconViewsRight.clear()
     }
 
-    fun addIconView(context: Context, packageName: String, idx: Int, total: Int) {
-        val iconRadius = IconLayoutAlgorithm.getIconRadius(context)
+    fun addIconView(packageName: String, idx: Int, total: Int) {
+        val iconRadius = IconLayoutAlgorithm.getIconRadius()
 
         var viewLeft: IconView?
-        IconLayoutAlgorithm.getIconCenterPos(context, true, idx, total).let {
+        IconLayoutAlgorithm.getIconCenterPos(true, idx, total).let {
             val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
             params.width = iconRadius * 2
             params.height = iconRadius * 2
             params.x = it.first - iconRadius
             params.y = it.second - iconRadius
             params.alpha = 0f
-            viewLeft = IconView(context.createWindowContext(
+            viewLeft = IconView(
+                    service.createWindowContext(
                     LayoutParams.TYPE_APPLICATION_OVERLAY, null),
                     packageName, it.first, it.second, iconRadius)
             viewLeft?.isVisible = false
             viewLeft?.rotation = -360f
-            if (!addView(context, viewLeft, params, true)) {
+            if (!addView(viewLeft, params, true)) {
                 viewLeft = null
             }
         }
 
         var viewRight: IconView?
-        IconLayoutAlgorithm.getIconCenterPos(context, false, idx, total).let {
+        IconLayoutAlgorithm.getIconCenterPos(false, idx, total).let {
             val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
             params.width = iconRadius * 2
             params.height = iconRadius * 2
             params.x = it.first - iconRadius
             params.y = it.second - iconRadius
             params.alpha = 0f
-            viewRight = IconView(context.createWindowContext(
+            viewRight = IconView(
+                    service.createWindowContext(
                     LayoutParams.TYPE_APPLICATION_OVERLAY, null),
                     packageName, it.first, it.second, iconRadius)
             viewRight?.isVisible = false
             viewRight?.rotation = -360f
-            if (!addView(context, viewRight, params, false)) {
+            if (!addView(viewRight, params, false)) {
                 viewRight = null
             }
         }
@@ -287,21 +248,16 @@ object ViewHolder {
         }
     }
 
-    fun onScreenRotationChanged(context: Context) {
-        relocateIconView(context)
+    fun onScreenRotationChanged() {
+        relocateIconView()
     }
 
-    fun relocateIconView(context: Context) {
+    fun relocateIconView() {
         hideForAll()
 
-        if (getWindowManager(context) == null) {
-            logE(TAG, "Failed to relocateIconView, WindowManager is null")
-            return
-        }
-
-        val iconRadius = IconLayoutAlgorithm.getIconRadius(context)
+        val iconRadius = IconLayoutAlgorithm.getIconRadius()
         iconViewsLeft.forEachIndexed { i, v ->
-            IconLayoutAlgorithm.getIconCenterPos(context, true, i + 1, iconViewsLeft.size).let {
+            IconLayoutAlgorithm.getIconCenterPos(true, i + 1, iconViewsLeft.size).let {
                 val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
                 params.width = iconRadius * 2
                 params.height = iconRadius * 2
@@ -311,16 +267,18 @@ object ViewHolder {
                 v.centerPosX = it.first
                 v.centerPosY = it.second
                 v.radius = iconRadius
-                try {
-                    wm?.updateViewLayout(v, params)
-                    logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=true")
-                } catch (e: Exception) {
-                    logE(TAG, "Exception on relocateIconView for packageName=${v.packageName}, isLeft=true")
+                v.post {
+                    try {
+                        windowManager.updateViewLayout(v, params)
+                        logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=true")
+                    } catch (e: Exception) {
+                        logE(TAG, "Exception on relocateIconView for packageName=${v.packageName}, isLeft=true", e)
+                    }
                 }
             }
         }
         iconViewsRight.forEachIndexed { i, v ->
-            IconLayoutAlgorithm.getIconCenterPos(context, false, i + 1, iconViewsRight.size).let {
+            IconLayoutAlgorithm.getIconCenterPos(false, i + 1, iconViewsRight.size).let {
                 val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
                 params.width = iconRadius * 2
                 params.height = iconRadius * 2
@@ -330,11 +288,13 @@ object ViewHolder {
                 v.centerPosX = it.first
                 v.centerPosY = it.second
                 v.radius = iconRadius
-                try {
-                    wm?.updateViewLayout(v, params)
-                    logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=false")
-                } catch (e: Exception) {
-                    logE(TAG, "Exception on relocateIconView for packageName=${v.packageName}, isLeft=false")
+                v.post {
+                    try {
+                        windowManager.updateViewLayout(v, params)
+                        logD(TAG, "relocateIconView: packageName=${v.packageName}, isLeft=false")
+                    } catch (e: Exception) {
+                        logE(TAG, "Exception on relocateIconView for packageName=${v.packageName}, isLeft=false", e)
+                    }
                 }
             }
         }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -12,10 +12,11 @@ import android.content.Intent.ACTION_CLOSE_SYSTEM_DIALOGS
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.Shared.service
 
+@Suppress("DEPRECATION")
 class SystemStateReceiver(
-    private val context: Context,
     private val handler: Handler
 ) : BroadcastReceiver() {
 
@@ -28,12 +29,12 @@ class SystemStateReceiver(
     }
 
     fun register() {
-        context.registerReceiverForAllUsers(this, IntentFilter().apply {
+        service.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
         }, null, handler)
     }
 
     fun unregister() {
-        context.unregisterReceiver(this)
+        service.unregisterReceiver(this)
     }
 }

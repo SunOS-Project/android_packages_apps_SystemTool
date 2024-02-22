@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.view
+package org.nameless.systemtool.windowmode.view
 
 import android.content.Context
 import android.graphics.PixelFormat
@@ -15,15 +15,18 @@ import android.view.WindowManager.LayoutParams
 
 import androidx.core.view.isVisible
 
-import org.nameless.systemtool.util.Constants.logE
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.Shared
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.windowManager
 
 class DimmerView(context: Context) : View(context) {
 
     var offsetX = 0
 
     init {
-        ViewHolder.dimmerView = this
+        Shared.dimmerView = this
     }
 
     private val gestureDector = GestureDetector(context, object: SimpleOnGestureListener() {
@@ -45,8 +48,9 @@ class DimmerView(context: Context) : View(context) {
     }
 
     companion object {
-        private val TAG = "SystemTool::DimmerView"
+        private const val TAG = "SystemTool::DimmerView"
 
+        @Suppress("DEPRECATION")
         private val dimmerLayoutParams = LayoutParams().apply {
             type = LayoutParams.TYPE_APPLICATION_OVERLAY
             format = PixelFormat.RGBA_8888
@@ -62,22 +66,18 @@ class DimmerView(context: Context) : View(context) {
             height = LayoutParams.FILL_PARENT
         }
 
-        fun addDimmerView(context: Context): Boolean {
-            if (ViewHolder.getWindowManager(context) == null) {
-                logE(TAG, "Failed to addDimmerView: WindowManger is null")
-                return false
-            }
+        fun addDimmerView(): Boolean {
             try {
-                ViewHolder.getWindowManager(context)?.addView(
-                    DimmerView(context.createWindowContext(
+                windowManager.addView(
+                    DimmerView(service.createWindowContext(
                         LayoutParams.TYPE_APPLICATION_OVERLAY, null)).apply {
                             isVisible = false
                         }, dimmerLayoutParams)
                 return true
             } catch (e: Exception) {
                 logE(TAG, "Exception on addDimmerView")
-                return false
             }
+            return false
         }
     }
 }

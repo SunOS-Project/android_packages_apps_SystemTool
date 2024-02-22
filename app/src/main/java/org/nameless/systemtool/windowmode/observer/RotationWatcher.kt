@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
 import android.os.Handler
 import android.os.RemoteException
@@ -12,13 +12,11 @@ import android.view.IRotationWatcher
 import android.view.Surface
 import android.view.WindowManagerGlobal
 
-import org.nameless.systemtool.EdgeService
-import org.nameless.systemtool.util.Constants.logE
-import org.nameless.systemtool.util.IconLayoutAlgorithm
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.ViewHolder
 
 class RotationWatcher(
-    private val service: EdgeService,
     private val handler: Handler
 ) : IRotationWatcher.Stub() {
 
@@ -34,7 +32,7 @@ class RotationWatcher(
         }, 500L)
     }
 
-    fun startWatch() {
+    fun register() {
         try {
             WindowManagerGlobal.getWindowManagerService()
                     .watchRotation(this, DEFAULT_DISPLAY)
@@ -43,7 +41,7 @@ class RotationWatcher(
         }
     }
 
-    fun stopWatch() {
+    fun unregister() {
         try {
             WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
         } catch (e: RemoteException) {
@@ -54,8 +52,8 @@ class RotationWatcher(
     private fun onDisplayRotated() {
         IconLayoutAlgorithm.rotationNeedsConsumeNavbar =
                 displayRotation == Surface.ROTATION_270
-        IconLayoutAlgorithm.updateNarbarHeight(service)
-        ViewHolder.onScreenRotationChanged(service)
+        IconLayoutAlgorithm.updateNavbarHeight()
+        ViewHolder.onScreenRotationChanged()
     }
 
     companion object {

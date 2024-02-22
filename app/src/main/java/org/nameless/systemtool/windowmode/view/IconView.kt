@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.view
+package org.nameless.systemtool.windowmode.view
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
@@ -14,17 +14,19 @@ import android.os.UserHandle
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.MotionEvent
-import android.widget.ImageView
 
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.animation.doOnEnd
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.drawable.toBitmap
 
-import org.nameless.systemtool.AllAppsPickerActivity
 import org.nameless.systemtool.R
-import org.nameless.systemtool.util.Constants
-import org.nameless.systemtool.util.PackageInfoCache
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.common.Utils
+import org.nameless.systemtool.windowmode.AllAppsPickerActivity
+import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.Config
+import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
 import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
 import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
@@ -35,7 +37,7 @@ class IconView(
     var centerPosX: Int,
     var centerPosY: Int,
     var radius: Int
-) : ImageView(context) {
+) : AppCompatImageView(context) {
 
     private var fromDown = false
     private var focused = false
@@ -43,11 +45,11 @@ class IconView(
     private var scalingDown = false
     private var downTime = 0L
 
-    private var animatorSet: AnimatorSet? = null
+    private var animatorSet = AnimatorSet()
 
     init {
-        if (Constants.PACKAGE_NAME.equals(packageName)) {
-            context.resources.getDrawable(R.drawable.ic_more_app)?.let {
+        if (Utils.PACKAGE_NAME == packageName) {
+            ResourcesCompat.getDrawable(context.resources, R.drawable.ic_more_app, null)?.let {
                 setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
                     cornerRadius = 1000f
                     setAntiAlias(true)
@@ -61,8 +63,8 @@ class IconView(
                 })
             }
         }
-        scaleX = 1f / Constants.iconFocusedScaleRatio
-        scaleY = 1f / Constants.iconFocusedScaleRatio
+        scaleX = 1f / Config.iconFocusedScaleRatio
+        scaleY = 1f / Config.iconFocusedScaleRatio
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -87,7 +89,7 @@ class IconView(
                         performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                     }
 
-                    if (!fromDown || SystemClock.uptimeMillis() - downTime >= FOCUSE_MIN_TIME_ON_DOWN) {
+                    if (!fromDown || SystemClock.uptimeMillis() - downTime >= FOCUS_MIN_TIME_ON_DOWN) {
                         focused = true
                         playScaleUpAnimation()
                     }
@@ -107,10 +109,10 @@ class IconView(
         return true
     }
 
-    fun playScaleUpAnimation() {
+    private fun playScaleUpAnimation() {
         if (scalingDown) {
-            animatorSet?.removeAllListeners()
-            animatorSet?.cancel()
+            animatorSet.removeAllListeners()
+            animatorSet.cancel()
             scalingDown = false
         }
         val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX, 1f)
@@ -130,11 +132,11 @@ class IconView(
         }
     }
 
-    fun playScaleDownAnimation() {
-        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX, 1f / Constants.iconFocusedScaleRatio)
-            .setDuration(SCALE_ANIMATION_DURATION)
-        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY, 1f / Constants.iconFocusedScaleRatio)
-            .setDuration(SCALE_ANIMATION_DURATION)
+    private fun playScaleDownAnimation() {
+        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX,
+                1f / Config.iconFocusedScaleRatio).setDuration(SCALE_ANIMATION_DURATION)
+        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY,
+                1f / Config.iconFocusedScaleRatio).setDuration(SCALE_ANIMATION_DURATION)
         animatorSet = AnimatorSet().also {
             it.playTogether(scaleXAnim, scaleYAnim)
             it.doOnEnd {
@@ -163,15 +165,15 @@ class IconView(
     }
 
     companion object {
-        private const val FOCUSE_MIN_TIME_ON_DOWN = 100L
+        private const val FOCUS_MIN_TIME_ON_DOWN = 100L
 
         private const val SCALE_ANIMATION_DURATION = 150L
 
         fun sendMiniWindowBroadcast(context: Context, packageName: String) {
-            if (Constants.PACKAGE_NAME.equals(packageName)) {
+            if (Utils.PACKAGE_NAME == packageName) {
                 context.sendBroadcastAsUser(Intent().apply {
                     action = ACTION_START_MINI_WINDOW
-                    putExtra(EXTRA_PACKAGE_NAME, Constants.PACKAGE_NAME)
+                    putExtra(EXTRA_PACKAGE_NAME, Utils.PACKAGE_NAME)
                     putExtra(EXTRA_ACTIVITY_NAME, AllAppsPickerActivity::class.java.name)
                 }, UserHandle.SYSTEM)
                 return

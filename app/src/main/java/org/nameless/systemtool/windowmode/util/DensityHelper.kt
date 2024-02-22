@@ -3,13 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.util
-
-import android.content.Context
+package org.nameless.systemtool.windowmode.util
 
 import com.android.settingslib.display.DisplayDensityUtils
 
+import org.nameless.systemtool.windowmode.util.Shared.service
+
 object DensityHelper {
+
+    private val densityUtils by lazy { DisplayDensityUtils(service) }
 
     enum class DisplaySize {
         SMALLEST,
@@ -21,7 +23,7 @@ object DensityHelper {
         EXTREMELY_LARGE
     }
 
-    fun getDisplaySize(context: Context): Int {
-        return DisplayDensityUtils(context).currentIndexForDefaultDisplay
+    fun getDisplaySize(): Int {
+        return densityUtils.currentIndexForDefaultDisplay
     }
 }

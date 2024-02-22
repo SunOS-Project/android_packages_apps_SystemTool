@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.view
+package org.nameless.systemtool.windowmode.view
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -75,17 +75,17 @@ abstract class GridItemAdapter<T> : BaseAdapter {
             itemView.tag = this
         }
 
-        fun <T : View?> getView(resId: Int): T? {
-            var t = views[resId] as T?
+        private fun getView(resId: Int): View? {
+            var t = views[resId]
             if (t == null) {
-                t = itemView.findViewById<View>(resId) as T
+                t = itemView.findViewById(resId)
                 views.put(resId, t)
             }
             return t
         }
 
         fun setText(resId: Int, text: CharSequence?): AdapterViewHolder {
-            val view = getView<View>(resId)!!
+            val view = getView(resId)!!
             if (view is TextView) {
                 view.text = text
             }
@@ -93,7 +93,7 @@ abstract class GridItemAdapter<T> : BaseAdapter {
         }
 
         fun setDrawable(resId: Int, drawable: Drawable?): AdapterViewHolder {
-            val view = getView<View>(resId)!!
+            val view = getView(resId)!!
             if (view is ImageView) {
                 view.setImageDrawable(RoundedBitmapDrawableFactory.create(
                     context.resources, drawable?.toBitmap()).apply {

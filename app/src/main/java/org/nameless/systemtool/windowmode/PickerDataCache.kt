@@ -3,15 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool
+package org.nameless.systemtool.windowmode
 
-import org.nameless.systemtool.util.PackageInfoCache
-import org.nameless.systemtool.view.GridItem
-import org.nameless.systemtool.view.GridItemAdapter
+import org.nameless.systemtool.windowmode.util.PackageInfoCache
+import org.nameless.systemtool.windowmode.view.GridItem
 
 object PickerDataCache {
 
-    var pinnedPackages: MutableSet<String>? = null
+    var pinnedPackages: MutableSet<String> = mutableSetOf()
 
     val pinnedAppsItems: MutableList<GridItem> = mutableListOf()
     val allAppsItems: MutableList<GridItem> = mutableListOf()
@@ -20,13 +19,12 @@ object PickerDataCache {
         pinnedPackages = packages
 
         pinnedAppsItems.clear()
-        pinnedPackages?.forEach {
+        pinnedPackages.forEach {
             pinnedAppsItems.add(GridItem(it))
         }
 
         allAppsItems.clear()
-        PackageInfoCache.availablePackages.filterNot {
-            pinnedPackages?.contains(it)?: false }.forEach {
+        PackageInfoCache.availablePackages.filterNot { pinnedPackages.contains(it) }.forEach {
                 allAppsItems.add(GridItem(it))
             }
     }
@@ -34,7 +32,7 @@ object PickerDataCache {
     fun onAvailablePackagesChanged() {
         allAppsItems.clear()
         PackageInfoCache.availablePackages.filterNot {
-            pinnedPackages?.contains(it)?: false }.forEach {
+            pinnedPackages.contains(it) }.forEach {
                 allAppsItems.add(GridItem(it))
             }
     }

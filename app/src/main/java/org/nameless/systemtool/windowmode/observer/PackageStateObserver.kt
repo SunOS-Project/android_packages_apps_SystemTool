@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,11 +16,11 @@ import android.content.Intent.EXTRA_REPLACING
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.systemtool.util.Constants.logD
-import org.nameless.systemtool.util.PackageInfoCache
+import org.nameless.systemtool.common.Utils.logD
+import org.nameless.systemtool.windowmode.util.PackageInfoCache
+import org.nameless.systemtool.windowmode.util.Shared.service
 
 class PackageStateObserver(
-    private val context: Context,
     private val handler: Handler
 ) : BroadcastReceiver() {
 
@@ -43,7 +43,7 @@ class PackageStateObserver(
     }
 
     fun register() {
-        context.registerReceiverForAllUsers(this, IntentFilter().apply {
+        service.registerReceiverForAllUsers(this, IntentFilter().apply {
             addAction(ACTION_PACKAGE_ADDED)
             addAction(ACTION_PACKAGE_CHANGED)
             addAction(ACTION_PACKAGE_FULLY_REMOVED)
@@ -53,27 +53,27 @@ class PackageStateObserver(
     }
 
     fun unregister() {
-        context.unregisterReceiver(this)
+        service.unregisterReceiver(this)
     }
 
     private fun onPackageAdded(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageAdded, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(context, packageName, true)
+        PackageInfoCache.onPackageStateChanged(packageName, true)
     }
 
     private fun onPackageStateChanged(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageStateChanged, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(context, packageName)
+        PackageInfoCache.onPackageStateChanged(packageName)
     }
 
     private fun onPackageRemoved(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageRemoved, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(context, packageName)
-        SettingsObserver.putMiniWindowAppsSettings(context,
-            (SettingsObserver.getMiniWindowAppsSettings(context)
+        PackageInfoCache.onPackageStateChanged(packageName)
+        SettingsObserver.putMiniWindowAppsSettings(service,
+            (SettingsObserver.getMiniWindowAppsSettings(service)
                 ?.takeIf { it.isNotBlank() }?.split(";")
                 ?.filterNot { it.equals(packageName) }
                 ?: emptyList()).joinToString(";"))

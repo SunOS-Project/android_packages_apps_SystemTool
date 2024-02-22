@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.util
+package org.nameless.systemtool.windowmode.util
 
-import android.content.Context
 import android.content.pm.ApplicationInfo.FLAG_SYSTEM
 import android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
 import android.content.pm.PackageManager.NameNotFoundException
@@ -15,8 +14,8 @@ import java.text.Collator
 
 import kotlin.Comparator
 
-import org.nameless.systemtool.PickerDataCache
-import org.nameless.systemtool.util.Constants
+import org.nameless.systemtool.windowmode.PickerDataCache
+import org.nameless.systemtool.windowmode.util.Shared.service
 
 object PackageInfoCache {
 
@@ -25,19 +24,19 @@ object PackageInfoCache {
 
     private const val DEFAULT_LABEL = "Unknown"
 
-    fun initPackageList(context: Context) {
+    fun initPackageList() {
         availablePackages.clear()
         caches.clear()
 
-        context.packageManager.getInstalledPackages(0).filter {
-            Constants.miniWindowSystemAppsWhitelist.contains(it.packageName) ||
+        service.packageManager.getInstalledPackages(0).filter {
+            Config.miniWindowSystemAppsWhitelist.contains(it.packageName) ||
             ((it.applicationInfo.flags and FLAG_SYSTEM) == 0 &&
             (it.applicationInfo.flags and FLAG_UPDATED_SYSTEM_APP) == 0)
         }.forEach {
             availablePackages.add(it.packageName)
             caches[it.packageName] = Pair(
-                getAppIcon(context, it.packageName),
-                it.applicationInfo.loadLabel(context.packageManager).toString()
+                getAppIcon(it.packageName),
+                it.applicationInfo.loadLabel(service.packageManager).toString()
             )
         }
 
@@ -56,9 +55,9 @@ object PackageInfoCache {
         return caches[packageName]?.second ?: DEFAULT_LABEL
     }
 
-    fun onPackageStateChanged(context: Context, packageName: String, newApp: Boolean = false) {
-        if (isSystemApp(context, packageName) &&
-                !Constants.miniWindowSystemAppsWhitelist.contains(packageName)) {
+    fun onPackageStateChanged(packageName: String, newApp: Boolean = false) {
+        if (isSystemApp(packageName) &&
+                !Config.miniWindowSystemAppsWhitelist.contains(packageName)) {
             return
         }
 
@@ -67,11 +66,11 @@ object PackageInfoCache {
             caches.remove(packageName)
         }
 
-        if (newApp || isPackageInstalled(context, packageName)) {
+        if (newApp || isPackageInstalled(packageName)) {
             availablePackages.add(packageName)
             caches[packageName] = Pair(
-                getAppIcon(context, packageName),
-                getAppName(context, packageName)?: DEFAULT_LABEL
+                getAppIcon(packageName),
+                getAppName(packageName)?: DEFAULT_LABEL
             )
 
             availablePackages.sortWith(AppComparator())
@@ -80,47 +79,47 @@ object PackageInfoCache {
         PickerDataCache.onAvailablePackagesChanged()
     }
 
-    private fun getAppName(context: Context, packageName: String): String? {
+    private fun getAppName(packageName: String): String? {
         try {
-            return context.packageManager.getPackageInfo(packageName, 0)
-                    .applicationInfo.loadLabel(context.packageManager).toString()
+            return service.packageManager.getPackageInfo(packageName, 0)
+                    .applicationInfo.loadLabel(service.packageManager).toString()
         } catch (e: NameNotFoundException) {
-            return null
         }
+        return null
     }
 
-    private fun getAppIcon(context: Context, packageName: String): Drawable? {
+    private fun getAppIcon(packageName: String): Drawable? {
         var loadIcon: Drawable? = null
         try {
-            loadIcon = context.packageManager.getApplicationIcon(packageName)
+            loadIcon = service.packageManager.getApplicationIcon(packageName)
         } catch (e: NameNotFoundException) {}
         if (loadIcon == null) {
-            loadIcon = context.packageManager.defaultActivityIcon
+            loadIcon = service.packageManager.defaultActivityIcon
         }
         return loadIcon
     }
 
-    private fun isPackageInstalled(context: Context, packageName: String): Boolean {
+    private fun isPackageInstalled(packageName: String): Boolean {
         try {
-            return context.packageManager.getPackageInfo(packageName, 0)
+            return service.packageManager.getPackageInfo(packageName, 0)
                     .applicationInfo.enabled
         } catch (e: NameNotFoundException) {
-            return false
         }
+        return false
     }
 
-    private fun isSystemApp(context: Context, packageName: String): Boolean {
+    private fun isSystemApp(packageName: String): Boolean {
         try {
-            context.packageManager.getPackageInfo(packageName, 0).applicationInfo.let {
-                return (it.flags and FLAG_SYSTEM) != 0 || (it.flags and FLAG_UPDATED_SYSTEM_APP) != 0
+            service.packageManager.getPackageInfo(packageName, 0).applicationInfo.flags.let {
+                return (it and FLAG_SYSTEM) != 0 || (it and FLAG_UPDATED_SYSTEM_APP) != 0
             }
         } catch (e: NameNotFoundException) {
-            return false
         }
+        return false
     }
 
     internal class AppComparator : Comparator<String> {
-        val collator = Collator.getInstance()
+        private val collator: Collator = Collator.getInstance()
 
         override fun compare(s1: String, s2: String): Int {
             return collator.compare(caches[s1]?.second ?: DEFAULT_LABEL,

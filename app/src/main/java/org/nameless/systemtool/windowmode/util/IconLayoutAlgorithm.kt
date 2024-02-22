@@ -3,12 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.util
+package org.nameless.systemtool.windowmode.util
 
-import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.WindowManager.LayoutParams
+
+import org.nameless.systemtool.windowmode.util.Config.circleCenterXLand
+import org.nameless.systemtool.windowmode.util.Config.circleCenterXPort
+import org.nameless.systemtool.windowmode.util.Config.circleCenterYLand
+import org.nameless.systemtool.windowmode.util.Config.circleCenterYPort
+import org.nameless.systemtool.windowmode.util.Config.circleRadiusRatio
+import org.nameless.systemtool.windowmode.util.Config.iconSizeRatio
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.windowManager
 
 import kotlin.math.cos
 import kotlin.math.min
@@ -34,23 +42,23 @@ object IconLayoutAlgorithm {
     var rotationNeedsConsumeNavbar = false
     var navbarHeight = 0
 
-    fun getIconCenterPos(context: Context, isLeft: Boolean, idx: Int, total: Int): Pair<Int, Int> {
+    fun getIconCenterPos(isLeft: Boolean, idx: Int, total: Int): Pair<Int, Int> {
         if (idx <= 0) {
             throw Exception("getIconCenterPos, index starts from 1!")
         }
         if (idx > total) {
             throw Exception("getIconCenterPos, index of icon cannot be larger than total icons!")
         }
-        var width = 0
-        var height = 0
-        ViewHolder.getWindowManager(context)?.currentWindowMetrics?.bounds?.let {
+        var width: Int
+        var height: Int
+        windowManager.currentWindowMetrics.bounds.let {
             width = it.width()
             height = it.height()
-        } ?: throw Exception("getIconCenterPos, WindowManager is null!")
-        val radius = min(width, height) * Constants.circleRadiusRatio
-        val iconRadius = min(width, height) * Constants.iconSizeRatio / 2
-        var circleCenterX = if (width > height) Constants.circleCenterXLand else Constants.circleCenterXPort
-        val circleCenterY = if (width > height) Constants.circleCenterYLand else Constants.circleCenterYPort
+        }
+        val radius = min(width, height) * circleRadiusRatio
+        val iconRadius = min(width, height) * iconSizeRatio / 2
+        var circleCenterX = if (width > height) circleCenterXLand else circleCenterXPort
+        val circleCenterY = if (width > height) circleCenterYLand else circleCenterYPort
         val angle = 90f - 90f / (total + 1) * idx
 
         val x = (if (isLeft) {
@@ -64,14 +72,14 @@ object IconLayoutAlgorithm {
         return Pair(x, y)
     }
 
-    fun getIconRadius(context: Context): Int {
-        var width = 0
-        var height = 0
-        ViewHolder.getWindowManager(context)?.currentWindowMetrics?.bounds?.let {
+    fun getIconRadius(): Int {
+        var width: Int
+        var height: Int
+        windowManager.currentWindowMetrics.bounds.let {
             width = it.width()
             height = it.height()
-        } ?: throw Exception("getIconRadius, WindowManager is null!")
-        var iconRadius = min(width, height) / 2 * Constants.iconSizeRatio
+        }
+        var iconRadius = min(width, height) / 2 * iconSizeRatio
         return iconRadius.toInt()
     }
 
@@ -81,17 +89,17 @@ object IconLayoutAlgorithm {
         }
     }
 
-    fun updateNarbarHeight(context: Context) {
-        if (rotationNeedsConsumeNavbar) {
+    fun updateNavbarHeight() {
+        navbarHeight = if (rotationNeedsConsumeNavbar) {
             if (gesturalMode) {
-                navbarHeight = 0
+                0
             } else {
-                navbarHeight = context.resources.getDimensionPixelSize(
+                service.resources.getDimensionPixelSize(
                     com.android.internal.R.dimen.navigation_bar_height_landscape
                 )
             }
         } else {
-            navbarHeight = 0
+            0
         }
     }
 }

@@ -3,15 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.util
+package org.nameless.systemtool.windowmode.util
 
-import android.util.Log
-
-import org.nameless.os.DebugConstants.DEBUG_SYSTEM_TOOL
-
-object Constants {
-
-    const val PACKAGE_NAME = "org.nameless.systemtool"
+object Config {
 
     const val iconSizeRatio = 0.123f  // 142 / 1440 * iconFocusedScaleRatio
 
@@ -26,7 +20,7 @@ object Constants {
 
     const val circleMaxIcon = 6  // Per app gap = 90° / (circleMaxIcon - 1)
 
-    val miniWindowSystemAppsWhitelist = setOf<String>(
+    val miniWindowSystemAppsWhitelist = setOf(
         "com.android.chrome",
         "com.android.settings",
         "com.android.vending",
@@ -43,17 +37,6 @@ object Constants {
         "com.oneplus.camera",
         "com.oneplus.gallery",
         "com.oplus.camera",
-        "org.lineageos.aperture",
-        "org.nameless.gamespace"
+        "org.lineageos.aperture"
     )
-
-    fun logD(tag: String, msg: String) {
-        if (DEBUG_SYSTEM_TOOL) {
-            Log.d(tag, msg)
-        }
-    }
-
-    fun logE(tag: String, msg: String) {
-        Log.e(tag, msg)
-    }
 }

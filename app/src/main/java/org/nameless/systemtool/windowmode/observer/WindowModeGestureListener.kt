@@ -3,30 +3,29 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.observer
+package org.nameless.systemtool.windowmode.observer
 
 import android.os.RemoteException
 import android.view.MotionEvent
 import android.view.WindowManagerGlobal
 
-import org.nameless.systemtool.EdgeService
-import org.nameless.systemtool.util.Constants
-import org.nameless.systemtool.util.Constants.logE
-import org.nameless.systemtool.util.IconLayoutAlgorithm
-import org.nameless.systemtool.util.ViewHolder
+import org.nameless.systemtool.common.Utils
+import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.util.Shared.dimmerView
+import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.windowManager
+import org.nameless.systemtool.windowmode.ViewHolder
 import org.nameless.view.ISystemGestureListener
-import org.nameless.view.ISystemGestureListener.GESTURE_WINDOW_MODE
 
-class WindowModeGestureListener(
-    private val service: EdgeService
-) : ISystemGestureListener.Stub() {
+class WindowModeGestureListener : ISystemGestureListener.Stub() {
 
     private var triggered = false
 
     fun register() {
         try {
             WindowManagerGlobal.getWindowManagerService().registerSystemGestureListener(
-                    Constants.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
+                    Utils.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
         } catch (e: RemoteException) {
             logE(TAG, "Failed to register system gesture listener")
         }
@@ -35,7 +34,7 @@ class WindowModeGestureListener(
     fun unregister() {
         try {
             WindowManagerGlobal.getWindowManagerService().unregisterSystemGestureListener(
-                    Constants.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
+                    Utils.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
         } catch (e: RemoteException) {
             logE(TAG, "Failed to unregister system gesture listener")
         }
@@ -46,7 +45,7 @@ class WindowModeGestureListener(
             return
         }
         triggered = false
-        ViewHolder.dimmerView?.offsetX = 0
+        dimmerView.offsetX = 0
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {
@@ -54,7 +53,7 @@ class WindowModeGestureListener(
             return
         }
         triggered = false
-        ViewHolder.dimmerView?.offsetX = IconLayoutAlgorithm.navbarHeight
+        dimmerView.offsetX = IconLayoutAlgorithm.navbarHeight
     }
 
     override fun onGesturePreTriggerBefore(gesture: Int, event: MotionEvent): Boolean {
@@ -71,14 +70,14 @@ class WindowModeGestureListener(
         }
         if (!triggered) {
             triggered = true
-            ViewHolder.getWindowManager(service)?.let {
+            windowManager.let {
                 it.currentWindowMetrics.bounds.let { bound ->
-                    ViewHolder.showForAll(event.x <= bound.width() / 2, it, bound)
+                    ViewHolder.showForAll(event.x <= bound.width() / 2, bound)
                 }
             }
         } else if (ViewHolder.currentlyVisible) {
-            ViewHolder.dimmerView?.post {
-                ViewHolder.dimmerView?.onTouchEvent(event)
+            dimmerView.post {
+                dimmerView.onTouchEvent(event)
             }
         }
     }

@@ -11,10 +11,16 @@ import android.content.Intent
 import android.os.UserHandle
 
 import org.nameless.systemtool.windowmode.WmGestureService
+import org.nameless.view.PopUpViewManager
 
 class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        context.startServiceAsUser(Intent(context, WmGestureService::class.java), UserHandle.CURRENT)
+        if (PopUpViewManager.FEATURE_SUPPORTED) {
+            context.startServiceAsUser(
+                Intent(context, WmGestureService::class.java),
+                UserHandle.CURRENT
+            )
+        }
     }
 }

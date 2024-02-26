@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.UserHandle
 
+import org.nameless.systemtool.onlineconfig.OnlineConfigService
 import org.nameless.systemtool.windowmode.WmGestureService
 import org.nameless.view.PopUpViewManager
 
@@ -22,5 +23,10 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 UserHandle.CURRENT
             )
         }
+
+        context.startServiceAsUser(
+            Intent(context, OnlineConfigService::class.java),
+            UserHandle.CURRENT
+        )
     }
 }

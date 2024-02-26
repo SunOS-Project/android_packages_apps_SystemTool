@@ -1,4 +1,5 @@
 -keep class org.nameless.systemtool.BootCompletedReceiver
+-keep class org.nameless.systemtool.onlineconfig.OnlineConfigService
 -keep class org.nameless.systemtool.windowmode.AllAppsPickerActivity
 -keep class org.nameless.systemtool.windowmode.WmGestureService
 -keep class org.nameless.systemtool.windowmode.view.ExpandableGridView

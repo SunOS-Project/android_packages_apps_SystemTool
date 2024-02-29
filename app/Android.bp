@@ -31,7 +31,7 @@ android_app {
         "androidx.recyclerview_recyclerview",
         "com.google.android.material_material",
     ],
-    resource_dirs: ["src/main/res"],
+    resource_dirs: ["src/main/res", "src/main/res-sdk"],
     manifest: "src/main/AndroidManifest.xml",
 }
    

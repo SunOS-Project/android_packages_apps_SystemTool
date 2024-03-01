@@ -45,6 +45,7 @@ object OnlineConfigUpdater {
             logD(TAG,"Start verification for ${it.localConfigPath}")
             getConfigInfo(it.localConfigPath + ".tmp").let { info ->
                 val systemTimestamp = getConfigInfo(it.systemConfigPath).second
+                val localTimestamp = getConfigInfo(it.localConfigPath).second
                 if (info.first > it.version) {
                     // Online config requires higher framework config version, skip update
                     logD(TAG, "online config version ${info.first} > framework config " +
@@ -54,6 +55,13 @@ object OnlineConfigUpdater {
                     // Online config isn't newer than system config, skip update
                     logD(TAG, "online config timestamp ${info.second} <= framework config " +
                             "timestamp $systemTimestamp, skip update")
+                    cleanTmpLocalConfig(it)
+                } else if (info.second <= localTimestamp) {
+                    // Online config isn't newer than existing local config
+                    // Online update may has been processed before
+                    // Or it's possible that user modified config
+                    logD(TAG, "online config timestamp ${info.first} <= existing local config " +
+                            "timestamp $localTimestamp, skip update")
                     cleanTmpLocalConfig(it)
                 } else {
                     logD(TAG, "Update verified for ${it.localConfigPath}")

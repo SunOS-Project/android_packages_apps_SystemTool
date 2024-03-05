@@ -16,6 +16,9 @@ object Constants {
     // Update interval normally
     const val UPDATE_INTERVAL = 60 * 60 * 12  // 12 hours
 
+    // Update interval when last update is intercepted
+    const val UPDATE_INTERCEPTED_INTERVAL = 60 * 10  // 10 minutes
+
     // Delay time for updating once boot completed
     const val BOOT_COMPLETED_UPDATE_DELAY = 30  // 30 seconds
 

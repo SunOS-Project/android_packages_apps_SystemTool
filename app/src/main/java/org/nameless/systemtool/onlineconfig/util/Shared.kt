@@ -8,6 +8,7 @@ package org.nameless.systemtool.onlineconfig.util
 import android.app.AlarmManager
 import android.net.ConnectivityManager
 
+import org.nameless.app.GameModeManager
 import org.nameless.content.OnlineConfigManager
 import org.nameless.systemtool.onlineconfig.OnlineConfigService
 import org.nameless.systemtool.onlineconfig.UpdateScheduler
@@ -27,6 +28,9 @@ object Shared {
     }
     val connectivityManager: ConnectivityManager by lazy {
         service.getSystemService(ConnectivityManager::class.java)
+    }
+    val gameModeManager: GameModeManager by lazy {
+        service.getSystemService(GameModeManager::class.java)
     }
     val onlineConfigManager: OnlineConfigManager by lazy {
         service.getSystemService(OnlineConfigManager::class.java)

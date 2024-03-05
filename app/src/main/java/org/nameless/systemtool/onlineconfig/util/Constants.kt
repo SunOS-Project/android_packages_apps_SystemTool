@@ -14,7 +14,7 @@ object Constants {
     const val DEBUG_MODE_UPDATE_INTERVAL = 60  // 1 minute
 
     // Update interval normally
-    const val UPDATE_INTERVAL = 60 * 60 * 72  // 3 days
+    const val UPDATE_INTERVAL = 60 * 60 * 12  // 12 hours
 
     // Delay time for updating once boot completed
     const val BOOT_COMPLETED_UPDATE_DELAY = 30  // 30 seconds

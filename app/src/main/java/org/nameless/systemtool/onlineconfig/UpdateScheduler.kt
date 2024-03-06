@@ -56,7 +56,7 @@ class UpdateScheduler(
                 Settings.Secure.USER_SETUP_COMPLETE, 0, UserHandle.USER_CURRENT) == 0) {
             return true
         }
-        if (gameModeManager.gameModeInfo.isInGame) {
+        if (gameModeManager.gameModeInfo?.isInGame == true) {
             return true
         }
         return false

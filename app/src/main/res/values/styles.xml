@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2023-2024 The Nameless-AOSP Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <style name="control_text_style_subtitle">
+        <item name="android:textSize">10sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+</resources>

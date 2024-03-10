@@ -9,6 +9,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.UserHandle
+import org.nameless.systemtool.iris.IrisService
+import org.nameless.systemtool.iris.util.FeatureHelper
 
 import org.nameless.systemtool.onlineconfig.OnlineConfigService
 import org.nameless.systemtool.windowmode.WmGestureService
@@ -20,6 +22,13 @@ class BootCompletedReceiver : BroadcastReceiver() {
         if (PopUpViewManager.FEATURE_SUPPORTED) {
             context.startServiceAsUser(
                 Intent(context, WmGestureService::class.java),
+                UserHandle.CURRENT
+            )
+        }
+
+        if (FeatureHelper.isIrisSupported()) {
+            context.startServiceAsUser(
+                Intent(context, IrisService::class.java),
                 UserHandle.CURRENT
             )
         }

@@ -30,6 +30,8 @@ android_app {
         "androidx.preference_preference",
         "androidx.recyclerview_recyclerview",
         "com.google.android.material_material",
+        "vendor.pixelworks.hardware.display-V1.0-java",
+        "vendor.pixelworks.hardware.feature-V1.0-java",
     ],
     resource_dirs: ["src/main/res", "src/main/res-sdk"],
     manifest: "src/main/AndroidManifest.xml",

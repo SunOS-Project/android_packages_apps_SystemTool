@@ -17,7 +17,10 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
+    <protected-broadcast android:name="org.nameless.systemtool.intent.IRIS_GET_COMMAND" />
+    <protected-broadcast android:name="org.nameless.systemtool.intent.IRIS_SET_COMMAND" />
     <protected-broadcast android:name="org.nameless.systemtool.intent.ONLINE_CONFIG_DEBUG_MODE" />
 
     <application
@@ -36,6 +39,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".iris.IrisService">
+        </service>
 
         <service
             android:name=".onlineconfig.OnlineConfigService">

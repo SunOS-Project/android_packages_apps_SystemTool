@@ -33,6 +33,7 @@ import org.nameless.systemtool.iris.pixelworks.IrisHIDLWrapper
 import org.nameless.systemtool.iris.util.FeatureHelper.VIDEO_OSIE_SUPPORTED
 import org.nameless.systemtool.iris.util.RefreshRateHelper
 import org.nameless.systemtool.iris.util.Shared.layoutInflater
+import org.nameless.systemtool.iris.util.Shared.onlineConfigManager
 import org.nameless.systemtool.iris.util.Shared.powerSaveMode
 import org.nameless.systemtool.iris.util.Shared.service
 import org.nameless.view.DisplayResolutionManager.QHD_WIDTH
@@ -188,10 +189,8 @@ class IrisService : Service() {
 
         service = this
 
-        if (!IrisConfigHolder.initConfig()) {
-            logE(TAG, "Error on init config, exiting")
-            stopSelf()
-        }
+        IrisConfigHolder.initConfig()
+        onlineConfigManager.registerOnlineConfigurable(IrisConfigHolder)
 
         handler.sendMessage(handler.obtainMessage(MSG_REGISTER_CALLBACK))
 

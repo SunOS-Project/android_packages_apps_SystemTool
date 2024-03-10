@@ -9,6 +9,7 @@ import android.app.KeyguardManager
 import android.os.PowerManager
 import android.view.LayoutInflater
 
+import org.nameless.content.OnlineConfigManager
 import org.nameless.display.RefreshRateManager
 import org.nameless.systemtool.iris.IrisService
 import org.nameless.view.AppFocusManager
@@ -31,6 +32,9 @@ object Shared {
     }
     val layoutInflater: LayoutInflater by lazy {
         service.getSystemService(LayoutInflater::class.java)
+    }
+    val onlineConfigManager: OnlineConfigManager by lazy {
+        service.getSystemService(OnlineConfigManager::class.java)
     }
     val powerManager: PowerManager by lazy {
         service.getSystemService(PowerManager::class.java)

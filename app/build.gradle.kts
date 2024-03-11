@@ -23,6 +23,11 @@ android {
         versionName = "1.0"
     }
 
+    sourceSets["main"].res.srcDirs(
+        "src/main/res",
+        "src/main/res-sdk"
+    )
+
     buildTypes {
         getByName("release") {
             // Includes the default ProGuard rules files.

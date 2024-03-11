@@ -16,23 +16,31 @@ class DisplayResolutionChangeListener(
     private val handler: Handler
 ) : IDisplayResolutionListener.Stub() {
 
-    private var displayWidth = -1
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                resolutionManager.registerDisplayResolutionListener(this)
+            } else {
+                resolutionManager.unregisterDisplayResolutionListener(this)
+            }
+        }
 
-    override fun onDisplayResolutionChanged(width: Int, height: Int) {
-        if (displayWidth != width) {
-            displayWidth = width
+    private var displayWidth = -1
+        set(value) {
+            field = value
             handler.postDelayed({
                 IconLayoutAlgorithm.updateNavbarHeight()
                 ViewHolder.relocateIconView()
             }, 500L)
         }
-    }
 
-    fun register() {
-        resolutionManager.registerDisplayResolutionListener(this)
-    }
-
-    fun unregister() {
-        resolutionManager.unregisterDisplayResolutionListener(this)
+    override fun onDisplayResolutionChanged(width: Int, height: Int) {
+        if (displayWidth != width) {
+            displayWidth = width
+        }
     }
 }

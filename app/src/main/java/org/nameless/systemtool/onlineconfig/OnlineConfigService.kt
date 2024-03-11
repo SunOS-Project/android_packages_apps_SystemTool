@@ -42,20 +42,20 @@ class OnlineConfigService : Service() {
     override fun onCreate() {
         super.onCreate()
         Shared.service = this
-        Shared.scheduler = updateScheduler
+        Shared.updateScheduler = updateScheduler
 
-        debugModeReceiver.register()
-        networkStateObserver.register()
-        updateActionReceiver.register()
+        debugModeReceiver.registered = true
+        networkStateObserver.registered = true
+        updateActionReceiver.registered = true
 
-        updateScheduler.setScheduler(BOOT_COMPLETED_UPDATE_DELAY)
+        updateScheduler.scheduler = BOOT_COMPLETED_UPDATE_DELAY
     }
 
     override fun onDestroy() {
+        updateScheduler.scheduler = -1
+        updateActionReceiver.registered = false
+        networkStateObserver.registered = false
+        debugModeReceiver.registered = false
         super.onDestroy()
-        updateScheduler.cancelScheduler()
-        updateActionReceiver.unregister()
-        networkStateObserver.unregister()
-        debugModeReceiver.unregister()
     }
 }

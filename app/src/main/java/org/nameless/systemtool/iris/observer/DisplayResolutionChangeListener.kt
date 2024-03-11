@@ -14,7 +14,18 @@ abstract class DisplayResolutionChangeListener(
     private val handler: Handler
 ) : IDisplayResolutionListener.Stub() {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                displayResolutionManager.registerDisplayResolutionListener(this)
+            } else {
+                displayResolutionManager.unregisterDisplayResolutionListener(this)
+            }
+        }
 
     var displayWidth = -1
         set(value) {
@@ -28,22 +39,6 @@ abstract class DisplayResolutionChangeListener(
                 displayWidth = width
             }
         }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        registered = true
-        displayResolutionManager.registerDisplayResolutionListener(this)
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        displayResolutionManager.unregisterDisplayResolutionListener(this)
     }
 
     abstract fun onDisplayWidthChanged()

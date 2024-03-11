@@ -16,7 +16,7 @@ import org.nameless.systemtool.onlineconfig.UpdateScheduler
 object Shared {
 
     lateinit var service: OnlineConfigService
-    lateinit var scheduler: UpdateScheduler
+    lateinit var updateScheduler: UpdateScheduler
 
     var debugMode = false
 

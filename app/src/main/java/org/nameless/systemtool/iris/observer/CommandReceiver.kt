@@ -22,7 +22,24 @@ abstract class CommandReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            if (!DEBUG_SYSTEM_TOOL) {
+                return // Don't register receiver if debug is not enabled
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(INTENT_DEBUG_GET_COMMAND)
+                    addAction(INTENT_DEBUG_SET_COMMAND)
+                }, null, handler)
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -39,28 +56,6 @@ abstract class CommandReceiver(
                 }
             }
         }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        if (!DEBUG_SYSTEM_TOOL) {
-            return // Don't register receiver if debug is not enabled
-        }
-        registered = true
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(INTENT_DEBUG_GET_COMMAND)
-            addAction(INTENT_DEBUG_SET_COMMAND)
-        }, null, handler)
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        service.unregisterReceiver(this)
     }
 
     abstract fun onGetCommand(type: Int): Int

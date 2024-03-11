@@ -20,7 +20,7 @@ import org.nameless.systemtool.windowmode.util.Shared.service
 object PackageInfoCache {
 
     val availablePackages: MutableList<String> = mutableListOf()
-    private val caches: MutableMap<String, Pair<Drawable?, String>> = mutableMapOf()
+    private val caches: MutableMap<String, Pair<Drawable, String>> = mutableMapOf()
 
     private const val DEFAULT_LABEL = "Unknown"
 
@@ -83,27 +83,24 @@ object PackageInfoCache {
         try {
             return service.packageManager.getPackageInfo(packageName, 0)
                     .applicationInfo.loadLabel(service.packageManager).toString()
-        } catch (e: NameNotFoundException) {
+        } catch (_: NameNotFoundException) {
         }
         return null
     }
 
-    private fun getAppIcon(packageName: String): Drawable? {
-        var loadIcon: Drawable? = null
-        try {
-            loadIcon = service.packageManager.getApplicationIcon(packageName)
-        } catch (e: NameNotFoundException) {}
-        if (loadIcon == null) {
-            loadIcon = service.packageManager.defaultActivityIcon
+    private fun getAppIcon(packageName: String): Drawable {
+        return try {
+            service.packageManager.getApplicationIcon(packageName)
+        } catch (_: NameNotFoundException) {
+            service.packageManager.defaultActivityIcon
         }
-        return loadIcon
     }
 
     private fun isPackageInstalled(packageName: String): Boolean {
         try {
             return service.packageManager.getPackageInfo(packageName, 0)
                     .applicationInfo.enabled
-        } catch (e: NameNotFoundException) {
+        } catch (_: NameNotFoundException) {
         }
         return false
     }
@@ -113,7 +110,7 @@ object PackageInfoCache {
             service.packageManager.getPackageInfo(packageName, 0).applicationInfo.flags.let {
                 return (it and FLAG_SYSTEM) != 0 || (it and FLAG_UPDATED_SYSTEM_APP) != 0
             }
-        } catch (e: NameNotFoundException) {
+        } catch (_: NameNotFoundException) {
         }
         return false
     }

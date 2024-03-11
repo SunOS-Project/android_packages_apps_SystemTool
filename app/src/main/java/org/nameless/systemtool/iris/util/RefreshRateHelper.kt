@@ -15,30 +15,24 @@ object RefreshRateHelper {
 
     private const val TAG = "SystemTool::Iris::RefreshRateHelper"
 
-    fun requestTempRefreshRate(refreshRate: Int) {
-        logD(TAG, "requestTempRefreshRate, refreshRate: $refreshRate")
-        try {
-            refreshRateManager.requestMemcRefreshRate(refreshRate)
-        } catch (e: RemoteException) {
-            logE(TAG, "Exception on requesting temp refresh rate", e)
+    var memcRefreshRate = -1
+        set(value) {
+            if (field > 0 && value <= 0) {
+                logD(TAG, "restoreRefreshRate")
+                try {
+                    refreshRateManager.clearRequestedMemcRefreshRate()
+                    field = value
+                } catch (e: RemoteException) {
+                    logE(TAG, "Exception on restoring refresh rate", e)
+                }
+            } else if (field <= 0 && value > 0) {
+                logD(TAG, "requestTempRefreshRate, refreshRate: $value")
+                try {
+                    refreshRateManager.requestMemcRefreshRate(value)
+                    field = value
+                } catch (e: RemoteException) {
+                    logE(TAG, "Exception on requesting temp refresh rate", e)
+                }
+            }
         }
-    }
-
-    fun restoreRefreshRate() {
-        logD(TAG, "restoreRefreshRate")
-        try {
-            refreshRateManager.clearRequestedMemcRefreshRate()
-        } catch (e: RemoteException) {
-            logE(TAG, "Exception on restoring refresh rate", e)
-        }
-    }
-
-    fun isInRequestedRefreshRate(): Boolean {
-        try {
-            return refreshRateManager.requestedMemcRefreshRate > 0
-        } catch (e: RemoteException) {
-            logE(TAG, "Exception on restoring refresh rate", e)
-        }
-        return false
-    }
 }

@@ -20,21 +20,26 @@ class SystemStateReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
+                }, null, handler)
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
             ACTION_CLOSE_SYSTEM_DIALOGS -> {
                 ViewHolder.hideForAll()
             }
         }
-    }
-
-    fun register() {
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
-        }, null, handler)
-    }
-
-    fun unregister() {
-        service.unregisterReceiver(this)
     }
 }

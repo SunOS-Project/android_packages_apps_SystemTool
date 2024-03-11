@@ -23,7 +23,5 @@ object FeatureHelper {
     val VIDEO_OSIE_SUPPORTED =
             DisplayFeatureManager.getInstance().hasFeature(VIDEO_OSIE)
 
-    fun isIrisSupported(): Boolean {
-        return SDR2HDR_SUPPORTED || MEMC_FHD_SUPPORTED || MEMC_QHD_SUPPORTED
-    }
+    val irisSupported = SDR2HDR_SUPPORTED || MEMC_FHD_SUPPORTED || MEMC_QHD_SUPPORTED
 }

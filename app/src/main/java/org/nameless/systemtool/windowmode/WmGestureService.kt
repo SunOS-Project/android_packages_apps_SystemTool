@@ -66,23 +66,23 @@ class WmGestureService : Service() {
 
         PackageInfoCache.initPackageList()
 
-        displayResolutionChangeListener.register()
-        rotationWatcher.register()
-        settingsObserver.register()
-        screenStateReceiver.register()
-        systemStateReceiver.register()
-        packageStateObserver.register()
-        windowModeGestureListener.register()
+        displayResolutionChangeListener.registered = true
+        rotationWatcher.registered = true
+        settingsObserver.registered = true
+        screenStateReceiver.registered = true
+        systemStateReceiver.registered = true
+        packageStateObserver.registered = true
+        windowModeGestureListener.registered = true
     }
 
     override fun onDestroy() {
-        windowModeGestureListener.unregister()
-        packageStateObserver.unregister()
-        systemStateReceiver.unregister()
-        screenStateReceiver.unregister()
-        settingsObserver.unregister()
-        rotationWatcher.unregister()
-        displayResolutionChangeListener.unregister()
+        windowModeGestureListener.registered = false
+        packageStateObserver.registered = false
+        systemStateReceiver.registered = false
+        screenStateReceiver.registered = false
+        settingsObserver.registered = false
+        rotationWatcher.registered = false
+        displayResolutionChangeListener.registered = false
 
         ViewHolder.safelyClearIconViews()
         ViewHolder.removeDimmerView()
@@ -91,10 +91,10 @@ class WmGestureService : Service() {
     }
 
     fun isGestureEnabled(): Boolean {
-        if (!settingsObserver.isUserSetupCompleted()) {
+        if (!settingsObserver.userSetupCompleted) {
             return false
         }
-        if (!settingsObserver.isGestureEnabled()) {
+        if (!settingsObserver.gestureEnabled) {
             return false
         }
         if (!ViewHolder.allowVisible) {

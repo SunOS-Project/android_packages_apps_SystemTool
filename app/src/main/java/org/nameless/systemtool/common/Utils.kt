@@ -6,6 +6,7 @@
 package org.nameless.systemtool.common
 
 import android.util.Log
+
 import org.nameless.os.DebugConstants
 
 object Utils {

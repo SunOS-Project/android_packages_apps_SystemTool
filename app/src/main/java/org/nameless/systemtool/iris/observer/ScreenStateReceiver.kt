@@ -23,7 +23,26 @@ abstract class ScreenStateReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(ACTION_SCREEN_OFF)
+                    addAction(ACTION_SCREEN_ON)
+                    addAction(ACTION_USER_PRESENT)
+                }, null, handler)
+                powerManager.isInteractive.let {
+                    logD(TAG, "Screen " + (if (it) "on" else "off"))
+                    onScreenStateChanged(it)
+                }
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
 
     private var handledUnlock = false
 
@@ -49,30 +68,6 @@ abstract class ScreenStateReceiver(
                 onScreenUnlocked()
             }
         }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        registered = true
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(ACTION_SCREEN_OFF)
-            addAction(ACTION_SCREEN_ON)
-            addAction(ACTION_USER_PRESENT)
-        }, null, handler)
-        powerManager.isInteractive.let {
-            logD(TAG, "Screen " + (if (it) "on" else "off"))
-            onScreenStateChanged(it)
-        }
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        service.unregisterReceiver(this)
     }
 
     abstract fun onScreenStateChanged(isScreenOn: Boolean)

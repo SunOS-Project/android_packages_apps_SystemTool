@@ -14,20 +14,34 @@ import android.os.Handler
 import org.nameless.content.OnlineConfigManager.ACTION_UPDATE_CONFIG
 import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.onlineconfig.OnlineConfigUpdater
-import org.nameless.systemtool.onlineconfig.util.Shared.scheduler
 import org.nameless.systemtool.onlineconfig.util.Shared.service
 import org.nameless.systemtool.onlineconfig.util.Shared.updatePendingWifi
+import org.nameless.systemtool.onlineconfig.util.Shared.updateScheduler
 import org.nameless.systemtool.onlineconfig.util.Shared.wifiAvailable
 
 class UpdateActionReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(
+                    this, IntentFilter(ACTION_UPDATE_CONFIG), null, handler)
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
             ACTION_UPDATE_CONFIG -> {
                 logD(TAG, "Force update action received!")
-                scheduler.cancelScheduler()
+                updateScheduler.scheduler = -1
                 if (wifiAvailable) {
                     OnlineConfigUpdater.update()
                 } else {
@@ -35,14 +49,6 @@ class UpdateActionReceiver(
                 }
             }
         }
-    }
-
-    fun register() {
-        service.registerReceiverForAllUsers(this, IntentFilter(ACTION_UPDATE_CONFIG), null, handler)
-    }
-
-    fun unregister() {
-        service.unregisterReceiver(this)
     }
 
     companion object {

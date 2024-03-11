@@ -18,7 +18,28 @@ abstract class RotationWatcher(
     private val handler: Handler
 ) : IRotationWatcher.Stub() {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            if (value) {
+                try {
+                    WindowManagerGlobal.getWindowManagerService().watchRotation(
+                            this, DEFAULT_DISPLAY)
+                    field = true
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to register rotation watcher")
+                }
+            } else {
+                try {
+                    WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
+                    field = false
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to unregister rotation watcher")
+                }
+            }
+        }
 
     private var displayRotation = Surface.ROTATION_0
         set(value) {
@@ -35,30 +56,6 @@ abstract class RotationWatcher(
             if (rotation != displayRotation) {
                 displayRotation = rotation
             }
-        }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        try {
-            WindowManagerGlobal.getWindowManagerService().watchRotation(this, DEFAULT_DISPLAY)
-            registered = true
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to register rotation watcher")
-        }
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        try {
-            WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
-            registered = false
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to unregister rotation watcher")
         }
     }
 

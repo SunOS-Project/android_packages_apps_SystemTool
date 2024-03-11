@@ -7,6 +7,7 @@ package org.nameless.systemtool.windowmode.util
 
 import android.app.KeyguardManager
 import android.view.WindowManager
+
 import org.nameless.systemtool.windowmode.WmGestureService
 import org.nameless.systemtool.windowmode.view.DimmerView
 import org.nameless.view.AppFocusManager

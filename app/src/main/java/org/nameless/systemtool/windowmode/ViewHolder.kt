@@ -38,6 +38,12 @@ object ViewHolder {
 
     var currentlyVisible = false
     var allowVisible = true
+        set(value) {
+            field = value
+            if (!value && currentlyVisible) {
+                hideForAll()
+            }
+        }
 
     private fun addView(view: IconView?, params: LayoutParams, isLeft: Boolean): Boolean {
         if (view == null) {
@@ -202,11 +208,11 @@ object ViewHolder {
     }
 
     fun addIconView(packageName: String, idx: Int, total: Int) {
-        val iconRadius = IconLayoutAlgorithm.getIconRadius()
+        val iconRadius = IconLayoutAlgorithm.iconRadius
 
         var viewLeft: IconView?
         IconLayoutAlgorithm.getIconCenterPos(true, idx, total).let {
-            val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
+            val params = IconLayoutAlgorithm.defaultIconLayoutParams
             params.width = iconRadius * 2
             params.height = iconRadius * 2
             params.x = it.first - iconRadius
@@ -225,7 +231,7 @@ object ViewHolder {
 
         var viewRight: IconView?
         IconLayoutAlgorithm.getIconCenterPos(false, idx, total).let {
-            val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
+            val params = IconLayoutAlgorithm.defaultIconLayoutParams
             params.width = iconRadius * 2
             params.height = iconRadius * 2
             params.x = it.first - iconRadius
@@ -255,10 +261,10 @@ object ViewHolder {
     fun relocateIconView() {
         hideForAll()
 
-        val iconRadius = IconLayoutAlgorithm.getIconRadius()
+        val iconRadius = IconLayoutAlgorithm.iconRadius
         iconViewsLeft.forEachIndexed { i, v ->
             IconLayoutAlgorithm.getIconCenterPos(true, i + 1, iconViewsLeft.size).let {
-                val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
+                val params = IconLayoutAlgorithm.defaultIconLayoutParams
                 params.width = iconRadius * 2
                 params.height = iconRadius * 2
                 params.x = it.first - iconRadius
@@ -279,7 +285,7 @@ object ViewHolder {
         }
         iconViewsRight.forEachIndexed { i, v ->
             IconLayoutAlgorithm.getIconCenterPos(false, i + 1, iconViewsRight.size).let {
-                val params = IconLayoutAlgorithm.getDefaultIconLayoutParams()
+                val params = IconLayoutAlgorithm.defaultIconLayoutParams
                 params.width = iconRadius * 2
                 params.height = iconRadius * 2
                 params.x = it.first - iconRadius

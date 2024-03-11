@@ -42,6 +42,23 @@ object IconLayoutAlgorithm {
     var rotationNeedsConsumeNavbar = false
     var navbarHeight = 0
 
+    var iconRadius = 0
+        get() {
+            var width: Int
+            var height: Int
+            windowManager.currentWindowMetrics.bounds.let {
+                width = it.width()
+                height = it.height()
+            }
+            var iconRadius = min(width, height) / 2 * iconSizeRatio
+            return iconRadius.toInt()
+        }
+
+    var defaultIconLayoutParams = LayoutParams()
+        get() = LayoutParams().apply {
+            copyFrom(iconLayoutParams)
+        }
+
     fun getIconCenterPos(isLeft: Boolean, idx: Int, total: Int): Pair<Int, Int> {
         if (idx <= 0) {
             throw Exception("getIconCenterPos, index starts from 1!")
@@ -70,23 +87,6 @@ object IconLayoutAlgorithm {
         val y = (height * circleCenterY - radius * sin(angle * Math.PI /180) - iconRadius).toInt()
 
         return Pair(x, y)
-    }
-
-    fun getIconRadius(): Int {
-        var width: Int
-        var height: Int
-        windowManager.currentWindowMetrics.bounds.let {
-            width = it.width()
-            height = it.height()
-        }
-        var iconRadius = min(width, height) / 2 * iconSizeRatio
-        return iconRadius.toInt()
-    }
-
-    fun getDefaultIconLayoutParams(): LayoutParams {
-        return LayoutParams().apply {
-            copyFrom(iconLayoutParams)
-        }
     }
 
     fun updateNavbarHeight() {

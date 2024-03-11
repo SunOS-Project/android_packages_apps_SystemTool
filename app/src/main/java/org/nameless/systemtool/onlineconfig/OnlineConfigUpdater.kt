@@ -25,7 +25,7 @@ import org.nameless.systemtool.onlineconfig.util.Constants.DEBUG_MODE_UPDATE_INT
 import org.nameless.systemtool.onlineconfig.util.Constants.UPDATE_INTERVAL
 import org.nameless.systemtool.onlineconfig.util.Shared.debugMode
 import org.nameless.systemtool.onlineconfig.util.Shared.onlineConfigManager
-import org.nameless.systemtool.onlineconfig.util.Shared.scheduler
+import org.nameless.systemtool.onlineconfig.util.Shared.updateScheduler
 
 import org.xmlpull.v1.XmlPullParser
 
@@ -148,10 +148,10 @@ object OnlineConfigUpdater {
     }
 
     private fun setNextScheduler() {
-        scheduler.setScheduler(if (debugMode) {
+        updateScheduler.scheduler = if (debugMode) {
             DEBUG_MODE_UPDATE_INTERVAL
         } else {
             UPDATE_INTERVAL
-        })
+        }
     }
 }

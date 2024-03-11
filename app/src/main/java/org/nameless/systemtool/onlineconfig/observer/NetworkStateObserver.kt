@@ -15,13 +15,27 @@ import android.os.Handler
 
 import org.nameless.systemtool.onlineconfig.util.Constants.WIFI_AVAILABLE_UPDATE_DELAY
 import org.nameless.systemtool.onlineconfig.util.Shared.connectivityManager
-import org.nameless.systemtool.onlineconfig.util.Shared.scheduler
 import org.nameless.systemtool.onlineconfig.util.Shared.updatePendingWifi
+import org.nameless.systemtool.onlineconfig.util.Shared.updateScheduler
 import org.nameless.systemtool.onlineconfig.util.Shared.wifiAvailable
 
 class NetworkStateObserver(
     private val handler: Handler
 ) : ConnectivityManager.NetworkCallback() {
+
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                connectivityManager.registerNetworkCallback(
+                    NetworkRequest.Builder().build(), this, handler)
+            } else {
+                connectivityManager.unregisterNetworkCallback(this)
+            }
+        }
 
     override fun onLosing(network: Network, maxMsToLive: Int) {
         super.onLosing(network, maxMsToLive)
@@ -45,16 +59,7 @@ class NetworkStateObserver(
                 && networkCapabilities.hasTransport(TRANSPORT_WIFI)
         if (wifiAvailable && !wasWifiAvailable && updatePendingWifi) {
             updatePendingWifi = false
-            scheduler.setScheduler(WIFI_AVAILABLE_UPDATE_DELAY)
+            updateScheduler.scheduler = WIFI_AVAILABLE_UPDATE_DELAY
         }
-    }
-
-    fun register() {
-        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(),
-                this, handler)
-    }
-
-    fun unregister() {
-        connectivityManager.unregisterNetworkCallback(this)
     }
 }

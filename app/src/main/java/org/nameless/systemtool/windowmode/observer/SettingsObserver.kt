@@ -22,18 +22,47 @@ import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.PickerDataCache
+import org.nameless.systemtool.windowmode.ViewHolder
 import org.nameless.systemtool.windowmode.util.Config
-import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
 import org.nameless.systemtool.windowmode.util.PackageInfoCache
-import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.Shared.service
 
 class SettingsObserver(
     private val handler: Handler
 ) : ContentObserver(handler) {
 
-    private var gestureEnabled = true
-    private var userSetupCompleted = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.contentResolver.run {
+                    registerContentObserver(
+                        Settings.Secure.getUriFor(USER_SETUP_COMPLETE),
+                        false, this@SettingsObserver, UserHandle.USER_ALL)
+                    registerContentObserver(
+                        Settings.System.getUriFor(SYSTEM_TOOL_WINDOWING_MODE_GESTURE),
+                        false, this@SettingsObserver, UserHandle.USER_ALL)
+                    registerContentObserver(
+                        Settings.System.getUriFor(SYSTEM_TOOL_MINI_WINDOW_APPS),
+                        false, this@SettingsObserver, UserHandle.USER_ALL)
+                    registerContentObserver(
+                        Settings.Secure.getUriFor(NAVIGATION_MODE),
+                        false, this@SettingsObserver, UserHandle.USER_ALL)
+                }
+                userSwitchReceiver.setListening(true)
+                updateAll()
+            } else {
+                userSwitchReceiver.setListening(false)
+                service.contentResolver.unregisterContentObserver(this)
+            }
+        }
+
+    var gestureEnabled = true
+    var userSetupCompleted = false
 
     private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
@@ -42,8 +71,8 @@ class SettingsObserver(
         }
     }
 
-    override fun onChange(selfChange: Boolean, uri: Uri) {
-        when (uri.lastPathSegment) {
+    override fun onChange(selfChange: Boolean, uri: Uri?) {
+        when (uri?.lastPathSegment) {
             USER_SETUP_COMPLETE -> {
                 updateUserSetupCompleted()
             }
@@ -103,34 +132,6 @@ class SettingsObserver(
         updateGestureEnabled()
         updateMiniWindowApps()
         updateNavbarHeight()
-    }
-
-    fun isUserSetupCompleted() = userSetupCompleted
-
-    fun isGestureEnabled() = gestureEnabled
-
-    fun register() {
-        service.contentResolver.run {
-            registerContentObserver(
-                Settings.Secure.getUriFor(USER_SETUP_COMPLETE),
-                false, this@SettingsObserver, UserHandle.USER_ALL)
-            registerContentObserver(
-                Settings.System.getUriFor(SYSTEM_TOOL_WINDOWING_MODE_GESTURE),
-                false, this@SettingsObserver, UserHandle.USER_ALL)
-            registerContentObserver(
-                Settings.System.getUriFor(SYSTEM_TOOL_MINI_WINDOW_APPS),
-                false, this@SettingsObserver, UserHandle.USER_ALL)
-            registerContentObserver(
-                Settings.Secure.getUriFor(NAVIGATION_MODE),
-                false, this@SettingsObserver, UserHandle.USER_ALL)
-        }
-        userSwitchReceiver.setListening(true)
-        updateAll()
-    }
-
-    fun unregister() {
-        userSwitchReceiver.setListening(false)
-        service.contentResolver.unregisterContentObserver(this)
     }
 
     companion object {

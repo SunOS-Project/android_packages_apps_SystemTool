@@ -198,27 +198,27 @@ class IrisService : Service() {
         inMemcMode = IrisHIDLWrapper.getIrisCommand(258) != 0
         inSDR2HDRMode = !VIDEO_OSIE_SUPPORTED && IrisHIDLWrapper.getIrisCommand(267) != 0
 
-        resolutionListener.register()
+        resolutionListener.registered = true
         if (VIDEO_OSIE_SUPPORTED) {
-            rotationWatcher.register()
+            rotationWatcher.registered = true
         }
-        settingsObserver.register()
-        taskStackChangeListener.register()
-        commandReceiver.register()
-        screenStateReceiver.register()
-        systemStateReceiver.register()
+        settingsObserver.registered = true
+        taskStackChangeListener.registered = true
+        commandReceiver.registered = true
+        screenStateReceiver.registered = true
+        systemStateReceiver.registered = true
     }
 
     override fun onDestroy() {
-        commandReceiver.unregister()
-        screenStateReceiver.unregister()
-        systemStateReceiver.unregister()
-        taskStackChangeListener.unregister()
-        settingsObserver.unregister()
+        commandReceiver.registered = false
+        screenStateReceiver.registered = false
+        systemStateReceiver.registered = false
+        taskStackChangeListener.registered = false
+        settingsObserver.registered = false
         if (VIDEO_OSIE_SUPPORTED) {
-            rotationWatcher.unregister()
+            rotationWatcher.registered = false
         }
-        resolutionListener.unregister()
+        resolutionListener.registered = false
 
         restoreRefreshRate()
 
@@ -292,11 +292,11 @@ class IrisService : Service() {
     }
 
     private fun setTempRefreshRate() {
-        RefreshRateHelper.requestTempRefreshRate(60)
+        RefreshRateHelper.memcRefreshRate = 60
     }
 
     private fun restoreRefreshRate() {
-        RefreshRateHelper.restoreRefreshRate()
+        RefreshRateHelper.memcRefreshRate = -1
     }
 
     private fun setMemcParameters() {
@@ -369,7 +369,7 @@ class IrisService : Service() {
     private fun needOverrideRefreshRate(packageName: String): Boolean {
         return (resolutionListener.displayWidth == QHD_WIDTH ||
                 IrisConfigHolder.needOverrideRefreshRate(packageName))
-                && !RefreshRateHelper.isInRequestedRefreshRate()
+                && RefreshRateHelper.memcRefreshRate <= 0
     }
 
     private inner class IrisHandler(looper: Looper) : Handler(looper) {

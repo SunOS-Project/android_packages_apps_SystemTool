@@ -28,7 +28,32 @@ abstract class SettingsObserver(
     handler: Handler,
 ) : ContentObserver(handler) {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.contentResolver.apply {
+                    if (MEMC_FHD_SUPPORTED || MEMC_QHD_SUPPORTED) {
+                        registerContentObserver(
+                            Settings.System.getUriFor(IRIS_MEMC_ENABLED),
+                            false, this@SettingsObserver, UserHandle.USER_ALL)
+                    }
+                    if (SDR2HDR_SUPPORTED && !VIDEO_OSIE_SUPPORTED) {
+                        registerContentObserver(
+                            Settings.System.getUriFor(IRIS_VIDEO_COLOR_BOOST),
+                            false, this@SettingsObserver, UserHandle.USER_ALL)
+                    }
+                }
+                userSwitchReceiver.setListening(true)
+                updateAll()
+            } else {
+                userSwitchReceiver.setListening(false)
+                service.contentResolver.unregisterContentObserver(this)
+            }
+        }
 
     var memcEnabled = false
         get() {
@@ -114,36 +139,6 @@ abstract class SettingsObserver(
     private fun updateAll() {
         updateMemcEnabled()
         updateSDR2HDREnabled()
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        registered = true
-        service.contentResolver.apply {
-            if (MEMC_FHD_SUPPORTED || MEMC_QHD_SUPPORTED) {
-                registerContentObserver(
-                    Settings.System.getUriFor(IRIS_MEMC_ENABLED),
-                    false, this@SettingsObserver, UserHandle.USER_ALL)
-            }
-            if (SDR2HDR_SUPPORTED && !VIDEO_OSIE_SUPPORTED) {
-                registerContentObserver(
-                    Settings.System.getUriFor(IRIS_VIDEO_COLOR_BOOST),
-                    false, this@SettingsObserver, UserHandle.USER_ALL)
-            }
-        }
-        userSwitchReceiver.setListening(true)
-        updateAll()
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        userSwitchReceiver.setListening(false)
-        service.contentResolver.unregisterContentObserver(this)
     }
 
     abstract fun onMemcEnabledChanged()

@@ -12,8 +12,8 @@ import android.widget.GridView
 import android.widget.TextView
 
 import androidx.core.view.isVisible
-import org.nameless.systemtool.R
 
+import org.nameless.systemtool.R
 import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.util.DensityHelper
 import org.nameless.systemtool.windowmode.util.DensityHelper.DisplaySize
@@ -108,7 +108,7 @@ open class AllAppsPickerActivity : Activity() {
             true
         }
 
-        when (DensityHelper.getDisplaySize()) {
+        when (DensityHelper.displaySize) {
             in DisplaySize.SMALLEST.ordinal .. DisplaySize.SMALLER.ordinal -> 5
             in DisplaySize.SMALL.ordinal .. DisplaySize.LARGE.ordinal -> 4
             in DisplaySize.VERY_LARGE.ordinal .. DisplaySize.EXTREMELY_LARGE.ordinal -> 3

@@ -23,7 +23,26 @@ abstract class SystemStateReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
+                    addAction(ACTION_POWER_SAVE_MODE_CHANGED)
+                }, null, handler)
+                powerManager.isPowerSaveMode.let {
+                    powerSaveMode = it
+                    logD(TAG, "Power save mode changed to $it")
+                    onPowerSaveModeChanged()
+                }
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -40,30 +59,6 @@ abstract class SystemStateReceiver(
                 }
             }
         }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        registered = true
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(ACTION_CLOSE_SYSTEM_DIALOGS)
-            addAction(ACTION_POWER_SAVE_MODE_CHANGED)
-        }, null, handler)
-        powerManager.isPowerSaveMode.let {
-            powerSaveMode = it
-            logD(TAG, "Power save mode changed to $it")
-            onPowerSaveModeChanged()
-        }
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        service.unregisterReceiver(this)
     }
 
     abstract fun onCloseSystemDialog(reason: String)

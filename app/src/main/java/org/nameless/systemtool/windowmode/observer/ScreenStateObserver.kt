@@ -15,24 +15,40 @@ import android.content.IntentFilter
 import android.os.Handler
 
 import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.Shared.keyguardManager
+import org.nameless.systemtool.windowmode.util.Shared.service
 
 class ScreenStateReceiver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(ACTION_SCREEN_OFF)
+                    addAction(ACTION_SCREEN_ON)
+                    addAction(ACTION_USER_PRESENT)
+                }, null, handler)
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
+
     private var handledUnlock = false
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
             ACTION_SCREEN_OFF -> {
                 handledUnlock = false
                 ViewHolder.allowVisible = false
-                ViewHolder.hideForAll()
             }
             ACTION_SCREEN_ON -> {
-                if (!handledUnlock && !keyguardManager.isKeyguardLocked()) {
+                if (!handledUnlock && !keyguardManager.isKeyguardLocked) {
                     handledUnlock = true
                     ViewHolder.allowVisible = true
                 }
@@ -42,17 +58,5 @@ class ScreenStateReceiver(
                 ViewHolder.allowVisible = true
             }
         }
-    }
-
-    fun register() {
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(ACTION_SCREEN_OFF)
-            addAction(ACTION_SCREEN_ON)
-            addAction(ACTION_USER_PRESENT)
-        }, null, handler)
-    }
-
-    fun unregister() {
-        service.unregisterReceiver(this)
     }
 }

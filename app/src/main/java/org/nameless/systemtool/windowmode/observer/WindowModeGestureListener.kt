@@ -9,36 +9,42 @@ import android.os.RemoteException
 import android.view.MotionEvent
 import android.view.WindowManagerGlobal
 
-import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.common.Utils.PACKAGE_NAME
+import org.nameless.systemtool.windowmode.ViewHolder
 import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
 import org.nameless.systemtool.windowmode.util.Shared.dimmerView
 import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.Shared.windowManager
-import org.nameless.systemtool.windowmode.ViewHolder
 import org.nameless.view.ISystemGestureListener
 
 class WindowModeGestureListener : ISystemGestureListener.Stub() {
 
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            if (value) {
+                try {
+                    WindowManagerGlobal.getWindowManagerService().registerSystemGestureListener(
+                            PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
+                    field = true
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to register system gesture listener")
+                }
+            } else {
+                try {
+                    WindowManagerGlobal.getWindowManagerService().unregisterSystemGestureListener(
+                            PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
+                    field = false
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to unregister system gesture listener")
+                }
+            }
+        }
+
     private var triggered = false
-
-    fun register() {
-        try {
-            WindowManagerGlobal.getWindowManagerService().registerSystemGestureListener(
-                    Utils.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to register system gesture listener")
-        }
-    }
-
-    fun unregister() {
-        try {
-            WindowManagerGlobal.getWindowManagerService().unregisterSystemGestureListener(
-                    Utils.PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to unregister system gesture listener")
-        }
-    }
 
     override fun onGestureCanceled(gesture: Int) {
         if (gesture != GESTURE_WINDOW_MODE) {

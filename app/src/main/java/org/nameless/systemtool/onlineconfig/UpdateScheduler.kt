@@ -23,32 +23,34 @@ class UpdateScheduler(
     private val handler: Handler
 ) : AlarmManager.OnAlarmListener {
 
+    var scheduler = -1
+        set(value) {
+            field = value
+            if (value <= 0) {
+                logD(TAG, "cancelScheduler")
+                alarmManager.cancel(this)
+            } else {
+                logD(TAG, "setScheduler, interval=$value")
+                alarmManager.cancel(this)
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    Calendar.getInstance().apply {
+                        add(Calendar.SECOND, value)
+                    }.timeInMillis,
+                    TAG, this, handler
+                )
+            }
+        }
+
     override fun onAlarm() {
         if (shouldInterceptUpdate()) {
-            cancelScheduler()
-            setScheduler(UPDATE_INTERCEPTED_INTERVAL)
+            scheduler = UPDATE_INTERCEPTED_INTERVAL
         } else if (wifiAvailable) {
             OnlineConfigUpdater.update()
         } else {
-            cancelScheduler()
+            scheduler = -1
             updatePendingWifi = true
         }
-    }
-
-    fun setScheduler(interval: Int) {
-        logD(TAG, "setScheduler, interval=$interval")
-        cancelScheduler()
-        alarmManager.setExact(
-            AlarmManager.RTC_WAKEUP,
-            Calendar.getInstance().apply {
-                add(Calendar.SECOND, interval)
-            }.timeInMillis,
-            TAG, this, handler
-        )
-    }
-
-    fun cancelScheduler() {
-        alarmManager.cancel(this)
     }
 
     private fun shouldInterceptUpdate(): Boolean {

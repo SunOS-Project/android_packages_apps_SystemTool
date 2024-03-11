@@ -11,7 +11,20 @@ import org.nameless.view.IAppFocusObserver
 
 abstract class TaskStackChangeListener {
 
-    private var registered = false
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                appFocusManager.registerAppFocusObserver(appFocusObserver, true)
+            } else {
+                appFocusManager.unregisterAppFocusObserver(appFocusObserver)
+                topPackage = String()
+                topActivity = String()
+            }
+        }
 
     var topPackage = String()
     private var topActivity = String()
@@ -34,24 +47,6 @@ abstract class TaskStackChangeListener {
             topActivity = it.activityName
             onTopStackChanged(topPackage, topActivity)
         }
-    }
-
-    fun register() {
-        if (registered) {
-            return
-        }
-        registered = true
-        appFocusManager.registerAppFocusObserver(appFocusObserver, true)
-    }
-
-    fun unregister() {
-        if (!registered) {
-            return
-        }
-        registered = false
-        appFocusManager.unregisterAppFocusObserver(appFocusObserver)
-        topPackage = String()
-        topActivity = String()
     }
 
     abstract fun onTopStackChanged(packageName: String, activityName: String)

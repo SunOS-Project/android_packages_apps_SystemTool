@@ -23,7 +23,6 @@ object DensityHelper {
         EXTREMELY_LARGE
     }
 
-    fun getDisplaySize(): Int {
-        return densityUtils.currentIndexForDefaultDisplay
-    }
+    var displaySize = 0
+        get() = densityUtils.currentIndexForDefaultDisplay
 }

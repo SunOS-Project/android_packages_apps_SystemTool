@@ -24,8 +24,27 @@ class PackageStateObserver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                service.registerReceiverForAllUsers(this, IntentFilter().apply {
+                    addAction(ACTION_PACKAGE_ADDED)
+                    addAction(ACTION_PACKAGE_CHANGED)
+                    addAction(ACTION_PACKAGE_FULLY_REMOVED)
+                    addAction(ACTION_PACKAGE_REMOVED)
+                    addDataScheme("package")
+                }, null, handler)
+            } else {
+                service.unregisterReceiver(this)
+            }
+        }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
             ACTION_PACKAGE_ADDED -> {
                 if (!intent.getBooleanExtra(EXTRA_REPLACING, false)) {
                     onPackageAdded(intent.data?.schemeSpecificPart)
@@ -40,20 +59,6 @@ class PackageStateObserver(
                 }
             }
         }
-    }
-
-    fun register() {
-        service.registerReceiverForAllUsers(this, IntentFilter().apply {
-            addAction(ACTION_PACKAGE_ADDED)
-            addAction(ACTION_PACKAGE_CHANGED)
-            addAction(ACTION_PACKAGE_FULLY_REMOVED)
-            addAction(ACTION_PACKAGE_REMOVED)
-            addDataScheme("package")
-        }, null, handler)
-    }
-
-    fun unregister() {
-        service.unregisterReceiver(this)
     }
 
     private fun onPackageAdded(packageName: String?) {
@@ -75,11 +80,11 @@ class PackageStateObserver(
         SettingsObserver.putMiniWindowAppsSettings(service,
             (SettingsObserver.getMiniWindowAppsSettings(service)
                 ?.takeIf { it.isNotBlank() }?.split(";")
-                ?.filterNot { it.equals(packageName) }
+                ?.filterNot { it == packageName }
                 ?: emptyList()).joinToString(";"))
     }
 
     companion object {
-        private const val TAG = "SystemTool::PackageStateObserver"
+        private const val TAG = "SystemTool::WindowMode::PackageStateObserver"
     }
 }

@@ -13,39 +13,47 @@ import android.view.Surface
 import android.view.WindowManagerGlobal
 
 import org.nameless.systemtool.common.Utils.logE
-import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
 import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
 
 class RotationWatcher(
     private val handler: Handler
 ) : IRotationWatcher.Stub() {
 
-    var displayRotation = Surface.ROTATION_0
+    var registered = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            if (value) {
+                try {
+                    WindowManagerGlobal.getWindowManagerService()
+                        .watchRotation(this, DEFAULT_DISPLAY)
+                    field = true
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to register rotation watcher")
+                }
+            } else {
+                try {
+                    WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
+                    field = false
+                } catch (e: RemoteException) {
+                    logE(TAG, "Failed to unregister rotation watcher")
+                }
+            }
+        }
 
-    override fun onRotationChanged(rotation: Int) {
-        ViewHolder.hideForAll()
-        handler.postDelayed({
-            if (rotation != displayRotation) {
-                displayRotation = rotation
+    private var displayRotation = Surface.ROTATION_0
+        set(value) {
+            field = value
+            handler.post {
                 onDisplayRotated()
             }
-        }, 500L)
-    }
-
-    fun register() {
-        try {
-            WindowManagerGlobal.getWindowManagerService()
-                    .watchRotation(this, DEFAULT_DISPLAY)
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to register rotation watcher")
         }
-    }
 
-    fun unregister() {
-        try {
-            WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
-        } catch (e: RemoteException) {
-            logE(TAG, "Failed to unregister rotation watcher")
+    override fun onRotationChanged(rotation: Int) {
+        if (rotation != displayRotation) {
+            displayRotation = rotation
         }
     }
 
@@ -57,6 +65,6 @@ class RotationWatcher(
     }
 
     companion object {
-        private const val TAG = "SystemTool::RotationWatcher"
+        private const val TAG = "SystemTool::WindowMode::RotationWatcher"
     }
 }

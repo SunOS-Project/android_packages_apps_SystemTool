@@ -1,3 +1,4 @@
+-keep class de.hdodenhof.circleimageview.CircleImageView
 -keep class org.nameless.systemtool.BootCompletedReceiver
 -keep class org.nameless.systemtool.iris.IrisService
 -keep class org.nameless.systemtool.onlineconfig.OnlineConfigService

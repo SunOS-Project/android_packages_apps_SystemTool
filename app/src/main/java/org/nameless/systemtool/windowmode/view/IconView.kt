@@ -6,26 +6,27 @@
 package org.nameless.systemtool.windowmode.view
 
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.SystemClock
 import android.os.UserHandle
 import android.view.HapticFeedbackConstants
-import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.animation.PathInterpolator
 
-import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.animation.doOnEnd
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
-import androidx.core.graphics.drawable.toBitmap
+
+import de.hdodenhof.circleimageview.CircleImageView
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.AllAppsPickerActivity
-import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.Config
+import org.nameless.systemtool.windowmode.ViewAnimator
+import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
+import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
 import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
 import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
@@ -33,52 +34,28 @@ import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
 
 class IconView(
     context: Context,
-    val packageName: String,
-    var centerPosX: Int,
-    var centerPosY: Int,
-    var radius: Int
-) : AppCompatImageView(context) {
+    private val packageName: String,
+) : CircleImageView(context) {
 
     private var fromDown = false
     private var focused = false
-    private var scalingUp = false
-    private var scalingDown = false
     private var downTime = 0L
-
-    private var animatorSet = AnimatorSet()
 
     init {
         if (Utils.PACKAGE_NAME == packageName) {
-            ResourcesCompat.getDrawable(context.resources, R.drawable.ic_more_app, null)?.let {
-                setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
-                    cornerRadius = 1000f
-                    setAntiAlias(true)
-                })
+            AppCompatResources.getDrawable(context, R.drawable.ic_more_app)?.let {
+                setImageDrawable(it)
             }
         } else {
             PackageInfoCache.getIconDrawable(packageName)?.let {
-                setImageDrawable(RoundedBitmapDrawableFactory.create(resources, it.toBitmap()).apply {
-                    cornerRadius = 1000f
-                    setAntiAlias(true)
-                })
+                setImageDrawable(it)
             }
         }
-        scaleX = 1f / Config.iconFocusedScaleRatio
-        scaleY = 1f / Config.iconFocusedScaleRatio
+        borderColor = Color.parseColor("#80FFFFFF")
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (ViewHolder.currentlyVisible &&
-                event.keyCode == KeyEvent.KEYCODE_BACK &&
-                event.action == KeyEvent.ACTION_UP) {
-            ViewHolder.hideForAll()
-            return true
-        }
-        return super.dispatchKeyEvent(event)
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event?.actionMasked) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 fromDown = true
                 downTime = SystemClock.uptimeMillis()
@@ -96,11 +73,11 @@ class IconView(
                 }
             }
             MotionEvent.ACTION_UP -> {
-                resetState()
-                ViewHolder.hideForAll()
-                postDelayed({
-                    sendMiniWindowBroadcast(context, packageName)
-                }, 200L)
+                resetState {
+                    ViewAnimator.hideCircle {
+                        sendMiniWindowBroadcast(context, packageName)
+                    }
+                }
             }
             MotionEvent.ACTION_CANCEL -> {
                 resetState()
@@ -110,64 +87,96 @@ class IconView(
     }
 
     private fun playScaleUpAnimation() {
-        if (scalingDown) {
-            animatorSet.removeAllListeners()
-            animatorSet.cancel()
-            scalingDown = false
+        val scaleAnimator = ValueAnimator.ofFloat(1.0f, SCALE_FOCUS_VALUE).apply {
+            addUpdateListener {
+                (it.animatedValue as Float).let { v ->
+                    if (scaleX < v) {
+                        scaleX = v
+                        scaleY = v
+                    }
+                }
+            }
+            duration = FOCUS_ANIMATION_DURATION
+            interpolator = PathInterpolator(0.17f, 0.0f, 0.53f, 0.7f)
         }
-        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX, 1f)
-            .setDuration(SCALE_ANIMATION_DURATION)
-        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY, 1f)
-            .setDuration(SCALE_ANIMATION_DURATION)
-        animatorSet = AnimatorSet().also {
-            it.playTogether(scaleXAnim, scaleYAnim)
-            it.doOnEnd {
+        val borderAnimator = ValueAnimator.ofFloat(0f, width * 0.08f).apply {
+            addUpdateListener {
+                (it.animatedValue as Float).toInt().let { v ->
+                    if (borderWidth < v) {
+                        borderWidth = v
+                    }
+                }
+            }
+            duration = FOCUS_ANIMATION_DURATION
+            interpolator = PathInterpolator(0.17f, 0.0f, 0.53f, 0.7f)
+        }
+        AnimatorSet().apply {
+            playTogether(
+                scaleAnimator,
+                borderAnimator
+            )
+            doOnEnd {
                 if (!focused) {
                     playScaleDownAnimation()
                 }
-                scalingUp = false
             }
-            scalingUp = true
-            it.start()
+            start()
         }
     }
 
-    private fun playScaleDownAnimation() {
-        val scaleXAnim = ObjectAnimator.ofFloat(this, "scaleX", scaleX,
-                1f / Config.iconFocusedScaleRatio).setDuration(SCALE_ANIMATION_DURATION)
-        val scaleYAnim = ObjectAnimator.ofFloat(this, "scaleY", scaleY,
-                1f / Config.iconFocusedScaleRatio).setDuration(SCALE_ANIMATION_DURATION)
-        animatorSet = AnimatorSet().also {
-            it.playTogether(scaleXAnim, scaleYAnim)
-            it.doOnEnd {
-                scalingDown = false
+    private fun playScaleDownAnimation(endAction: Runnable? = null) {
+        val scaleAnimator = ValueAnimator.ofFloat(SCALE_FOCUS_VALUE, 1.0f).apply {
+            addUpdateListener {
+                (it.animatedValue as Float).let { v ->
+                    if (scaleX > v) {
+                        scaleX = v
+                        scaleY = v
+                    }
+                }
             }
-            scalingDown = true
-            it.start()
+            duration = FOCUS_ANIMATION_DURATION
+            interpolator = PathInterpolator(0.19f, 0.31f, 0.48f, 1.0f)
+        }
+        val borderAnimator = ValueAnimator.ofFloat(width * 0.08f, 0f).apply {
+            addUpdateListener {
+                (it.animatedValue as Float).toInt().let { v ->
+                    if (borderWidth > v) {
+                        borderWidth = v
+                    }
+                }
+            }
+            duration = FOCUS_ANIMATION_DURATION
+            interpolator = PathInterpolator(0.19f, 0.31f, 0.48f, 1.0f)
+        }
+        AnimatorSet().apply {
+            playTogether(
+                scaleAnimator,
+                borderAnimator
+            )
+            doOnEnd {
+                endAction?.run()
+            }
+            start()
         }
     }
 
-    fun resetState() {
+    fun resetState(endAction: Runnable? = null) {
         if (focused) {
             fromDown = false
             focused = false
-            if (!scalingUp) {
-                playScaleDownAnimation()
-            }
+            playScaleDownAnimation(endAction)
+        } else {
+            endAction?.run()
         }
     }
 
     fun inTouchRegion(x: Float, y: Float): Boolean {
-        (radius * scaleX).let {
-            return x >= centerPosX - it && x <= centerPosX + it &&
-                    y >= centerPosY - it && y <= centerPosY + it
-        }
+        return x >= this.x && x <= this.x + width &&
+                y >= this.y && y <= this.y + height
     }
 
     companion object {
         private const val FOCUS_MIN_TIME_ON_DOWN = 100L
-
-        private const val SCALE_ANIMATION_DURATION = 150L
 
         fun sendMiniWindowBroadcast(context: Context, packageName: String) {
             if (Utils.PACKAGE_NAME == packageName) {

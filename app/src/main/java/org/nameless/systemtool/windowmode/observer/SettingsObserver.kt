@@ -16,17 +16,20 @@ import android.provider.Settings.Secure.USER_SETUP_COMPLETE
 
 import com.android.internal.util.nameless.UserSwitchReceiver
 
-import kotlin.math.min
-
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.PickerDataCache
-import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.Config
-import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.ViewAnimator
+import org.nameless.systemtool.windowmode.util.Config.CIRCLE_MAX_ICON
 import org.nameless.systemtool.windowmode.util.PackageInfoCache
+import org.nameless.systemtool.windowmode.util.Shared.clearCircleView
+import org.nameless.systemtool.windowmode.util.Shared.leftCircle
+import org.nameless.systemtool.windowmode.util.Shared.rightCircle
 import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.updateCircleViewGroup
+import org.nameless.systemtool.windowmode.util.Shared.updateNavbarHeight
+import org.nameless.systemtool.windowmode.view.IconView
 
 class SettingsObserver(
     private val handler: Handler
@@ -85,7 +88,7 @@ class SettingsObserver(
             NAVIGATION_MODE -> {
                 handler.postDelayed({
                     updateNavbarHeight()
-                    ViewHolder.relocateIconView()
+                    updateCircleViewGroup()
                 }, 500L)
             }
         }
@@ -104,7 +107,8 @@ class SettingsObserver(
     }
 
     private fun updateMiniWindowApps() {
-        ViewHolder.safelyClearIconViews()
+        ViewAnimator.hideCircle()
+        clearCircleView()
 
         val validAppList = getMiniWindowAppsSettings(service)
             ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
@@ -112,19 +116,15 @@ class SettingsObserver(
 
         PickerDataCache.updatePinnedPackages(validAppList.toMutableSet())
 
-        val total = min(validAppList.size + 1, Config.circleMaxIcon)
         validAppList.forEachIndexed { i, v ->
-            if (i >= Config.circleMaxIcon - 1) {
+            if (i >= CIRCLE_MAX_ICON - 1) {
                 return@forEachIndexed
             }
-            ViewHolder.addIconView(v, i + 1, total)
+            leftCircle.post { leftCircle.addView(IconView(service, v)) }
+            rightCircle.post { rightCircle.addView(IconView(service, v)) }
         }
-        ViewHolder.addIconView(Utils.PACKAGE_NAME, total, total)
-    }
-
-    private fun updateNavbarHeight() {
-        IconLayoutAlgorithm.gesturalMode = isGesturalMode(service)
-        IconLayoutAlgorithm.updateNavbarHeight()
+        leftCircle.post { leftCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }
+        rightCircle.post { rightCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }
     }
 
     private fun updateAll() {
@@ -147,7 +147,7 @@ class SettingsObserver(
             SYSTEM_TOOL_MINI_WINDOW_APPS, apps, UserHandle.USER_CURRENT)
         }
 
-        private fun isGesturalMode(context: Context): Boolean {
+        fun isGesturalMode(context: Context): Boolean {
             return Settings.Secure.getIntForUser(context.contentResolver,
                 NAVIGATION_MODE, GESTURAL_MODE, UserHandle.USER_CURRENT
             ) == GESTURAL_MODE

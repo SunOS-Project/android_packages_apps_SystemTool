@@ -9,11 +9,11 @@ import android.os.RemoteException
 import android.view.MotionEvent
 import android.view.WindowManagerGlobal
 
-import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.common.Utils.PACKAGE_NAME
-import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.common.Utils.logE
+import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Shared.dimmerView
+import org.nameless.systemtool.windowmode.util.Shared.navbarHeight
 import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.Shared.windowManager
 import org.nameless.view.ISystemGestureListener
@@ -51,7 +51,6 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
             return
         }
         triggered = false
-        dimmerView.offsetX = 0
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {
@@ -59,7 +58,6 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
             return
         }
         triggered = false
-        dimmerView.offsetX = IconLayoutAlgorithm.navbarHeight
     }
 
     override fun onGesturePreTriggerBefore(gesture: Int, event: MotionEvent): Boolean {
@@ -76,15 +74,21 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
         }
         if (!triggered) {
             triggered = true
+            dimmerView.offsetX = navbarHeight
             windowManager.let {
                 it.currentWindowMetrics.bounds.let { bound ->
-                    ViewHolder.showForAll(event.x <= bound.width() / 2, bound)
+                    ViewAnimator.showCircle(event.x <= bound.width() / 2, bound)
                 }
             }
-        } else if (ViewHolder.currentlyVisible) {
+        } else if (ViewAnimator.currentlyVisible) {
             dimmerView.post {
                 dimmerView.onTouchEvent(event)
             }
+        }
+        if (event.actionMasked == MotionEvent.ACTION_UP ||
+                event.actionMasked == MotionEvent.ACTION_CANCEL) {
+            triggered = false
+            dimmerView.offsetX = 0
         }
     }
 

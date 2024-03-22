@@ -12,7 +12,7 @@ import android.content.Intent.ACTION_CLOSE_SYSTEM_DIALOGS
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Shared.service
 
 @Suppress("DEPRECATION")
@@ -38,7 +38,7 @@ class SystemStateReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_CLOSE_SYSTEM_DIALOGS -> {
-                ViewHolder.hideForAll()
+                ViewAnimator.hideCircle()
             }
         }
     }

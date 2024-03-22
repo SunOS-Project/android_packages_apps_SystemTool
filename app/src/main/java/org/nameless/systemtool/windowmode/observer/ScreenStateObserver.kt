@@ -14,7 +14,7 @@ import android.content.Intent.ACTION_USER_PRESENT
 import android.content.IntentFilter
 import android.os.Handler
 
-import org.nameless.systemtool.windowmode.ViewHolder
+import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Shared.keyguardManager
 import org.nameless.systemtool.windowmode.util.Shared.service
 
@@ -45,17 +45,17 @@ class ScreenStateReceiver(
         when (intent.action) {
             ACTION_SCREEN_OFF -> {
                 handledUnlock = false
-                ViewHolder.allowVisible = false
+                ViewAnimator.allowVisible = false
             }
             ACTION_SCREEN_ON -> {
                 if (!handledUnlock && !keyguardManager.isKeyguardLocked) {
                     handledUnlock = true
-                    ViewHolder.allowVisible = true
+                    ViewAnimator.allowVisible = true
                 }
             }
             ACTION_USER_PRESENT -> {
                 handledUnlock = true
-                ViewHolder.allowVisible = true
+                ViewAnimator.allowVisible = true
             }
         }
     }

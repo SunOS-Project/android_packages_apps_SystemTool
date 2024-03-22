@@ -20,6 +20,8 @@ import org.nameless.systemtool.windowmode.observer.SystemStateReceiver
 import org.nameless.systemtool.windowmode.observer.WindowModeGestureListener
 import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.systemtool.windowmode.util.Shared
+import org.nameless.systemtool.windowmode.view.AppLeftCircleViewGroup
+import org.nameless.systemtool.windowmode.view.AppRightCircleViewGroup
 import org.nameless.systemtool.windowmode.view.DimmerView
 
 class WmGestureService : Service() {
@@ -63,6 +65,12 @@ class WmGestureService : Service() {
         if (!DimmerView.addDimmerView()) {
             stopSelf()
         }
+        if (!AppLeftCircleViewGroup.addCircleViewGroup()) {
+            stopSelf()
+        }
+        if (!AppRightCircleViewGroup.addCircleViewGroup()) {
+            stopSelf()
+        }
 
         PackageInfoCache.initPackageList()
 
@@ -84,8 +92,8 @@ class WmGestureService : Service() {
         rotationWatcher.registered = false
         displayResolutionChangeListener.registered = false
 
-        ViewHolder.safelyClearIconViews()
-        ViewHolder.removeDimmerView()
+        ViewAnimator.hideCircle()
+        DimmerView.removeDimmerView()
 
         super.onDestroy()
     }
@@ -97,7 +105,7 @@ class WmGestureService : Service() {
         if (!settingsObserver.gestureEnabled) {
             return false
         }
-        if (!ViewHolder.allowVisible) {
+        if (!ViewAnimator.allowVisible) {
             return false
         }
         return true

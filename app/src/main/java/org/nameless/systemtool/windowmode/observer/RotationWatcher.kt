@@ -13,8 +13,9 @@ import android.view.Surface
 import android.view.WindowManagerGlobal
 
 import org.nameless.systemtool.common.Utils.logE
-import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
+import org.nameless.systemtool.windowmode.util.Shared.rotationNeedsConsumeNavbar
+import org.nameless.systemtool.windowmode.util.Shared.updateCircleViewGroup
+import org.nameless.systemtool.windowmode.util.Shared.updateNavbarHeight
 
 class RotationWatcher(
     private val handler: Handler
@@ -58,10 +59,10 @@ class RotationWatcher(
     }
 
     private fun onDisplayRotated() {
-        IconLayoutAlgorithm.rotationNeedsConsumeNavbar =
+        rotationNeedsConsumeNavbar =
                 displayRotation == Surface.ROTATION_270
-        IconLayoutAlgorithm.updateNavbarHeight()
-        ViewHolder.onScreenRotationChanged()
+        updateNavbarHeight()
+        updateCircleViewGroup()
     }
 
     companion object {

@@ -7,9 +7,9 @@ package org.nameless.systemtool.windowmode.observer
 
 import android.os.Handler
 
-import org.nameless.systemtool.windowmode.ViewHolder
-import org.nameless.systemtool.windowmode.util.IconLayoutAlgorithm
 import org.nameless.systemtool.windowmode.util.Shared.resolutionManager
+import org.nameless.systemtool.windowmode.util.Shared.updateCircleViewGroup
+import org.nameless.systemtool.windowmode.util.Shared.updateNavbarHeight
 import org.nameless.view.IDisplayResolutionListener
 
 class DisplayResolutionChangeListener(
@@ -33,8 +33,8 @@ class DisplayResolutionChangeListener(
         set(value) {
             field = value
             handler.postDelayed({
-                IconLayoutAlgorithm.updateNavbarHeight()
-                ViewHolder.relocateIconView()
+                updateNavbarHeight()
+                updateCircleViewGroup()
             }, 500L)
         }
 

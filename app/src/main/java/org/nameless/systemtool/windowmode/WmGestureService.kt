@@ -14,11 +14,10 @@ import android.os.IBinder
 import org.nameless.systemtool.windowmode.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.windowmode.observer.PackageStateObserver
 import org.nameless.systemtool.windowmode.observer.RotationWatcher
-import org.nameless.systemtool.windowmode.observer.ScreenStateReceiver
+import org.nameless.systemtool.windowmode.observer.ScreenStateObserver
 import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.observer.SystemStateReceiver
 import org.nameless.systemtool.windowmode.observer.WindowModeGestureListener
-import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.systemtool.windowmode.util.Shared
 import org.nameless.systemtool.windowmode.view.AppLeftCircleViewGroup
 import org.nameless.systemtool.windowmode.view.AppRightCircleViewGroup
@@ -40,8 +39,8 @@ class WmGestureService : Service() {
     private val rotationWatcher by lazy {
         RotationWatcher(handler)
     }
-    private val screenStateReceiver by lazy {
-        ScreenStateReceiver(handler)
+    private val screenStateObserver by lazy {
+        ScreenStateObserver(handler)
     }
     private val settingsObserver by lazy {
         SettingsObserver(handler)
@@ -72,12 +71,10 @@ class WmGestureService : Service() {
             stopSelf()
         }
 
-        PackageInfoCache.initPackageList()
-
         displayResolutionChangeListener.registered = true
         rotationWatcher.registered = true
         settingsObserver.registered = true
-        screenStateReceiver.registered = true
+        screenStateObserver.registered = true
         systemStateReceiver.registered = true
         packageStateObserver.registered = true
         windowModeGestureListener.registered = true
@@ -87,7 +84,7 @@ class WmGestureService : Service() {
         windowModeGestureListener.registered = false
         packageStateObserver.registered = false
         systemStateReceiver.registered = false
-        screenStateReceiver.registered = false
+        screenStateObserver.registered = false
         settingsObserver.registered = false
         rotationWatcher.registered = false
         displayResolutionChangeListener.registered = false

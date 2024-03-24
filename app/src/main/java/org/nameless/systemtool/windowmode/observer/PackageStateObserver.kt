@@ -17,7 +17,6 @@ import android.content.IntentFilter
 import android.os.Handler
 
 import org.nameless.systemtool.common.Utils.logD
-import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.systemtool.windowmode.util.Shared.service
 
 class PackageStateObserver(
@@ -64,19 +63,16 @@ class PackageStateObserver(
     private fun onPackageAdded(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageAdded, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(packageName, true)
     }
 
     private fun onPackageStateChanged(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageStateChanged, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(packageName)
     }
 
     private fun onPackageRemoved(packageName: String?) {
         packageName ?: return
         logD(TAG, "onPackageRemoved, packageName=$packageName")
-        PackageInfoCache.onPackageStateChanged(packageName)
         SettingsObserver.putMiniWindowAppsSettings(service,
             (SettingsObserver.getMiniWindowAppsSettings(service)
                 ?.takeIf { it.isNotBlank() }?.split(";")

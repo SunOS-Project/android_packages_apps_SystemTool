@@ -9,6 +9,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Color
 import android.os.SystemClock
 import android.os.UserHandle
@@ -27,7 +28,6 @@ import org.nameless.systemtool.windowmode.AllAppsPickerActivity
 import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
-import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
 import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
 import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
@@ -47,8 +47,12 @@ class IconView(
                 setImageDrawable(it)
             }
         } else {
-            PackageInfoCache.getIconDrawable(packageName)?.let {
-                setImageDrawable(it)
+            try {
+                context.packageManager.getApplicationIcon(packageName).let {
+                    setImageDrawable(it)
+                }
+            } catch (_: NameNotFoundException) {
+                setImageDrawable(context.packageManager.defaultActivityIcon)
             }
         }
         borderColor = Color.parseColor("#80FFFFFF")
@@ -178,7 +182,11 @@ class IconView(
     companion object {
         private const val FOCUS_MIN_TIME_ON_DOWN = 100L
 
-        fun sendMiniWindowBroadcast(context: Context, packageName: String) {
+        fun sendMiniWindowBroadcast(
+            context: Context,
+            packageName: String,
+            activityName: String = String()
+        ) {
             if (Utils.PACKAGE_NAME == packageName) {
                 context.sendBroadcastAsUser(Intent().apply {
                     action = ACTION_START_MINI_WINDOW
@@ -191,6 +199,9 @@ class IconView(
             context.sendBroadcastAsUser(Intent().apply {
                 action = ACTION_START_MINI_WINDOW
                 putExtra(EXTRA_PACKAGE_NAME, packageName)
+                if (activityName.isNotBlank()) {
+                    putExtra(EXTRA_ACTIVITY_NAME, packageName)
+                }
             }, UserHandle.SYSTEM)
         }
     }

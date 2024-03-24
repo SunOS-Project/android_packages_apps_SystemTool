@@ -36,6 +36,8 @@ object Shared {
         service.getSystemService(WindowManager::class.java)
     }
 
+    var isEditing = false
+
     var gesturalMode = false
     var rotationNeedsConsumeNavbar = false
     var navbarHeight = 0

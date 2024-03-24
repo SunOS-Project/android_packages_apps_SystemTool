@@ -223,6 +223,7 @@ object ViewAnimator {
                 }
                 doOnEnd {
                     dimmerView.isVisible = false
+                    circleViewGroup?.isVisible = false
                     circleViewGroup = null
                     animating = false
                     endAction?.run()

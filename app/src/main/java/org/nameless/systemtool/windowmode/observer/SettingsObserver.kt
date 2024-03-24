@@ -19,10 +19,8 @@ import com.android.internal.util.nameless.UserSwitchReceiver
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.common.Utils
-import org.nameless.systemtool.windowmode.PickerDataCache
 import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Config.CIRCLE_MAX_ICON
-import org.nameless.systemtool.windowmode.util.PackageInfoCache
 import org.nameless.systemtool.windowmode.util.Shared.clearCircleView
 import org.nameless.systemtool.windowmode.util.Shared.leftCircle
 import org.nameless.systemtool.windowmode.util.Shared.rightCircle
@@ -69,7 +67,6 @@ class SettingsObserver(
 
     private val userSwitchReceiver = object: UserSwitchReceiver(service) {
         override fun onUserSwitched() {
-            PackageInfoCache.initPackageList()
             updateAll()
         }
     }
@@ -110,13 +107,10 @@ class SettingsObserver(
         ViewAnimator.hideCircle()
         clearCircleView()
 
-        val validAppList = getMiniWindowAppsSettings(service)
-            ?.takeIf { it.isNotBlank() }?.split(";")?.filter {
-                PackageInfoCache.isPackageAvailable(it) }?: emptyList()
+        val appList = getMiniWindowAppsSettings(service)
+            ?.takeIf { it.isNotBlank() }?.split(";") ?: emptyList()
 
-        PickerDataCache.updatePinnedPackages(validAppList.toMutableSet())
-
-        validAppList.forEachIndexed { i, v ->
+        appList.forEachIndexed { i, v ->
             if (i >= CIRCLE_MAX_ICON - 1) {
                 return@forEachIndexed
             }

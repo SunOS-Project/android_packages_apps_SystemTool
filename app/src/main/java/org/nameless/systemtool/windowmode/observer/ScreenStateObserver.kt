@@ -18,7 +18,7 @@ import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Shared.keyguardManager
 import org.nameless.systemtool.windowmode.util.Shared.service
 
-class ScreenStateReceiver(
+class ScreenStateObserver(
     private val handler: Handler
 ) : BroadcastReceiver() {
 

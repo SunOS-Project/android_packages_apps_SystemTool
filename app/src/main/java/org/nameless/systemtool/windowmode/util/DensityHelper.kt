@@ -5,13 +5,10 @@
 
 package org.nameless.systemtool.windowmode.util
 
+import android.content.Context
 import com.android.settingslib.display.DisplayDensityUtils
 
-import org.nameless.systemtool.windowmode.util.Shared.service
-
 object DensityHelper {
-
-    private val densityUtils by lazy { DisplayDensityUtils(service) }
 
     enum class DisplaySize {
         SMALLEST,
@@ -23,6 +20,7 @@ object DensityHelper {
         EXTREMELY_LARGE
     }
 
-    var displaySize = 0
-        get() = densityUtils.currentIndexForDefaultDisplay
+    fun getDisplaySize(context: Context): Int {
+        return DisplayDensityUtils(context).currentIndexForDefaultDisplay
+    }
 }

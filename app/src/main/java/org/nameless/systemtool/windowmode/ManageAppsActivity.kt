@@ -16,7 +16,5 @@ class ManageAppsActivity : AllAppsPickerActivity() {
         setTitle(R.string.manage_apps_title)
     }
 
-    override fun allowStartApp() = false
-
-    override fun finishOnStop() = false
+    override fun isEditOnlyMode() = true
 }

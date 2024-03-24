@@ -1,74 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2023-2024 The Nameless-AOSP Project
-     SPDX-License-Identifier: Apache-2.0
+    Copyright (C) 2024 The Nameless-AOSP Project
+    SPDX-License-Identifier: Apache-2.0
 -->
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view_apps"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/text_pinned_apps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="26dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/pinned_apps_title"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/text_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:text="@string/edit_title"
+                android:textColor="#0099ff"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/text_pinned_apps"
+                app:layout_constraintBottom_toBottomOf="@id/text_pinned_apps" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list_pinned_apps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="148dp"
+                android:minHeight="74dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/grid_item"
+                tools:itemCount="2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_pinned_apps" />
+
+            <TextView
+                android:id="@+id/text_no_pinned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/info_no_pinned_app"
+                android:textSize="30sp"
+                android:layout_marginTop="24dp"
+                android:paddingBottom="24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_pinned_apps" />
+
+            <View
+                android:id="@+id/view_split"
+                android:layout_width="0dp"
+                android:layout_height="1px"
+                android:layout_marginHorizontal="20dp"
+                android:background="#979797"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/text_pinned_apps" />
+
+            <TextView
+                android:id="@+id/text_all_apps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="26dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/all_apps_title"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/view_split" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list_all_apps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/grid_item"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_apps"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/text_all_pinned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/info_all_apps_pinned"
+                android:textSize="30sp"
+                android:layout_marginTop="24dp"
+                android:paddingBottom="24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_apps" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/layout_loading"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal|center_vertical">
 
-        <TextView
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:id="@+id/indicator_loading"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:paddingStart="24dp"
-            android:textSize="16dp"
-            android:text="@string/pinned_apps_title" />
-
-        <TextView
-            android:id="@+id/text_no_pined_app"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="24dp"
-            android:textSize="26dp"
-            android:text="@string/info_no_pinned_app" />
-
-        <org.nameless.systemtool.windowmode.view.ExpandableGridView
-            android:id="@+id/grid_pinned_apps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:listSelector="@android:color/transparent"
-            android:scrollbars="none"
-            android:numColumns="4" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="28dp"
-            android:layout_marginHorizontal="24dp"
-            android:background="#888888" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:textSize="16dp"
-            android:text="@string/all_apps_title" />
-
-        <TextView
-            android:id="@+id/text_all_apps_pinned"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp"
-            android:gravity="center"
-            android:paddingTop="24dp"
-            android:textSize="26dp"
-            android:text="@string/info_all_apps_pinned" />
-
-        <org.nameless.systemtool.windowmode.view.ExpandableGridView
-            android:id="@+id/grid_all_apps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp"
-            android:listSelector="@android:color/transparent"
-            android:scrollbars="none"
-            android:numColumns="4" />
+            android:indeterminate="true" />
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

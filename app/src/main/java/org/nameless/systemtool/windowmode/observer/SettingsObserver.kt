@@ -17,6 +17,7 @@ import android.provider.Settings.Secure.USER_SETUP_COMPLETE
 import com.android.internal.util.nameless.UserSwitchReceiver
 
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MINI_WINDOW_APPS
+import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MORE_CIRCLES
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.ViewAnimator
@@ -51,6 +52,9 @@ class SettingsObserver(
                         Settings.System.getUriFor(SYSTEM_TOOL_MINI_WINDOW_APPS),
                         false, this@SettingsObserver, UserHandle.USER_ALL)
                     registerContentObserver(
+                        Settings.System.getUriFor(SYSTEM_TOOL_MORE_CIRCLES),
+                        false, this@SettingsObserver, UserHandle.USER_ALL)
+                    registerContentObserver(
                         Settings.Secure.getUriFor(NAVIGATION_MODE),
                         false, this@SettingsObserver, UserHandle.USER_ALL)
                 }
@@ -79,7 +83,7 @@ class SettingsObserver(
             SYSTEM_TOOL_WINDOWING_MODE_GESTURE -> {
                 updateGestureEnabled()
             }
-            SYSTEM_TOOL_MINI_WINDOW_APPS -> {
+            SYSTEM_TOOL_MINI_WINDOW_APPS, SYSTEM_TOOL_MORE_CIRCLES -> {
                 updateMiniWindowApps()
             }
             NAVIGATION_MODE -> {
@@ -109,9 +113,17 @@ class SettingsObserver(
 
         val appList = getMiniWindowAppsSettings(service)
             ?.takeIf { it.isNotBlank() }?.split(";") ?: emptyList()
+        val showMoreCircles = Settings.System.getIntForUser(
+            service.contentResolver, SYSTEM_TOOL_MORE_CIRCLES,
+            0, UserHandle.USER_CURRENT) == 1
+        val maxIconCount = if (showMoreCircles) {
+            CIRCLE_MAX_ICON[CIRCLE_MAX_ICON.size - 1]
+        } else {
+            CIRCLE_MAX_ICON[0]
+        }
 
         appList.forEachIndexed { i, v ->
-            if (i >= CIRCLE_MAX_ICON - 1) {
+            if (i >= maxIconCount - 1) {
                 return@forEachIndexed
             }
             leftCircle.post { leftCircle.addView(IconView(service, v)) }

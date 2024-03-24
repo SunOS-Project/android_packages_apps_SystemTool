@@ -8,14 +8,14 @@ package org.nameless.systemtool.windowmode.util
 object Config {
 
     const val ICON_SIZE_RATIO = 0.0986f  // 142 / 1440
-    const val CIRCLE_SCALE_RATIO = 0.64f  // r = min(screenWidth, screenHeight) * circleRadiusRatio
+    val CIRCLE_SCALE_RATIO = floatArrayOf(0.64f, 0.46f)  // r = min(screenWidth, screenHeight) * circleRadiusRatio
 
     const val CIRCLE_CENTER_X_PORT = 1.04f
     const val CIRCLE_CENTER_X_LAND = 1.0f
     const val CIRCLE_CENTER_Y_PORT = 1.0f
     const val CIRCLE_CENTER_Y_LAND = 1.01f
 
-    const val CIRCLE_MAX_ICON = 6  // Per app gap = 90° / (circleMaxIcon - 1)
+    val CIRCLE_MAX_ICON = intArrayOf(6, 10)
 
     const val HIDE_ANIMATION_DURATION = 100L
     const val REBOUND_ANIMATION_DURATION = 250L

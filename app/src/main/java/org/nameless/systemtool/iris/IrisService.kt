@@ -350,7 +350,7 @@ class IrisService : Service() {
             logE(TAG, "Failed to show memc toast, v is null")
             return
         }
-        val tv = v.findViewById(R.id.memc_message) as TextView
+        val tv = v.findViewById<TextView>(R.id.memc_message)!!
         tv.text = service.getText(com.android.internal.R.string.motion_graphics_smoothing_starting)
         Toast(service, null).apply {
             view = v

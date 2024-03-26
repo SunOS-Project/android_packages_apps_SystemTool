@@ -25,7 +25,7 @@ abstract class RotationWatcher(
             }
             if (value) {
                 try {
-                    WindowManagerGlobal.getWindowManagerService().watchRotation(
+                    WindowManagerGlobal.getWindowManagerService()?.watchRotation(
                             this, DEFAULT_DISPLAY)
                     field = true
                 } catch (e: RemoteException) {
@@ -33,7 +33,7 @@ abstract class RotationWatcher(
                 }
             } else {
                 try {
-                    WindowManagerGlobal.getWindowManagerService().removeRotationWatcher(this)
+                    WindowManagerGlobal.getWindowManagerService()?.removeRotationWatcher(this)
                     field = false
                 } catch (e: RemoteException) {
                     logE(TAG, "Failed to unregister rotation watcher")

@@ -24,16 +24,16 @@ object Shared {
     lateinit var rightCircle: AppRightCircleViewGroup
 
     val appFocusManager: AppFocusManager by lazy {
-        service.getSystemService(AppFocusManager::class.java)
+        service.getSystemService(AppFocusManager::class.java)!!
     }
     val keyguardManager: KeyguardManager by lazy {
-        service.getSystemService(KeyguardManager::class.java)
+        service.getSystemService(KeyguardManager::class.java)!!
     }
     val resolutionManager: DisplayResolutionManager by lazy {
-        service.getSystemService(DisplayResolutionManager::class.java)
+        service.getSystemService(DisplayResolutionManager::class.java)!!
     }
     val windowManager: WindowManager by lazy {
-        service.getSystemService(WindowManager::class.java)
+        service.getSystemService(WindowManager::class.java)!!
     }
 
     var isEditing = false

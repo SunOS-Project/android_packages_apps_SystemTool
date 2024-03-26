@@ -27,7 +27,7 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
             }
             if (value) {
                 try {
-                    WindowManagerGlobal.getWindowManagerService().registerSystemGestureListener(
+                    WindowManagerGlobal.getWindowManagerService()?.registerSystemGestureListener(
                             PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
                     field = true
                 } catch (e: RemoteException) {
@@ -35,7 +35,7 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
                 }
             } else {
                 try {
-                    WindowManagerGlobal.getWindowManagerService().unregisterSystemGestureListener(
+                    WindowManagerGlobal.getWindowManagerService()?.unregisterSystemGestureListener(
                             PACKAGE_NAME, GESTURE_WINDOW_MODE, this)
                     field = false
                 } catch (e: RemoteException) {

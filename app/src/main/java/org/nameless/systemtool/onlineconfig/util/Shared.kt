@@ -24,15 +24,15 @@ object Shared {
     var wifiAvailable = false
 
     val alarmManager: AlarmManager by lazy {
-        service.getSystemService(AlarmManager::class.java)
+        service.getSystemService(AlarmManager::class.java)!!
     }
     val connectivityManager: ConnectivityManager by lazy {
-        service.getSystemService(ConnectivityManager::class.java)
+        service.getSystemService(ConnectivityManager::class.java)!!
     }
     val gameModeManager: GameModeManager by lazy {
-        service.getSystemService(GameModeManager::class.java)
+        service.getSystemService(GameModeManager::class.java)!!
     }
     val onlineConfigManager: OnlineConfigManager by lazy {
-        service.getSystemService(OnlineConfigManager::class.java)
+        service.getSystemService(OnlineConfigManager::class.java)!!
     }
 }

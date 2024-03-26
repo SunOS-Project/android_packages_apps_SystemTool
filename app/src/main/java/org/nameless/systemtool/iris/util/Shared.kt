@@ -22,24 +22,24 @@ object Shared {
     var powerSaveMode = false
 
     val appFocusManager: AppFocusManager by lazy {
-        service.getSystemService(AppFocusManager::class.java)
+        service.getSystemService(AppFocusManager::class.java)!!
     }
     val displayResolutionManager: DisplayResolutionManager by lazy {
-        service.getSystemService(DisplayResolutionManager::class.java)
+        service.getSystemService(DisplayResolutionManager::class.java)!!
     }
     val keyguardManager: KeyguardManager by lazy {
-        service.getSystemService(KeyguardManager::class.java)
+        service.getSystemService(KeyguardManager::class.java)!!
     }
     val layoutInflater: LayoutInflater by lazy {
-        service.getSystemService(LayoutInflater::class.java)
+        service.getSystemService(LayoutInflater::class.java)!!
     }
     val onlineConfigManager: OnlineConfigManager by lazy {
-        service.getSystemService(OnlineConfigManager::class.java)
+        service.getSystemService(OnlineConfigManager::class.java)!!
     }
     val powerManager: PowerManager by lazy {
-        service.getSystemService(PowerManager::class.java)
+        service.getSystemService(PowerManager::class.java)!!
     }
     val refreshRateManager: RefreshRateManager by lazy {
-        service.getSystemService(RefreshRateManager::class.java)
+        service.getSystemService(RefreshRateManager::class.java)!!
     }
 }

@@ -42,14 +42,14 @@ import org.nameless.systemtool.windowmode.view.PinnedAppsAdapter
 open class AllAppsPickerActivity : Activity() {
 
     private val root by lazy { window.decorView.rootView }
-    private val layoutLoading by lazy { findViewById<LinearLayout>(R.id.layout_loading) }
-    private val listAllApps by lazy { findViewById<RecyclerView>(R.id.list_all_apps) }
-    private val listPinnedApps by lazy { findViewById<RecyclerView>(R.id.list_pinned_apps) }
-    private val scrollViewApps by lazy { findViewById<NestedScrollView>(R.id.scroll_view_apps) }
-    private val textAllPinned by lazy { findViewById<TextView>(R.id.text_all_pinned) }
-    private val textEdit by lazy { findViewById<TextView>(R.id.text_edit) }
-    private val textNoPinned by lazy { findViewById<TextView>(R.id.text_no_pinned) }
-    private val viewSplit by lazy { findViewById<View>(R.id.view_split) }
+    private val layoutLoading by lazy { findViewById<LinearLayout>(R.id.layout_loading)!! }
+    private val listAllApps by lazy { findViewById<RecyclerView>(R.id.list_all_apps)!! }
+    private val listPinnedApps by lazy { findViewById<RecyclerView>(R.id.list_pinned_apps)!! }
+    private val scrollViewApps by lazy { findViewById<NestedScrollView>(R.id.scroll_view_apps)!! }
+    private val textAllPinned by lazy { findViewById<TextView>(R.id.text_all_pinned)!! }
+    private val textEdit by lazy { findViewById<TextView>(R.id.text_edit)!! }
+    private val textNoPinned by lazy { findViewById<TextView>(R.id.text_no_pinned)!! }
+    private val viewSplit by lazy { findViewById<View>(R.id.view_split)!! }
 
     private val pinnedAppsAdapter by lazy { PinnedAppsAdapter() }
     private val allAppsAdapter by lazy { AllAppsAdapter() }
@@ -339,17 +339,19 @@ open class AllAppsPickerActivity : Activity() {
         val pinnedAppsSettings = SettingsObserver.getMiniWindowAppsSettings(this)
             ?.takeIf { it.isNotBlank() }?.split(";")?.toSet() ?: emptySet()
         val apps = packageManager.getInstalledPackages(0).filter {
-            miniWindowSystemAppsWhitelist.contains(it.packageName) ||
-                    ((it.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) == 0 &&
-                    (it.applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0)
+            val isSystemApp = it.applicationInfo?.flags?.let { flags ->
+                (flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
+                (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+            } ?: false
+            miniWindowSystemAppsWhitelist.contains(it.packageName) || !isSystemApp
         }.toMutableList()
         pinnedAppsSettings.forEach { packageName ->
             apps.find { app -> app.packageName == packageName }?.let {
                 AppInfo(
-                    it.applicationInfo.loadLabel(packageManager).toString(),
+                    it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String(),
                     it.packageName,
                     String(),
-                    it.applicationInfo.loadIcon(packageManager)
+                    it.applicationInfo?.loadIcon(packageManager) ?: packageManager.defaultActivityIcon
                 ).let { info ->
                     pinnedAppsList.add(info)
                     mergedAppList.add(info)
@@ -359,10 +361,10 @@ open class AllAppsPickerActivity : Activity() {
         }
         apps.forEach {
             AppInfo(
-                it.applicationInfo.loadLabel(packageManager).toString(),
+                it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String(),
                 it.packageName,
                 String(),
-                it.applicationInfo.loadIcon(packageManager)
+                it.applicationInfo?.loadIcon(packageManager) ?: packageManager.defaultActivityIcon
             ).let { info ->
                 allAppsList.add(info)
                 mergedAppList.add(info)

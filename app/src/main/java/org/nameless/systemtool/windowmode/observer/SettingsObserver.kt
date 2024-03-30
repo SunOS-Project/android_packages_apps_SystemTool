@@ -21,7 +21,8 @@ import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_MORE_CIRCLES
 import org.nameless.provider.SettingsExt.System.SYSTEM_TOOL_WINDOWING_MODE_GESTURE
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.ViewAnimator
-import org.nameless.systemtool.windowmode.util.Config.CIRCLE_MAX_ICON
+import org.nameless.systemtool.windowmode.util.Config.CIRCLE_MAX_ICON_NORMAL
+import org.nameless.systemtool.windowmode.util.Config.CIRCLE_MAX_ICON_WIDER
 import org.nameless.systemtool.windowmode.util.Shared.clearCircleView
 import org.nameless.systemtool.windowmode.util.Shared.leftCircle
 import org.nameless.systemtool.windowmode.util.Shared.rightCircle
@@ -117,9 +118,9 @@ class SettingsObserver(
             service.contentResolver, SYSTEM_TOOL_MORE_CIRCLES,
             0, UserHandle.USER_CURRENT) == 1
         val maxIconCount = if (showMoreCircles) {
-            CIRCLE_MAX_ICON[CIRCLE_MAX_ICON.size - 1]
+            CIRCLE_MAX_ICON_WIDER[CIRCLE_MAX_ICON_WIDER.size - 1]
         } else {
-            CIRCLE_MAX_ICON[0]
+            CIRCLE_MAX_ICON_NORMAL[0]
         }
 
         appList.forEachIndexed { i, v ->

@@ -8,14 +8,33 @@ package org.nameless.systemtool.windowmode.util
 object Config {
 
     const val ICON_SIZE_RATIO = 0.0986f  // 142 / 1440
-    val CIRCLE_SCALE_RATIO = floatArrayOf(0.64f, 0.46f)  // r = min(screenWidth, screenHeight) * circleRadiusRatio
 
     const val CIRCLE_CENTER_X_PORT = 1.04f
     const val CIRCLE_CENTER_X_LAND = 1.0f
     const val CIRCLE_CENTER_Y_PORT = 1.0f
     const val CIRCLE_CENTER_Y_LAND = 1.01f
 
-    val CIRCLE_MAX_ICON = intArrayOf(6, 10)
+    val CIRCLE_MAX_ICON_NORMAL = intArrayOf(6, 10, 11)
+    val CIRCLE_MAX_ICON_WIDER = intArrayOf(6, 10, 18, 19)
+    // r = min(screenWidth, screenHeight) * circleRadiusRatio
+    private val CIRCLE_RADIUS_RATIO_NORMAL = floatArrayOf(0.64f, 0.46f, 0.28f)
+    private val CIRCLE_RADIUS_RATIO_WIDER = floatArrayOf(0.64f, 0.46f, 0.82f, 0.28f)
+
+    fun getCircleMaxIconArray(iconCount: Int): IntArray {
+        return if (iconCount > CIRCLE_MAX_ICON_NORMAL[CIRCLE_MAX_ICON_NORMAL.size - 1]) {
+            CIRCLE_MAX_ICON_WIDER
+        } else {
+            CIRCLE_MAX_ICON_NORMAL
+        }
+    }
+
+    fun getCircleRadiusRatioArray(iconCount: Int): FloatArray {
+        return if (iconCount > CIRCLE_MAX_ICON_NORMAL[CIRCLE_MAX_ICON_NORMAL.size - 1]) {
+            CIRCLE_RADIUS_RATIO_WIDER
+        } else {
+            CIRCLE_RADIUS_RATIO_NORMAL
+        }
+    }
 
     const val HIDE_ANIMATION_DURATION = 100L
     const val REBOUND_ANIMATION_DURATION = 250L

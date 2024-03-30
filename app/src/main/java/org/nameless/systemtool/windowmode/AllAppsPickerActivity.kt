@@ -7,6 +7,7 @@ package org.nameless.systemtool.windowmode
 
 import android.app.Activity
 import android.content.pm.ApplicationInfo
+import android.content.pm.LauncherApps
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.View
@@ -17,7 +18,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,36 +27,49 @@ import java.util.Collections
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.windowmode.observer.SettingsObserver
-import org.nameless.systemtool.windowmode.util.AppHolder
-import org.nameless.systemtool.windowmode.util.AppInfo
+import org.nameless.systemtool.windowmode.util.AdapterDifferHelper
+import org.nameless.systemtool.windowmode.view.AppHolder
+import org.nameless.systemtool.windowmode.bean.AppInfo
 import org.nameless.systemtool.windowmode.util.Config.miniWindowSystemAppsWhitelist
+import org.nameless.systemtool.windowmode.util.Config.shortcutSystemAppsBlacklist
 import org.nameless.systemtool.windowmode.util.DensityHelper
 import org.nameless.systemtool.windowmode.util.DensityHelper.DisplaySize
-import org.nameless.systemtool.windowmode.util.IDragOverListener
-import org.nameless.systemtool.windowmode.util.IIconClickedListener
+import org.nameless.systemtool.windowmode.callback.IDragOverListener
+import org.nameless.systemtool.windowmode.callback.IIconClickedListener
+import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
-import org.nameless.systemtool.windowmode.view.AllAppsAdapter
+import org.nameless.systemtool.windowmode.util.ShortcutHelper
+import org.nameless.systemtool.windowmode.view.AllItemAdapter
 import org.nameless.systemtool.windowmode.view.IconView
-import org.nameless.systemtool.windowmode.view.PinnedAppsAdapter
+import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 
 open class AllAppsPickerActivity : Activity() {
 
     private val root by lazy { window.decorView.rootView }
     private val layoutLoading by lazy { findViewById<LinearLayout>(R.id.layout_loading)!! }
     private val listAllApps by lazy { findViewById<RecyclerView>(R.id.list_all_apps)!! }
+    private val listAllShortcuts by lazy { findViewById<RecyclerView>(R.id.list_all_shortcuts)!! }
     private val listPinnedApps by lazy { findViewById<RecyclerView>(R.id.list_pinned_apps)!! }
     private val scrollViewApps by lazy { findViewById<NestedScrollView>(R.id.scroll_view_apps)!! }
-    private val textAllPinned by lazy { findViewById<TextView>(R.id.text_all_pinned)!! }
+    private val textAllAppPinned by lazy { findViewById<TextView>(R.id.text_all_app_pinned)!! }
+    private val textAllShortcutPinned by lazy { findViewById<TextView>(R.id.text_all_shortcut_pinned)!! }
     private val textEdit by lazy { findViewById<TextView>(R.id.text_edit)!! }
     private val textNoPinned by lazy { findViewById<TextView>(R.id.text_no_pinned)!! }
-    private val viewSplit by lazy { findViewById<View>(R.id.view_split)!! }
+    private val viewSplitApp by lazy { findViewById<View>(R.id.view_split_app)!! }
+    private val viewSplitShortcut by lazy { findViewById<View>(R.id.view_split_shortcut)!! }
 
-    private val pinnedAppsAdapter by lazy { PinnedAppsAdapter() }
-    private val allAppsAdapter by lazy { AllAppsAdapter() }
+    private val pinnedItemAdapter by lazy { PinnedItemAdapter() }
+    private val allAppAdapter by lazy { AllItemAdapter() }
+    private val allShortcutAdapter by lazy { AllItemAdapter() }
 
     private val mergedAppList = mutableListOf<AppInfo>()
+    private val mergedShortcutList = mutableListOf<AppInfo>()
 
     private val sharedPool = RecyclerView.RecycledViewPool()
+
+    private val launcherApps by lazy {
+        getSystemService(LauncherApps::class.java)!!
+    }
 
     private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -74,20 +87,20 @@ open class AllAppsPickerActivity : Activity() {
             oldHolder: RecyclerView.ViewHolder,
             targetHolder: RecyclerView.ViewHolder
         ): Boolean {
-            pinnedAppsAdapter.notifyItemMoved(
+            pinnedItemAdapter.notifyItemMoved(
                 oldHolder.bindingAdapterPosition,
                 targetHolder.bindingAdapterPosition
             )
             val newData = mutableListOf<Pair<Int, Int>>()
-            pinnedAppsAdapter.data.forEachIndexed { index, _ ->
+            pinnedItemAdapter.data.forEachIndexed { index, _ ->
                 val holder =
                     recyclerView.findViewHolderForAdapterPosition(index) as AppHolder?
                 newData.add(Pair(holder?.hashCode ?: 0, index))
             }
             for (i in newData) {
-                val sameIndex = pinnedAppsAdapter.data.indexOfFirst { i.first == it.hashCode() }
+                val sameIndex = pinnedItemAdapter.data.indexOfFirst { i.first == it.hashCode() }
                 if (sameIndex >= 0) {
-                    Collections.swap(pinnedAppsAdapter.data, i.second, sameIndex)
+                    Collections.swap(pinnedItemAdapter.data, i.second, sameIndex)
                     recyclerView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 }
             }
@@ -134,73 +147,53 @@ open class AllAppsPickerActivity : Activity() {
             layoutManager = GridLayoutManager (
                 this@AllAppsPickerActivity, span, LinearLayoutManager.VERTICAL, false
             )
-            adapter = pinnedAppsAdapter
+            adapter = pinnedItemAdapter
             itemAnimator = null
         }
-        pinnedAppsAdapter.clickedListener = object : IIconClickedListener {
+        pinnedItemAdapter.clickedListener = object : IIconClickedListener {
             override fun onIconClicked(appInfo: AppInfo) {
+                if (appInfo.shortcutInfo != null) {
+                    ShortcutHelper.startShortcut(
+                        this@AllAppsPickerActivity,
+                        launcherApps,
+                        appInfo.shortcutInfo
+                    )
+                    return
+                }
                 IconView.sendMiniWindowBroadcast(
                     this@AllAppsPickerActivity,
-                    appInfo.packageName,
-                    appInfo.activityName
+                    appInfo.packageName
                 )
             }
 
             override fun onRemovedClicked(appInfo: AppInfo, index: Int) {
-                val originalIndex = mergedAppList.filterNot {
-                    it != appInfo && pinnedAppsAdapter.data.contains(it)
+                val originalIndex = if (appInfo.shortcutInfo != null) {
+                    mergedShortcutList
+                } else {
+                    mergedAppList
+                }.filterNot {
+                    it != appInfo && pinnedItemAdapter.data.contains(it)
                 }.indexOf(appInfo)
                 if (originalIndex < 0) {
                     return
                 }
-                val oldAllAppsData = allAppsAdapter.data.toMutableList()
-                allAppsAdapter.data.add(originalIndex, appInfo)
-                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                    override fun getOldListSize(): Int {
-                        return oldAllAppsData.size
-                    }
-
-                    override fun getNewListSize(): Int {
-                        return allAppsAdapter.data.size
-                    }
-
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        return true
-                    }
-
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        return oldAllAppsData[oldItemPosition] == allAppsAdapter.data[newItemPosition]
-                    }
-                }).apply {
-                    dispatchUpdatesTo(allAppsAdapter)
+                val adapter = if (appInfo.shortcutInfo != null) {
+                    allShortcutAdapter
+                } else {
+                    allAppAdapter
                 }
+                val oldAllData = adapter.data.toMutableList()
+                adapter.data.add(originalIndex, appInfo)
+                AdapterDifferHelper(oldAllData, adapter).start()
 
-                val oldPinnedAppsData = pinnedAppsAdapter.data.toMutableList()
-                pinnedAppsAdapter.data.removeAt(index)
+                val oldPinnedData = pinnedItemAdapter.data.toMutableList()
+                pinnedItemAdapter.data.removeAt(index)
                 root.post {
                     savePinnedApps()
                 }
-                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                    override fun getOldListSize(): Int {
-                        return oldPinnedAppsData.size
-                    }
+                AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
 
-                    override fun getNewListSize(): Int {
-                        return pinnedAppsAdapter.data.size
-                    }
-
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        return true
-                    }
-
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                        return oldPinnedAppsData[oldItemPosition] == pinnedAppsAdapter.data[newItemPosition]
-                    }
-                }).apply {
-                    dispatchUpdatesTo(pinnedAppsAdapter)
-                }
-
-                if (pinnedAppsAdapter.data.size == 0 || allAppsAdapter.data.size == 1) {
+                if (pinnedItemAdapter.data.size == 0 || adapter.data.size == 1) {
                     updateVisibility()
                 }
             }
@@ -211,73 +204,76 @@ open class AllAppsPickerActivity : Activity() {
             layoutManager = GridLayoutManager (
                 this@AllAppsPickerActivity, span, LinearLayoutManager.VERTICAL, false
             )
-            adapter = allAppsAdapter
+            adapter = allAppAdapter
             itemAnimator = null
         }
-        allAppsAdapter.clickedListener = object : IIconClickedListener {
+        allAppAdapter.clickedListener = object : IIconClickedListener {
             override fun onIconClicked(appInfo: AppInfo) {
                 IconView.sendMiniWindowBroadcast(
                     this@AllAppsPickerActivity,
-                    appInfo.packageName,
-                    appInfo.activityName
+                    appInfo.packageName
                 )
             }
 
             override fun onAddClicked(appInfo: AppInfo) {
-                allAppsAdapter.data.indexOf(appInfo).let { idx ->
+                allAppAdapter.data.indexOf(appInfo).let { idx ->
                     if (idx < 0) {
                         return
                     }
-                    val oldAllAppsData = allAppsAdapter.data.toMutableList()
-                    allAppsAdapter.data.removeAt(idx)
-                    DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                        override fun getOldListSize(): Int {
-                            return oldAllAppsData.size
-                        }
+                    val oldAllData = allAppAdapter.data.toMutableList()
+                    allAppAdapter.data.removeAt(idx)
+                    AdapterDifferHelper(oldAllData, allAppAdapter).start()
 
-                        override fun getNewListSize(): Int {
-                            return allAppsAdapter.data.size
-                        }
-
-                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                            return true
-                        }
-
-                        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                            return oldAllAppsData[oldItemPosition] == allAppsAdapter.data[newItemPosition]
-                        }
-                    }).apply {
-                        dispatchUpdatesTo(allAppsAdapter)
-                    }
-
-                    val oldPinnedAppsData = pinnedAppsAdapter.data.toMutableList()
-                    appInfo.copy().let {
-                        pinnedAppsAdapter.data.add(it)
-                    }
+                    val oldPinnedData = pinnedItemAdapter.data.toMutableList()
+                    pinnedItemAdapter.data.add(appInfo)
                     root.post {
                         savePinnedApps()
                     }
-                    DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                        override fun getOldListSize(): Int {
-                            return oldPinnedAppsData.size
-                        }
+                    AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
 
-                        override fun getNewListSize(): Int {
-                            return pinnedAppsAdapter.data.size
-                        }
-
-                        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                            return true
-                        }
-
-                        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                            return oldPinnedAppsData[oldItemPosition] == pinnedAppsAdapter.data[newItemPosition]
-                        }
-                    }).apply {
-                        dispatchUpdatesTo(pinnedAppsAdapter)
+                    if (allAppAdapter.data.size == 0 || pinnedItemAdapter.data.size == 1) {
+                        updateVisibility()
                     }
+                }
+            }
+        }
 
-                    if (allAppsAdapter.data.size == 0 || pinnedAppsAdapter.data.size == 1) {
+        listAllShortcuts.apply {
+            setRecycledViewPool(sharedPool)
+            layoutManager = GridLayoutManager (
+                this@AllAppsPickerActivity, span, LinearLayoutManager.VERTICAL, false
+            )
+            adapter = allShortcutAdapter
+            itemAnimator = null
+        }
+        allShortcutAdapter.clickedListener = object : IIconClickedListener {
+            override fun onIconClicked(appInfo: AppInfo) {
+                if (appInfo.shortcutInfo != null) {
+                    ShortcutHelper.startShortcut(
+                        this@AllAppsPickerActivity,
+                        launcherApps,
+                        appInfo.shortcutInfo
+                    )
+                }
+            }
+
+            override fun onAddClicked(appInfo: AppInfo) {
+                allShortcutAdapter.data.indexOf(appInfo).let { idx ->
+                    if (idx < 0) {
+                        return
+                    }
+                    val oldAllData = allShortcutAdapter.data.toMutableList()
+                    allShortcutAdapter.data.removeAt(idx)
+                    AdapterDifferHelper(oldAllData, allShortcutAdapter).start()
+
+                    val oldPinnedData = pinnedItemAdapter.data.toMutableList()
+                    pinnedItemAdapter.data.add(appInfo)
+                    root.post {
+                        savePinnedApps()
+                    }
+                    AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
+
+                    if (allShortcutAdapter.data.size == 0 || pinnedItemAdapter.data.size == 1) {
                         updateVisibility()
                     }
                 }
@@ -291,27 +287,37 @@ open class AllAppsPickerActivity : Activity() {
             root.post {
                 if (isEditing) {
                     enableDragItem(true)
-                    pinnedAppsAdapter.data.forEachIndexed { index, _ ->
+                    pinnedItemAdapter.data.forEachIndexed { index, _ ->
                         val holder =
                             listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
                         holder?.iconState?.visibility = View.VISIBLE
                     }
-                    allAppsAdapter.data.forEachIndexed { index, _ ->
+                    allAppAdapter.data.forEachIndexed { index, _ ->
                         val holder =
                             listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                        holder?.iconState?.visibility = View.VISIBLE
+                    }
+                    allShortcutAdapter.data.forEachIndexed { index, _ ->
+                        val holder =
+                            listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
                         holder?.iconState?.visibility = View.VISIBLE
                     }
                     textEdit.text = getString(R.string.finish_title)
                 } else {
                     enableDragItem(false)
-                    pinnedAppsAdapter.data.forEachIndexed { index, _ ->
+                    pinnedItemAdapter.data.forEachIndexed { index, _ ->
                         val holder =
                             listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
                         holder?.iconState?.visibility = View.INVISIBLE
                     }
-                    allAppsAdapter.data.forEachIndexed { index, _ ->
+                    allAppAdapter.data.forEachIndexed { index, _ ->
                         val holder =
                             listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                        holder?.iconState?.visibility = View.INVISIBLE
+                    }
+                    allShortcutAdapter.data.forEachIndexed { index, _ ->
+                        val holder =
+                            listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
                         holder?.iconState?.visibility = View.INVISIBLE
                     }
                     textEdit.text = getString(R.string.edit_title)
@@ -334,8 +340,9 @@ open class AllAppsPickerActivity : Activity() {
             layoutLoading.isVisible = true
         }
 
-        val pinnedAppsList = mutableListOf<AppInfo>()
+        val pinnedItemList = mutableListOf<AppInfo>()
         val allAppsList = mutableListOf<AppInfo>()
+        val allShortcutList = mutableListOf<AppInfo>()
         val pinnedAppsSettings = SettingsObserver.getMiniWindowAppsSettings(this)
             ?.takeIf { it.isNotBlank() }?.split(";")?.toSet() ?: emptySet()
         val apps = packageManager.getInstalledPackages(0).filter {
@@ -344,50 +351,99 @@ open class AllAppsPickerActivity : Activity() {
                 (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
             } ?: false
             miniWindowSystemAppsWhitelist.contains(it.packageName) || !isSystemApp
+        }.map {
+            val label = it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String()
+            AppInfo(
+                label,
+                label,
+                it.packageName,
+                IconDrawableHelper.getDrawable(this, it.applicationInfo)
+            )
         }.toMutableList()
-        pinnedAppsSettings.forEach { packageName ->
-            apps.find { app -> app.packageName == packageName }?.let {
-                AppInfo(
-                    it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String(),
-                    it.packageName,
-                    String(),
-                    it.applicationInfo?.loadIcon(packageManager) ?: packageManager.defaultActivityIcon
-                ).let { info ->
-                    pinnedAppsList.add(info)
-                    mergedAppList.add(info)
-                }
-                apps.remove(it)
+        val shortcuts = mutableListOf<AppInfo>()
+        apps.map { Pair(it.packageName, it.compareLabel) }.filterNot {
+            shortcutSystemAppsBlacklist.contains(it.first)
+        }.forEach { p ->
+            ShortcutHelper.getShortcuts(launcherApps, p.first)?.forEach {
+                shortcuts.add(
+                    AppInfo(
+                        it.shortLabel.toString(),
+                        p.second,
+                        it.`package`,
+                        IconDrawableHelper.getDrawable(this, launcherApps, it),
+                        it
+                    )
+                )
             }
         }
-        apps.forEach {
-            AppInfo(
-                it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String(),
-                it.packageName,
-                String(),
-                it.applicationInfo?.loadIcon(packageManager) ?: packageManager.defaultActivityIcon
-            ).let { info ->
-                allAppsList.add(info)
-                mergedAppList.add(info)
+        pinnedAppsSettings.forEach { setting ->
+            val packageName: String
+            val shortcutId: String
+            val shortcutUserId: Int
+            setting.split(":").let {
+                packageName = it[0]
+                shortcutId = if (it.size == 3) it[1] else String()
+                shortcutUserId = if (it.size == 3) it[2].toInt() else Int.MIN_VALUE
             }
+            if (shortcutId.isNotBlank() && shortcutUserId != Int.MIN_VALUE) {
+                shortcuts.find { shortcut ->
+                    shortcut.packageName == packageName &&
+                    shortcut.shortcutInfo?.id == shortcutId &&
+                    shortcut.shortcutInfo.userId == shortcutUserId
+                }?.let { info ->
+                    pinnedItemList.add(info)
+                    mergedShortcutList.add(info)
+                    shortcuts.remove(info)
+                }
+            } else {
+                apps.find { app -> app.packageName == packageName }?.let { info ->
+                    pinnedItemList.add(info)
+                    mergedAppList.add(info)
+                    apps.remove(info)
+                }
+            }
+        }
+        apps.forEach { info ->
+            allAppsList.add(info)
+            mergedAppList.add(info)
+        }
+        shortcuts.forEach { info ->
+            allShortcutList.add(info)
+            mergedShortcutList.add(info)
         }
 
         allAppsList.sortWith { o1, o2 ->
-            if (o1.label == o2.label) {
+            if (o1.compareLabel == o2.compareLabel) {
                 o1.packageName.compareTo(o2.packageName)
             } else {
-                o1.label.compareTo(o2.label)
+                o1.compareLabel.compareTo(o2.compareLabel)
             }
         }
         mergedAppList.sortWith { o1, o2 ->
-            if (o1.label == o2.label) {
+            if (o1.compareLabel == o2.compareLabel) {
                 o1.packageName.compareTo(o2.packageName)
             } else {
+                o1.compareLabel.compareTo(o2.compareLabel)
+            }
+        }
+        allShortcutList.sortWith{ o1, o2 ->
+            if (o1.compareLabel == o2.compareLabel) {
                 o1.label.compareTo(o2.label)
+            } else {
+                o1.compareLabel.compareTo(o2.compareLabel)
+            }
+        }
+        mergedShortcutList.sortWith{ o1, o2 ->
+            if (o1.compareLabel == o2.compareLabel) {
+                o1.label.compareTo(o2.label)
+            } else {
+                o1.compareLabel.compareTo(o2.compareLabel)
             }
         }
 
-        pinnedAppsAdapter.data = pinnedAppsList.toMutableList()
-        allAppsAdapter.data = allAppsList.toMutableList()
+        pinnedItemAdapter.data = pinnedItemList.toMutableList()
+        allAppAdapter.data = allAppsList.toMutableList()
+        allShortcutAdapter.data = allShortcutList.toMutableList()
 
         updateVisibility()
 
@@ -404,7 +460,7 @@ open class AllAppsPickerActivity : Activity() {
 
     private fun enableDragItem(enable: Boolean) {
         if (enable) {
-            pinnedAppsAdapter.dragOverListener = object : IDragOverListener {
+            pinnedItemAdapter.dragOverListener = object : IDragOverListener {
                 override fun startDragItem(holder: RecyclerView.ViewHolder) {
                     listPinnedApps.itemAnimator = DefaultItemAnimator()
                     itemTouchHelper.startDrag(holder)
@@ -412,40 +468,62 @@ open class AllAppsPickerActivity : Activity() {
             }
             itemTouchHelper.attachToRecyclerView(listPinnedApps)
         } else {
-            pinnedAppsAdapter.dragOverListener = null
+            pinnedItemAdapter.dragOverListener = null
             itemTouchHelper.attachToRecyclerView(null)
         }
     }
 
     private fun updateVisibility() {
-        if (pinnedAppsAdapter.data.size == 0) {
+        if (pinnedItemAdapter.data.size == 0) {
             listPinnedApps.isVisible = false
             textNoPinned.isVisible = true
-            (viewSplit.layoutParams as ConstraintLayout.LayoutParams).let {
-                it.bottomToBottom = R.id.text_no_pinned
-                viewSplit.layoutParams = it
+            (viewSplitApp.layoutParams as ConstraintLayout.LayoutParams).let {
+                it.topToBottom = R.id.text_no_pinned
+                viewSplitApp.layoutParams = it
             }
         } else {
             listPinnedApps.isVisible = true
             textNoPinned.isVisible = false
-            (viewSplit.layoutParams as ConstraintLayout.LayoutParams).let {
-                it.bottomToBottom = R.id.list_pinned_apps
-                viewSplit.layoutParams = it
+            (viewSplitApp.layoutParams as ConstraintLayout.LayoutParams).let {
+                it.topToBottom = R.id.list_pinned_apps
+                viewSplitApp.layoutParams = it
             }
         }
 
-        if (allAppsAdapter.data.size == 0) {
+        if (allAppAdapter.data.size == 0) {
             listAllApps.isVisible = false
-            textAllPinned.isVisible = true
+            textAllAppPinned.isVisible = true
+            (viewSplitShortcut.layoutParams as ConstraintLayout.LayoutParams).let {
+                it.topToBottom = R.id.text_all_app_pinned
+                viewSplitShortcut.layoutParams = it
+            }
         } else {
             listAllApps.isVisible = true
-            textAllPinned.isVisible = false
+            textAllAppPinned.isVisible = false
+            (viewSplitShortcut.layoutParams as ConstraintLayout.LayoutParams).let {
+                it.topToBottom = R.id.list_all_apps
+                viewSplitShortcut.layoutParams = it
+            }
+        }
+
+        if (allShortcutAdapter.data.size == 0) {
+            listAllShortcuts.isVisible = false
+            textAllShortcutPinned.isVisible = true
+        } else {
+            listAllShortcuts.isVisible = true
+            textAllShortcutPinned.isVisible = false
         }
     }
 
     private fun savePinnedApps() {
         SettingsObserver.putMiniWindowAppsSettings(this,
-            pinnedAppsAdapter.data.joinToString(";") { it.packageName }
+            pinnedItemAdapter.data.joinToString(";") {
+                if (it.shortcutInfo != null) {
+                    "${it.packageName}:${it.shortcutInfo.id}:${it.shortcutInfo.userId}"
+                } else {
+                    it.packageName
+                }
+            }
         )
     }
 }

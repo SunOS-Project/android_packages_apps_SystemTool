@@ -127,8 +127,15 @@ class SettingsObserver(
             if (i >= maxIconCount - 1) {
                 return@forEachIndexed
             }
-            leftCircle.post { leftCircle.addView(IconView(service, v)) }
-            rightCircle.post { rightCircle.addView(IconView(service, v)) }
+            v.split(":").let {
+                if (it.size == 3) {
+                    leftCircle.post { leftCircle.addView(IconView(service, it[0], it[1], it[2].toInt())) }
+                    rightCircle.post { rightCircle.addView(IconView(service, it[0], it[1], it[2].toInt())) }
+                } else {
+                    leftCircle.post { leftCircle.addView(IconView(service, it[0])) }
+                    rightCircle.post { rightCircle.addView(IconView(service, it[0])) }
+                }
+            }
         }
         leftCircle.post { leftCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }
         rightCircle.post { rightCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }

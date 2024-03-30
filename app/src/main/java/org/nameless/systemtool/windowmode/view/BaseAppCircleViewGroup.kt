@@ -24,7 +24,7 @@ import org.nameless.systemtool.windowmode.util.Config.getCircleRadiusRatioArray
 import org.nameless.systemtool.windowmode.util.Shared.navbarHeight
 import org.nameless.systemtool.windowmode.util.Shared.windowManager
 
-abstract class AppCircleViewGroup(
+abstract class BaseAppCircleViewGroup(
     context: Context,
 ) : ViewGroup(context) {
 

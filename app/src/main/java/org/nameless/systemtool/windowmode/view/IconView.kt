@@ -9,7 +9,6 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager.NameNotFoundException
 import android.graphics.Color
 import android.os.SystemClock
 import android.os.UserHandle
@@ -17,24 +16,27 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.animation.PathInterpolator
 
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.animation.doOnEnd
 
 import de.hdodenhof.circleimageview.CircleImageView
 
-import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.windowmode.AllAppsPickerActivity
 import org.nameless.systemtool.windowmode.ViewAnimator
 import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
+import org.nameless.systemtool.windowmode.util.IconDrawableHelper
+import org.nameless.systemtool.windowmode.util.Shared.launcherApps
+import org.nameless.systemtool.windowmode.util.ShortcutHelper
 import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
 import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
 import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
 
 class IconView(
     context: Context,
-    private val packageName: String,
+    val packageName: String,
+    val shortcutId: String = String(),
+    val shortcutUserId: Int = Int.MIN_VALUE
 ) : CircleImageView(context) {
 
     private var fromDown = false
@@ -42,19 +44,7 @@ class IconView(
     private var downTime = 0L
 
     init {
-        if (Utils.PACKAGE_NAME == packageName) {
-            AppCompatResources.getDrawable(context, R.drawable.ic_more_app)?.let {
-                setImageDrawable(it)
-            }
-        } else {
-            try {
-                context.packageManager.getApplicationIcon(packageName).let {
-                    setImageDrawable(it)
-                }
-            } catch (_: NameNotFoundException) {
-                setImageDrawable(context.packageManager.defaultActivityIcon)
-            }
-        }
+        setImageDrawable(IconDrawableHelper.getDrawable(context, launcherApps, this))
         borderColor = Color.parseColor("#80FFFFFF")
     }
 
@@ -79,7 +69,11 @@ class IconView(
             MotionEvent.ACTION_UP -> {
                 resetState {
                     ViewAnimator.hideCircle {
-                        sendMiniWindowBroadcast(context, packageName)
+                        if (shortcutId.isNotBlank() && shortcutUserId != Int.MIN_VALUE) {
+                            ShortcutHelper.startShortcut(context, launcherApps, this)
+                        } else {
+                            sendMiniWindowBroadcast(context, packageName)
+                        }
                     }
                 }
             }
@@ -184,8 +178,7 @@ class IconView(
 
         fun sendMiniWindowBroadcast(
             context: Context,
-            packageName: String,
-            activityName: String = String()
+            packageName: String
         ) {
             if (Utils.PACKAGE_NAME == packageName) {
                 context.sendBroadcastAsUser(Intent().apply {
@@ -199,9 +192,6 @@ class IconView(
             context.sendBroadcastAsUser(Intent().apply {
                 action = ACTION_START_MINI_WINDOW
                 putExtra(EXTRA_PACKAGE_NAME, packageName)
-                if (activityName.isNotBlank()) {
-                    putExtra(EXTRA_ACTIVITY_NAME, packageName)
-                }
             }, UserHandle.SYSTEM)
         }
     }

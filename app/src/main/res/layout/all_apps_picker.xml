@@ -19,9 +19,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/text_pinned_apps"
@@ -29,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="26dp"
                 android:layout_marginTop="16dp"
-                android:text="@string/pinned_apps_title"
+                android:text="@string/pinned_apps_shortcuts_title"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -43,46 +41,42 @@
                 android:textColor="#0099ff"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/text_pinned_apps"
-                app:layout_constraintBottom_toBottomOf="@id/text_pinned_apps" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_pinned_apps"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:maxHeight="148dp"
-                android:minHeight="74dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="4dp"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/grid_item"
-                tools:itemCount="2"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_pinned_apps" />
 
             <TextView
                 android:id="@+id/text_no_pinned"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/info_no_pinned_app"
-                android:textSize="30sp"
+                android:text="@string/info_no_pinned_apps_shortcuts"
+                android:textSize="20sp"
                 android:layout_marginTop="24dp"
                 android:paddingBottom="24dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_pinned_apps" />
 
             <View
-                android:id="@+id/view_split"
+                android:id="@+id/view_split_app"
                 android:layout_width="0dp"
                 android:layout_height="1px"
                 android:layout_marginHorizontal="20dp"
                 android:background="#979797"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="@id/text_pinned_apps" />
+                app:layout_constraintTop_toBottomOf="@id/text_no_pinned" />
 
             <TextView
                 android:id="@+id/text_all_apps"
@@ -93,7 +87,7 @@
                 android:text="@string/all_apps_title"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/view_split" />
+                app:layout_constraintTop_toBottomOf="@id/view_split_app" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_all_apps"
@@ -104,22 +98,67 @@
                 android:layout_marginEnd="4dp"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/grid_item"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/text_all_apps"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_apps" />
 
             <TextView
-                android:id="@+id/text_all_pinned"
+                android:id="@+id/text_all_app_pinned"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/info_all_apps_pinned"
-                android:textSize="30sp"
+                android:textSize="20sp"
                 android:layout_marginTop="24dp"
                 android:paddingBottom="24dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/text_all_apps" />
+
+            <View
+                android:id="@+id/view_split_shortcut"
+                android:layout_width="0dp"
+                android:layout_height="1px"
+                android:layout_marginHorizontal="20dp"
+                android:background="#979797"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_app_pinned" />
+
+            <TextView
+                android:id="@+id/text_all_shortcuts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="26dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/all_shortcuts_title"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/view_split_shortcut" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list_all_shortcuts"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/grid_item"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_shortcuts" />
+
+            <TextView
+                android:id="@+id/text_all_shortcut_pinned"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/info_all_shortcuts_pinned"
+                android:textSize="20sp"
+                android:layout_marginTop="24dp"
+                android:paddingBottom="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/text_all_shortcuts" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

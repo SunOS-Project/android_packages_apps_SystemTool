@@ -1,7 +1,7 @@
--keep class de.hdodenhof.circleimageview.CircleImageView
--keep class org.nameless.systemtool.BootCompletedReceiver
--keep class org.nameless.systemtool.iris.IrisService
--keep class org.nameless.systemtool.onlineconfig.OnlineConfigService
--keep class org.nameless.systemtool.windowmode.AllAppsPickerActivity
--keep class org.nameless.systemtool.windowmode.ManageAppsActivity
--keep class org.nameless.systemtool.windowmode.WmGestureService
+-keep,allowoptimization,allowaccessmodification class de.hdodenhof.circleimageview.CircleImageView
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.BootCompletedReceiver
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.iris.IrisService
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.onlineconfig.OnlineConfigService
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.AllAppsPickerActivity
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.ManageAppsActivity
+-keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.WmGestureService

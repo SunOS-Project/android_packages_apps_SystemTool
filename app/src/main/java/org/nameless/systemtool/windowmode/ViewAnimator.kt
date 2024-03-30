@@ -26,13 +26,13 @@ import org.nameless.systemtool.windowmode.util.Config.SHOW_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Shared.dimmerView
 import org.nameless.systemtool.windowmode.util.Shared.leftCircle
 import org.nameless.systemtool.windowmode.util.Shared.rightCircle
-import org.nameless.systemtool.windowmode.view.AppCircleViewGroup
+import org.nameless.systemtool.windowmode.view.BaseAppCircleViewGroup
 
 object ViewAnimator {
 
     private const val TAG = "SystemTool::ViewAnimator"
 
-    var circleViewGroup: AppCircleViewGroup? = null
+    var circleViewGroup: BaseAppCircleViewGroup? = null
 
     var currentlyVisible = false
     var animating = false

@@ -5,36 +5,15 @@
 
 package org.nameless.systemtool.windowmode.view
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-
-import androidx.recyclerview.widget.RecyclerView
 
 import org.nameless.systemtool.R
-import org.nameless.systemtool.windowmode.util.AppHolder
-import org.nameless.systemtool.windowmode.util.AppInfo
-import org.nameless.systemtool.windowmode.util.IIconClickedListener
-import org.nameless.systemtool.windowmode.util.IDragOverListener
+import org.nameless.systemtool.windowmode.callback.IDragOverListener
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
 
-class PinnedAppsAdapter : RecyclerView.Adapter<AppHolder>() {
+class PinnedItemAdapter : BaseItemAdapter() {
 
-    var data: MutableList<AppInfo> = mutableListOf()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    var clickedListener: IIconClickedListener? = null
     var dragOverListener: IDragOverListener? = null
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_item, parent, false)
-        return AppHolder(view)
-    }
-
-    override fun getItemCount() = data.size
 
     override fun onBindViewHolder(holder: AppHolder, position: Int) {
         data[position].let { appInfo ->

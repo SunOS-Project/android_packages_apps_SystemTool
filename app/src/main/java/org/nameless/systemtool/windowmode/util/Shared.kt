@@ -6,6 +6,7 @@
 package org.nameless.systemtool.windowmode.util
 
 import android.app.KeyguardManager
+import android.content.pm.LauncherApps
 import android.view.WindowManager
 
 import org.nameless.systemtool.windowmode.WmGestureService
@@ -13,7 +14,6 @@ import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.view.AppLeftCircleViewGroup
 import org.nameless.systemtool.windowmode.view.AppRightCircleViewGroup
 import org.nameless.systemtool.windowmode.view.DimmerView
-import org.nameless.view.AppFocusManager
 import org.nameless.view.DisplayResolutionManager
 
 object Shared {
@@ -23,11 +23,11 @@ object Shared {
     lateinit var leftCircle: AppLeftCircleViewGroup
     lateinit var rightCircle: AppRightCircleViewGroup
 
-    val appFocusManager: AppFocusManager by lazy {
-        service.getSystemService(AppFocusManager::class.java)!!
-    }
     val keyguardManager: KeyguardManager by lazy {
         service.getSystemService(KeyguardManager::class.java)!!
+    }
+    val launcherApps: LauncherApps by lazy {
+        service.getSystemService(LauncherApps::class.java)!!
     }
     val resolutionManager: DisplayResolutionManager by lazy {
         service.getSystemService(DisplayResolutionManager::class.java)!!

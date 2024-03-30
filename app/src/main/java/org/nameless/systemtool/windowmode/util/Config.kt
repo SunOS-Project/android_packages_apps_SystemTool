@@ -70,4 +70,16 @@ object Config {
         "com.oplus.camera",
         "org.lineageos.aperture"
     )
+
+    val shortcutSystemAppsBlacklist = setOf(
+        "com.android.settings",
+        "com.android.vending",
+        "com.google.android.apps.messaging",
+        "com.google.android.apps.nbu.files",
+        "com.google.android.apps.safetyhub",
+        "com.google.android.calendar",
+        "com.google.android.contacts",
+        "com.google.android.dialer",
+        "com.google.android.googlequicksearchbox"
+    )
 }

@@ -6,6 +6,7 @@
 package org.nameless.systemtool.windowmode.util
 
 import android.content.Context
+
 import com.android.settingslib.display.DisplayDensityUtils
 
 object DensityHelper {

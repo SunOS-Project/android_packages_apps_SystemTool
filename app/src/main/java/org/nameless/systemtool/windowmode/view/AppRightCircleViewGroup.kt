@@ -17,7 +17,7 @@ import org.nameless.systemtool.windowmode.util.Shared.windowManager
 
 class AppRightCircleViewGroup(
     context: Context,
-) : AppCircleViewGroup(context) {
+) : BaseAppCircleViewGroup(context) {
 
     init {
         rightCircle = this

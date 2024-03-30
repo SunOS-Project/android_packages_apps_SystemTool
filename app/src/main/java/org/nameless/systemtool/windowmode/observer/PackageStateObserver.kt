@@ -5,23 +5,19 @@
 
 package org.nameless.systemtool.windowmode.observer
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.Intent.ACTION_PACKAGE_ADDED
-import android.content.Intent.ACTION_PACKAGE_CHANGED
-import android.content.Intent.ACTION_PACKAGE_FULLY_REMOVED
-import android.content.Intent.ACTION_PACKAGE_REMOVED
-import android.content.Intent.EXTRA_REPLACING
-import android.content.IntentFilter
+import android.content.pm.LauncherApps
+import android.content.pm.ShortcutInfo
 import android.os.Handler
+import android.os.UserHandle
 
 import org.nameless.systemtool.common.Utils.logD
+import org.nameless.systemtool.windowmode.util.IconDrawableHelper
+import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 import org.nameless.systemtool.windowmode.util.Shared.service
 
 class PackageStateObserver(
     private val handler: Handler
-) : BroadcastReceiver() {
+) : LauncherApps.Callback() {
 
     var registered = false
         set(value) {
@@ -30,55 +26,67 @@ class PackageStateObserver(
             }
             field = value
             if (value) {
-                service.registerReceiverForAllUsers(this, IntentFilter().apply {
-                    addAction(ACTION_PACKAGE_ADDED)
-                    addAction(ACTION_PACKAGE_CHANGED)
-                    addAction(ACTION_PACKAGE_FULLY_REMOVED)
-                    addAction(ACTION_PACKAGE_REMOVED)
-                    addDataScheme("package")
-                }, null, handler)
+                launcherApps.registerCallback(this, handler)
             } else {
-                service.unregisterReceiver(this)
+                launcherApps.unregisterCallback(this)
             }
         }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        when (intent.action) {
-            ACTION_PACKAGE_ADDED -> {
-                if (!intent.getBooleanExtra(EXTRA_REPLACING, false)) {
-                    onPackageAdded(intent.data?.schemeSpecificPart)
-                }
-            }
-            ACTION_PACKAGE_CHANGED -> {
-                onPackageStateChanged(intent.data?.schemeSpecificPart)
-            }
-            ACTION_PACKAGE_FULLY_REMOVED, ACTION_PACKAGE_REMOVED -> {
-                if (!intent.getBooleanExtra(EXTRA_REPLACING, false)) {
-                    onPackageRemoved(intent.data?.schemeSpecificPart)
-                }
-            }
-        }
-    }
-
-    private fun onPackageAdded(packageName: String?) {
+    override fun onPackageAdded(packageName: String?, user: UserHandle?) {
         packageName ?: return
         logD(TAG, "onPackageAdded, packageName=$packageName")
     }
 
-    private fun onPackageStateChanged(packageName: String?) {
+    override fun onPackageChanged(packageName: String?, user: UserHandle?) {
         packageName ?: return
-        logD(TAG, "onPackageStateChanged, packageName=$packageName")
+        logD(TAG, "onPackageChanged, packageName=$packageName")
     }
 
-    private fun onPackageRemoved(packageName: String?) {
+    override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
         packageName ?: return
         logD(TAG, "onPackageRemoved, packageName=$packageName")
-        SettingsObserver.putMiniWindowAppsSettings(service,
-            (SettingsObserver.getMiniWindowAppsSettings(service)
-                ?.takeIf { it.isNotBlank() }?.split(";")
-                ?.filterNot { it == packageName }
-                ?: emptyList()).joinToString(";"))
+        IconDrawableHelper.invalidatePackageCache(packageName)
+        val oldSettings = SettingsObserver.getMiniWindowAppsSettings(service)
+        (oldSettings?.takeIf { it.isNotBlank() }?.split(";")
+                ?.filterNot { it.split(":")[0] == packageName }
+                ?: emptyList()).joinToString(";").let { newSettings ->
+            if (oldSettings != newSettings) {
+                SettingsObserver.putMiniWindowAppsSettings(service, newSettings)
+            }
+        }
     }
+
+    override fun onShortcutsChanged(
+        packageName: String,
+        shortcuts: MutableList<ShortcutInfo>,
+        user: UserHandle
+    ) {
+        logD(TAG, "onShortcutsChanged, packageName=$packageName")
+        IconDrawableHelper.invalidatePackageCache(packageName)
+        val oldSettings = SettingsObserver.getMiniWindowAppsSettings(service)
+        (oldSettings?.takeIf { it.isNotBlank() }?.split(";")
+                ?.filter { it.split(":").let { splited ->
+                    packageName != splited[0] || splited.size != 3 || shortcuts.find { info ->
+                        info.id == splited[1] && info.userId == splited[2].toInt()
+                    } != null
+                }} ?: emptyList()).joinToString(";").let { newSettings ->
+            if (oldSettings != newSettings) {
+                SettingsObserver.putMiniWindowAppsSettings(service, newSettings)
+            }
+        }
+    }
+
+    override fun onPackagesAvailable(
+        packageNames: Array<out String>?,
+        user: UserHandle?,
+        replacing: Boolean
+    ) {}
+
+    override fun onPackagesUnavailable(
+        packageNames: Array<out String>?,
+        user: UserHandle?,
+        replacing: Boolean
+    ) {}
 
     companion object {
         private const val TAG = "SystemTool::WindowMode::PackageStateObserver"

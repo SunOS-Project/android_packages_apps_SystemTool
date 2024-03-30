@@ -344,6 +344,7 @@ class IrisService : Service() {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun showMemcToast() {
         val v = layoutInflater.inflate(R.layout.transient_memc_notification, null)
         if (v == null) {

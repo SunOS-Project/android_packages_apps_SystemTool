@@ -20,27 +20,35 @@ import org.nameless.view.PopUpViewManager
 class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (PopUpViewManager.FEATURE_SUPPORTED) {
-            logD(TAG, "Start WmGestureService")
-            context.startServiceAsUser(
-                Intent(context, WmGestureService::class.java),
-                UserHandle.CURRENT
-            )
-        }
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED -> {
+                // Windowing Mode
+                if (PopUpViewManager.FEATURE_SUPPORTED) {
+                    logD(TAG, "Start WmGestureService")
+                    context.startServiceAsUser(
+                        Intent(context, WmGestureService::class.java),
+                        UserHandle.CURRENT
+                    )
+                }
+            }
+            Intent.ACTION_LOCKED_BOOT_COMPLETED -> {
+                // Pixelworks Iris
+                if (FeatureHelper.irisSupported) {
+                    logD(TAG, "Start IrisService")
+                    context.startServiceAsUser(
+                        Intent(context, IrisService::class.java),
+                        UserHandle.CURRENT
+                    )
+                }
 
-        if (FeatureHelper.irisSupported) {
-            logD(TAG, "Start IrisService")
-            context.startServiceAsUser(
-                Intent(context, IrisService::class.java),
-                UserHandle.CURRENT
-            )
+                // Online Config
+                logD(TAG, "Start OnlineConfigService")
+                context.startServiceAsUser(
+                    Intent(context, OnlineConfigService::class.java),
+                    UserHandle.CURRENT
+                )
+            }
         }
-
-        logD(TAG, "Start OnlineConfigService")
-        context.startServiceAsUser(
-            Intent(context, OnlineConfigService::class.java),
-            UserHandle.CURRENT
-        )
     }
 
     companion object {

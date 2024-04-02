@@ -19,7 +19,7 @@ import androidx.appcompat.content.res.AppCompatResources
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
-import org.nameless.systemtool.windowmode.view.IconView
+import org.nameless.systemtool.windowmode.view.CircleIconView
 
 object IconDrawableHelper {
 
@@ -42,7 +42,7 @@ object IconDrawableHelper {
         }
     }
 
-    fun getDrawable(context: Context, launcherApps: LauncherApps, iconView: IconView): Drawable {
+    fun getDrawable(context: Context, launcherApps: LauncherApps, iconView: CircleIconView): Drawable {
         if (iconView.shortcutId.isNotBlank() && iconView.shortcutUserId != Int.MIN_VALUE) {
             return shortcutCache.getOrPut(
                 Pair(iconView.packageName, iconView.shortcutId)

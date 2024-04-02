@@ -29,7 +29,7 @@ import org.nameless.systemtool.windowmode.util.Shared.rightCircle
 import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.Shared.updateCircleViewGroup
 import org.nameless.systemtool.windowmode.util.Shared.updateNavbarHeight
-import org.nameless.systemtool.windowmode.view.IconView
+import org.nameless.systemtool.windowmode.view.CircleIconView
 
 class SettingsObserver(
     private val handler: Handler
@@ -129,16 +129,16 @@ class SettingsObserver(
             }
             v.split(":").let {
                 if (it.size == 3) {
-                    leftCircle.post { leftCircle.addView(IconView(service, it[0], it[1], it[2].toInt())) }
-                    rightCircle.post { rightCircle.addView(IconView(service, it[0], it[1], it[2].toInt())) }
+                    leftCircle.post { leftCircle.addView(CircleIconView(service, it[0], it[1], it[2].toInt())) }
+                    rightCircle.post { rightCircle.addView(CircleIconView(service, it[0], it[1], it[2].toInt())) }
                 } else {
-                    leftCircle.post { leftCircle.addView(IconView(service, it[0])) }
-                    rightCircle.post { rightCircle.addView(IconView(service, it[0])) }
+                    leftCircle.post { leftCircle.addView(CircleIconView(service, it[0])) }
+                    rightCircle.post { rightCircle.addView(CircleIconView(service, it[0])) }
                 }
             }
         }
-        leftCircle.post { leftCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }
-        rightCircle.post { rightCircle.addView(IconView(service, Utils.PACKAGE_NAME)) }
+        leftCircle.post { leftCircle.addView(CircleIconView(service, Utils.PACKAGE_NAME)) }
+        rightCircle.post { rightCircle.addView(CircleIconView(service, Utils.PACKAGE_NAME)) }
     }
 
     private fun updateAll() {

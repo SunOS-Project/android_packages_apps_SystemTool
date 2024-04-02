@@ -50,7 +50,7 @@ class DimmerView(context: Context) : View(context) {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (!ViewAnimator.animating) {
-            ViewAnimator.circleViewGroup?.children?.map { it as IconView }?.forEach {
+            ViewAnimator.circleViewGroup?.children?.map { it as CircleIconView }?.forEach {
                 if (it.inTouchRegion(event.x - offsetX, event.y)) {
                     return it.onTouchEvent(event)
                 }

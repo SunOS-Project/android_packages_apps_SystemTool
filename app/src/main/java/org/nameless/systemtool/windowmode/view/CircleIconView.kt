@@ -32,7 +32,7 @@ import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
 import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
 import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
 
-class IconView(
+class CircleIconView(
     context: Context,
     val packageName: String,
     val shortcutId: String = String(),

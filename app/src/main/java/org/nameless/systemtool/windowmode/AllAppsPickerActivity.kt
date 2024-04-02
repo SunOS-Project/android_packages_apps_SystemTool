@@ -40,7 +40,7 @@ import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
 import org.nameless.systemtool.windowmode.util.ShortcutHelper
 import org.nameless.systemtool.windowmode.view.AllItemAdapter
-import org.nameless.systemtool.windowmode.view.IconView
+import org.nameless.systemtool.windowmode.view.CircleIconView
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 
 open class AllAppsPickerActivity : Activity() {
@@ -160,7 +160,7 @@ open class AllAppsPickerActivity : Activity() {
                     )
                     return
                 }
-                IconView.sendMiniWindowBroadcast(
+                CircleIconView.sendMiniWindowBroadcast(
                     this@AllAppsPickerActivity,
                     appInfo.packageName
                 )
@@ -209,7 +209,7 @@ open class AllAppsPickerActivity : Activity() {
         }
         allAppAdapter.clickedListener = object : IIconClickedListener {
             override fun onIconClicked(appInfo: AppInfo) {
-                IconView.sendMiniWindowBroadcast(
+                CircleIconView.sendMiniWindowBroadcast(
                     this@AllAppsPickerActivity,
                     appInfo.packageName
                 )

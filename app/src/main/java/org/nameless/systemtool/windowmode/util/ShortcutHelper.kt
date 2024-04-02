@@ -13,7 +13,7 @@ import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.os.UserHandle
 
-import org.nameless.systemtool.windowmode.view.IconView
+import org.nameless.systemtool.windowmode.view.CircleIconView
 import org.nameless.view.AppFocusManager
 
 object ShortcutHelper {
@@ -53,7 +53,7 @@ object ShortcutHelper {
         }
     }
 
-    fun startShortcut(context: Context, launcherApps: LauncherApps, iconView: IconView) {
+    fun startShortcut(context: Context, launcherApps: LauncherApps, iconView: CircleIconView) {
         context.getSystemService(AppFocusManager::class.java)?.let {
             if (it.topFullscreenAppInfo?.packageName == iconView.packageName) {
                 return

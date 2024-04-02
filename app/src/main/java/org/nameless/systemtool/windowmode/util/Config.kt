@@ -40,6 +40,7 @@ object Config {
     const val REBOUND_ANIMATION_DURATION = 250L
     const val SHOW_ANIMATION_DURATION = 130L
     const val FOCUS_ANIMATION_DURATION = 130L
+    const val GRID_ITEM_ANIMATION_DURATION = 200L
 
     const val ROTATE_START_ANGLE = -270f
     const val ROTATE_REBOUND_ANGLE = 5f
@@ -47,6 +48,7 @@ object Config {
     const val SCALE_START_VALUE = 0.8f
     const val SCALE_REBOUND_VALUE = 1.05f
     const val SCALE_FOCUS_VALUE = 1.25f
+    const val SCALE_GRID_ITEM_VALUE = 0.85f
 
     val miniWindowSystemAppsWhitelist = setOf(
         "com.android.chrome",

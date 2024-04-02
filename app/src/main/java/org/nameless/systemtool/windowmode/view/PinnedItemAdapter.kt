@@ -5,6 +5,7 @@
 
 package org.nameless.systemtool.windowmode.view
 
+import android.view.MotionEvent
 import android.view.View
 
 import org.nameless.systemtool.R
@@ -39,6 +40,18 @@ class PinnedItemAdapter : BaseItemAdapter() {
             holder.root.setOnLongClickListener {
                 dragOverListener?.startDragItem(holder)
                 return@setOnLongClickListener false
+            }
+
+            holder.root.setOnTouchListener { _, event ->
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        playScaleDownAnimation(holder.root)
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        playScaleUpAnimation(holder.root)
+                    }
+                }
+                return@setOnTouchListener false
             }
         }
     }

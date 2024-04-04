@@ -41,7 +41,8 @@
                 android:textColor="#0099ff"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@id/text_pinned_apps"
+                app:layout_constraintBottom_toBottomOf="@id/text_pinned_apps" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_pinned_apps"

@@ -8,10 +8,8 @@ package org.nameless.systemtool.windowmode.view
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.SystemClock
-import android.os.UserHandle
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.animation.PathInterpolator
@@ -20,17 +18,13 @@ import androidx.core.animation.doOnEnd
 
 import de.hdodenhof.circleimageview.CircleImageView
 
-import org.nameless.systemtool.common.Utils
-import org.nameless.systemtool.windowmode.AllAppsPickerActivity
 import org.nameless.systemtool.windowmode.ViewAnimator
+import org.nameless.systemtool.windowmode.util.BroadcastSender
 import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
 import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 import org.nameless.systemtool.windowmode.util.ShortcutHelper
-import org.nameless.view.PopUpViewManager.ACTION_START_MINI_WINDOW
-import org.nameless.view.PopUpViewManager.EXTRA_ACTIVITY_NAME
-import org.nameless.view.PopUpViewManager.EXTRA_PACKAGE_NAME
 
 class CircleIconView(
     context: Context,
@@ -70,9 +64,9 @@ class CircleIconView(
                 resetState {
                     ViewAnimator.hideCircle {
                         if (shortcutId.isNotBlank() && shortcutUserId != Int.MIN_VALUE) {
-                            ShortcutHelper.startShortcut(context, launcherApps, this)
+                            ShortcutHelper.startShortcut(context, this)
                         } else {
-                            sendMiniWindowBroadcast(context, packageName)
+                            BroadcastSender.sendStartPackageBroadcast(context, packageName)
                         }
                     }
                 }
@@ -175,24 +169,5 @@ class CircleIconView(
 
     companion object {
         private const val FOCUS_MIN_TIME_ON_DOWN = 100L
-
-        fun sendMiniWindowBroadcast(
-            context: Context,
-            packageName: String
-        ) {
-            if (Utils.PACKAGE_NAME == packageName) {
-                context.sendBroadcastAsUser(Intent().apply {
-                    action = ACTION_START_MINI_WINDOW
-                    putExtra(EXTRA_PACKAGE_NAME, Utils.PACKAGE_NAME)
-                    putExtra(EXTRA_ACTIVITY_NAME, AllAppsPickerActivity::class.java.name)
-                }, UserHandle.SYSTEM)
-                return
-            }
-
-            context.sendBroadcastAsUser(Intent().apply {
-                action = ACTION_START_MINI_WINDOW
-                putExtra(EXTRA_PACKAGE_NAME, packageName)
-            }, UserHandle.SYSTEM)
-        }
     }
 }

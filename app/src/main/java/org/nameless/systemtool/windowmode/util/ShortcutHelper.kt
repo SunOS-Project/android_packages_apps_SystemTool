@@ -5,16 +5,12 @@
 
 package org.nameless.systemtool.windowmode.util
 
-import android.app.ActivityOptions
-import android.app.WindowConfiguration.WINDOWING_MODE_MINI_WINDOW_EXT
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.os.UserHandle
 
 import org.nameless.systemtool.windowmode.view.CircleIconView
-import org.nameless.view.AppFocusManager
 
 object ShortcutHelper {
 
@@ -34,43 +30,21 @@ object ShortcutHelper {
         }
     }
 
-    fun startShortcut(context: Context, launcherApps: LauncherApps, shortcutInfo: ShortcutInfo) {
-        context.getSystemService(AppFocusManager::class.java)?.let {
-            if (it.topFullscreenAppInfo?.packageName == shortcutInfo.`package`) {
-                return
-            }
-        }
-        try {
-            launcherApps.startShortcut(
-                shortcutInfo,
-                null,
-                ActivityOptions.makeBasic().apply {
-                    setLaunchWindowingMode(WINDOWING_MODE_MINI_WINDOW_EXT)
-                }.toBundle()
-            )
-        } catch (_: ActivityNotFoundException) {
-        } catch (_: IllegalStateException) {
-        }
+    fun startShortcut(context: Context, shortcutInfo: ShortcutInfo) {
+        BroadcastSender.sendStartShortcutBroadcast(
+            context,
+            shortcutInfo.`package`,
+            shortcutInfo.id,
+            shortcutInfo.userId
+        )
     }
 
-    fun startShortcut(context: Context, launcherApps: LauncherApps, iconView: CircleIconView) {
-        context.getSystemService(AppFocusManager::class.java)?.let {
-            if (it.topFullscreenAppInfo?.packageName == iconView.packageName) {
-                return
-            }
-        }
-        try {
-            launcherApps.startShortcut(
-                iconView.packageName,
-                iconView.shortcutId,
-                null,
-                ActivityOptions.makeBasic().apply {
-                    setLaunchWindowingMode(WINDOWING_MODE_MINI_WINDOW_EXT)
-                }.toBundle(),
-                UserHandle(iconView.shortcutUserId)
-            )
-        } catch (_: ActivityNotFoundException) {
-        } catch (_: IllegalStateException) {
-        }
+    fun startShortcut(context: Context, iconView: CircleIconView) {
+        BroadcastSender.sendStartShortcutBroadcast(
+            context,
+            iconView.packageName,
+            iconView.shortcutId,
+            iconView.shortcutUserId
+        )
     }
 }

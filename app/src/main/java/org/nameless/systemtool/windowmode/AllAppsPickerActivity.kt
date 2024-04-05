@@ -30,6 +30,7 @@ import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.util.AdapterDifferHelper
 import org.nameless.systemtool.windowmode.view.AppHolder
 import org.nameless.systemtool.windowmode.bean.AppInfo
+import org.nameless.systemtool.windowmode.util.BroadcastSender
 import org.nameless.systemtool.windowmode.util.Config.miniWindowSystemAppsWhitelist
 import org.nameless.systemtool.windowmode.util.Config.shortcutSystemAppsBlacklist
 import org.nameless.systemtool.windowmode.util.DensityHelper
@@ -40,7 +41,6 @@ import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
 import org.nameless.systemtool.windowmode.util.ShortcutHelper
 import org.nameless.systemtool.windowmode.view.AllItemAdapter
-import org.nameless.systemtool.windowmode.view.CircleIconView
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 
 open class AllAppsPickerActivity : Activity() {
@@ -155,12 +155,11 @@ open class AllAppsPickerActivity : Activity() {
                 if (appInfo.shortcutInfo != null) {
                     ShortcutHelper.startShortcut(
                         this@AllAppsPickerActivity,
-                        launcherApps,
                         appInfo.shortcutInfo
                     )
                     return
                 }
-                CircleIconView.sendMiniWindowBroadcast(
+                BroadcastSender.sendStartPackageBroadcast(
                     this@AllAppsPickerActivity,
                     appInfo.packageName
                 )
@@ -209,7 +208,7 @@ open class AllAppsPickerActivity : Activity() {
         }
         allAppAdapter.clickedListener = object : IIconClickedListener {
             override fun onIconClicked(appInfo: AppInfo) {
-                CircleIconView.sendMiniWindowBroadcast(
+                BroadcastSender.sendStartPackageBroadcast(
                     this@AllAppsPickerActivity,
                     appInfo.packageName
                 )
@@ -251,7 +250,6 @@ open class AllAppsPickerActivity : Activity() {
                 if (appInfo.shortcutInfo != null) {
                     ShortcutHelper.startShortcut(
                         this@AllAppsPickerActivity,
-                        launcherApps,
                         appInfo.shortcutInfo
                     )
                 }

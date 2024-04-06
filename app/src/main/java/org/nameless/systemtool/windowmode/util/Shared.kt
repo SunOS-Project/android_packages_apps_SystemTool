@@ -7,6 +7,7 @@ package org.nameless.systemtool.windowmode.util
 
 import android.app.KeyguardManager
 import android.content.pm.LauncherApps
+import android.os.UserManager
 import android.view.WindowManager
 
 import org.nameless.systemtool.windowmode.WmGestureService
@@ -31,6 +32,9 @@ object Shared {
     }
     val resolutionManager: DisplayResolutionManager by lazy {
         service.getSystemService(DisplayResolutionManager::class.java)!!
+    }
+    val userManager: UserManager by lazy {
+        service.getSystemService(UserManager::class.java)!!
     }
     val windowManager: WindowManager by lazy {
         service.getSystemService(WindowManager::class.java)!!

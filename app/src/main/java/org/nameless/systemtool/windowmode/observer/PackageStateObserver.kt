@@ -9,11 +9,13 @@ import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.os.Handler
 import android.os.UserHandle
+import android.os.UserManager.USER_TYPE_PROFILE_CLONE
 
 import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 import org.nameless.systemtool.windowmode.util.Shared.service
+import org.nameless.systemtool.windowmode.util.Shared.userManager
 
 class PackageStateObserver(
     private val handler: Handler
@@ -34,16 +36,25 @@ class PackageStateObserver(
 
     override fun onPackageAdded(packageName: String?, user: UserHandle?) {
         packageName ?: return
+        user ?: return
+        if (isClonedUser(user)) return
+
         logD(TAG, "onPackageAdded, packageName=$packageName")
     }
 
     override fun onPackageChanged(packageName: String?, user: UserHandle?) {
         packageName ?: return
+        user ?: return
+        if (isClonedUser(user)) return
+
         logD(TAG, "onPackageChanged, packageName=$packageName")
     }
 
     override fun onPackageRemoved(packageName: String?, user: UserHandle?) {
         packageName ?: return
+        user ?: return
+        if (isClonedUser(user)) return
+
         logD(TAG, "onPackageRemoved, packageName=$packageName")
         IconDrawableHelper.invalidatePackageCache(packageName)
         val oldSettings = SettingsObserver.getMiniWindowAppsSettings(service)
@@ -90,5 +101,11 @@ class PackageStateObserver(
 
     companion object {
         private const val TAG = "SystemTool::WindowMode::PackageStateObserver"
+
+        private fun isClonedUser(user: UserHandle): Boolean {
+            return userManager.getUserInfo(user.identifier)?.let {
+                USER_TYPE_PROFILE_CLONE == it.userType
+            } ?: false
+        }
     }
 }

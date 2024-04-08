@@ -45,7 +45,7 @@ object OnlineConfigUpdater {
             logD(TAG,"Start verification for ${it.localConfigPath}")
             getConfigInfo(it.localConfigPath + ".tmp").let { info ->
                 val systemTimestamp = getConfigInfo(it.systemConfigPath).second
-                val localTimestamp = getConfigInfo(it.localConfigPath).second
+                val localTimestamp = getConfigInfo(it.localConfigPath, true).second
                 if (info.first > it.version) {
                     // Online config requires higher framework config version, skip update
                     logD(TAG, "online config version ${info.first} > framework config " +
@@ -123,7 +123,7 @@ object OnlineConfigUpdater {
         }
     }
 
-    private fun getConfigInfo(path: String): Pair<Int, Long> {
+    private fun getConfigInfo(path: String, silentError: Boolean = false): Pair<Int, Long> {
         var version = Int.MAX_VALUE
         var timestamp = -1L
         try {
@@ -142,7 +142,9 @@ object OnlineConfigUpdater {
             }
             fr.close()
         } catch (e: Exception) {
-            logE(TAG, "Failed to get config info for $path", e)
+            if (!silentError) {
+                logE(TAG, "Failed to get config info for $path", e)
+            }
         }
         return Pair(version, timestamp)
     }

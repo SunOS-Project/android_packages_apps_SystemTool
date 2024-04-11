@@ -10,7 +10,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
 import android.os.SystemClock
-import android.view.HapticFeedbackConstants
+import android.os.VibrationExtInfo
 import android.view.MotionEvent
 import android.view.animation.PathInterpolator
 
@@ -25,6 +25,9 @@ import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
 import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 import org.nameless.systemtool.windowmode.util.ShortcutHelper
+
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK
 
 class CircleIconView(
     context: Context,
@@ -51,7 +54,10 @@ class CircleIconView(
             MotionEvent.ACTION_MOVE -> {
                 if (!focused) {
                     if (!fromDown) {
-                        performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                        performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
+                            setEffectId(INDEXABLE_WIDGET)
+                            setFallbackEffectId(TICK)
+                        }.build())
                     }
 
                     if (!fromDown || SystemClock.uptimeMillis() - downTime >= FOCUS_MIN_TIME_ON_DOWN) {

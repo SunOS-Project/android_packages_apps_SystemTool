@@ -9,7 +9,7 @@ import android.app.Activity
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.os.Bundle
-import android.view.HapticFeedbackConstants
+import android.os.VibrationExtInfo
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -42,6 +42,9 @@ import org.nameless.systemtool.windowmode.util.Shared.isEditing
 import org.nameless.systemtool.windowmode.util.ShortcutHelper
 import org.nameless.systemtool.windowmode.view.AllItemAdapter
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
+
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK
 
 open class AllAppsPickerActivity : Activity() {
 
@@ -101,7 +104,10 @@ open class AllAppsPickerActivity : Activity() {
                 val sameIndex = pinnedItemAdapter.data.indexOfFirst { i.first == it.hashCode() }
                 if (sameIndex >= 0) {
                     Collections.swap(pinnedItemAdapter.data, i.second, sameIndex)
-                    recyclerView.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                    recyclerView.performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
+                        setEffectId(INDEXABLE_WIDGET)
+                        setFallbackEffectId(TICK)
+                    }.build())
                 }
             }
             return true

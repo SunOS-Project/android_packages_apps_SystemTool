@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2023 The Nameless-AOSP Project
+     Copyright (C) 2023-2024 The Nameless-AOSP Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources>
 
-    <integer name="gesture_corner_deg_threshold">20</integer>
-
-    <dimen name="gestures_drag_threshold">55dp</dimen>
+    <!-- Game panel tiles -->
+    <dimen name="game_panel_tiles_margin">12dp</dimen>
 
 </resources>

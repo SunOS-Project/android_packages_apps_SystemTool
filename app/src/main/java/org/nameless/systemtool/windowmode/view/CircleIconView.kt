@@ -18,13 +18,13 @@ import androidx.core.animation.doOnEnd
 
 import de.hdodenhof.circleimageview.CircleImageView
 
+import org.nameless.systemtool.common.BroadcastSender
+import org.nameless.systemtool.common.IconDrawableHelper
+import org.nameless.systemtool.common.ShortcutHelper
 import org.nameless.systemtool.windowmode.ViewAnimator
-import org.nameless.systemtool.windowmode.util.BroadcastSender
 import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
-import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
-import org.nameless.systemtool.windowmode.util.ShortcutHelper
 
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK

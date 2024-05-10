@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2024 The Nameless-AOSP Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<org.nameless.systemtool.gamemode.view.GamePanelView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_panel_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_panel">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <ScrollView
+            android:id="@+id/sv_apps"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginVertical="10dp"
+            android:background="@drawable/bg_panel_frame"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <org.nameless.systemtool.gamemode.view.QuickAppView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_panel_frame"
+                android:orientation="horizontal">
+                <org.nameless.systemtool.gamemode.view.ClockView
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="20dp"
+                    android:gravity="center_vertical|left"
+                    android:text="12:00"
+                    android:textSize="12dp"
+                    android:textColor="@android:color/white" />
+                <org.nameless.systemtool.gamemode.view.BatteryView
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginRight="20dp"
+                    android:gravity="center_vertical|right"
+                    android:text="100%"
+                    android:textSize="12dp"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_panel_frame"
+                android:orientation="horizontal">
+                <org.nameless.systemtool.gamemode.view.BrightnessSeekBar
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical" />
+                <org.nameless.systemtool.gamemode.view.BrightnessLockButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginVertical="12dp"
+                    android:layout_marginRight="14dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_brightness"
+                    android:scaleType="centerInside" />
+            </LinearLayout>
+
+            <org.nameless.systemtool.gamemode.view.ShortcutGridView
+                android:id="@+id/rv_shortcut_tiles"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="10dp"
+                android:background="@drawable/bg_panel_frame"
+                android:overScrollMode="never" />
+        </LinearLayout>
+    </LinearLayout>
+
+</org.nameless.systemtool.gamemode.view.GamePanelView>

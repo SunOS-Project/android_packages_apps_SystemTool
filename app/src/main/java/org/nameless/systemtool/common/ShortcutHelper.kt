@@ -3,12 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.windowmode.util
+package org.nameless.systemtool.common
 
 import android.content.Context
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.os.UserHandle
+import org.nameless.systemtool.gamemode.tile.AppTile
 
 import org.nameless.systemtool.windowmode.view.CircleIconView
 
@@ -36,6 +37,15 @@ object ShortcutHelper {
             shortcutInfo.`package`,
             shortcutInfo.id,
             shortcutInfo.userId
+        )
+    }
+
+    fun startShortcut(context: Context, appTile: AppTile) {
+        BroadcastSender.sendStartShortcutBroadcast(
+            context,
+            appTile.packageName,
+            appTile.shortcutId,
+            appTile.shortcutUserId
         )
     }
 

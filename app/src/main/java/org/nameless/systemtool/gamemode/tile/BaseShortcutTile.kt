@@ -1,0 +1,231 @@
+/*
+ * Copyright (C) 2024 The Nameless-AOSP Project
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package org.nameless.systemtool.gamemode.tile
+
+import android.graphics.Color
+import android.os.UserHandle
+import android.provider.Settings
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+
+import org.nameless.app.GameModeInfo
+import org.nameless.app.IGameModeInfoListener
+import org.nameless.systemtool.R
+import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
+import org.nameless.systemtool.gamemode.util.Shared.service
+
+abstract class BaseShortcutTile(
+    private val defaultLabelRes: Int,
+    private val defaultIconRes: Int,
+    val longClickable: Boolean = false
+) {
+
+    private var shortcutRoot: View? = null
+    private var shortcutIcon: ImageView? = null
+    private var shortcutLabel: TextView? = null
+    private var shortcutSecondaryLabel: TextView? = null
+
+    private val gameModeChangedCallback = object : IGameModeInfoListener.Stub() {
+        override fun onGameModeInfoChanged() {
+            gameModeManager.gameModeInfo?.let {
+                this@BaseShortcutTile.onGameModeInfoChanged(it)
+            }
+        }
+    }
+
+    var state: Int = STATE_INACTIVE
+        set(value) {
+            field = value
+            shortcutRoot?.post {
+                shortcutRoot?.background?.setTint(getBackgroundColor())
+                shortcutRoot?.invalidate()
+            }
+            shortcutIcon?.post {
+                shortcutIcon?.setImageResource(getIconRes())
+                shortcutIcon?.drawable?.setTint(getIconTint())
+                shortcutIcon?.invalidate()
+            }
+            shortcutLabel?.post {
+                shortcutLabel?.text = service.getString(getLabelRes())
+                shortcutLabel?.setTextColor(getLabelColor())
+                shortcutLabel?.invalidate()
+            }
+            shortcutSecondaryLabel?.post {
+                shortcutSecondaryLabel?.text = service.getString(getSecondaryLabelRes())
+                shortcutSecondaryLabel?.setTextColor(getSecondaryLabelColor())
+                shortcutSecondaryLabel?.invalidate()
+            }
+            service.handler.post {
+                onStateChanged()
+            }
+        }
+
+    fun bind(root: View, icon: ImageView, label: TextView, secondaryLabel: TextView) {
+        shortcutRoot = root
+        shortcutIcon = icon
+        shortcutLabel = label
+        shortcutSecondaryLabel = secondaryLabel
+        state = getInitialState()
+    }
+
+    open fun onAttach() {
+        gameModeManager.registerGameModeInfoListener(gameModeChangedCallback)
+    }
+
+    open fun onDetach() {
+        gameModeManager.unregisterGameModeInfoListener(gameModeChangedCallback)
+    }
+
+    open fun onGameModeInfoChanged(info: GameModeInfo) {}
+
+    open fun onStateChanged() {}
+
+    open fun getInitialState() = STATE_INACTIVE
+
+    open fun getBackgroundColor(): Int {
+        return when (state) {
+            STATE_INACTIVE -> Color.parseColor(DEFAULT_COLOR_INACTIVE_BACKGROUND)
+            else -> service.getColor(android.R.color.system_accent1_600)
+        }
+    }
+
+    open fun getIconRes() = defaultIconRes
+
+    open fun getIconTint() = Color.parseColor(DEFAULT_COLOR_ICON_TINT)
+
+    open fun getLabelRes() = defaultLabelRes
+
+    open fun getLabelColor() = Color.parseColor(DEFAULT_LABEL_TEXT_COLOR)
+
+    open fun getSecondaryLabelRes(): Int {
+        return when (state) {
+            STATE_INACTIVE -> R.string.game_tile_secondary_label_inactive
+            else -> R.string.game_tile_secondary_label_active
+        }
+    }
+
+    open fun getSecondaryLabelColor() = Color.parseColor(DEFAULT_LABEL_TEXT_COLOR)
+
+    abstract fun onClicked()
+
+    open fun onLongClicked() {}
+
+    internal object SettingsHelper {
+        internal object Secure {
+            fun getBoolean(settings: String, defaultValue: Boolean): Boolean {
+                return getInt(settings, if (defaultValue) 1 else 0) == 1
+            }
+
+            fun getInt(settings: String, defaultValue: Int): Int {
+                return Settings.Secure.getIntForUser(
+                    service.contentResolver, settings,
+                    defaultValue, UserHandle.USER_CURRENT
+                )
+            }
+
+            fun getString(settings: String): String {
+                return Settings.Secure.getStringForUser(
+                    service.contentResolver, settings,
+                    UserHandle.USER_CURRENT
+                )?: String()
+            }
+
+            fun putBoolean(settings: String, value: Boolean) {
+                putInt(settings, if (value) 1 else 0)
+            }
+
+            fun putInt(settings: String, value: Int) {
+                putString(settings, value.toString())
+            }
+
+            fun putString(settings: String, value: String) {
+                Settings.Secure.putStringForUser(
+                    service.contentResolver, settings,
+                    value, UserHandle.USER_CURRENT
+                )
+            }
+        }
+
+        internal object System {
+            fun getBoolean(settings: String, defaultValue: Boolean): Boolean {
+                return getInt(settings, if (defaultValue) 1 else 0) == 1
+            }
+
+            fun getInt(settings: String, defaultValue: Int): Int {
+                return Settings.System.getIntForUser(
+                    service.contentResolver, settings,
+                    defaultValue, UserHandle.USER_CURRENT
+                )
+            }
+
+            fun getString(settings: String): String {
+                return Settings.System.getStringForUser(
+                    service.contentResolver, settings,
+                    UserHandle.USER_CURRENT
+                )?: String()
+            }
+
+            fun putBoolean(settings: String, value: Boolean) {
+                putInt(settings, if (value) 1 else 0)
+            }
+
+            fun putInt(settings: String, value: Int) {
+                putString(settings, value.toString())
+            }
+
+            fun putString(settings: String, value: String) {
+                Settings.System.putStringForUser(
+                    service.contentResolver, settings,
+                    value, UserHandle.USER_CURRENT
+                )
+            }
+        }
+
+        internal object Global {
+            fun getBoolean(settings: String, defaultValue: Boolean): Boolean {
+                return getInt(settings, if (defaultValue) 1 else 0) == 1
+            }
+
+            fun getInt(settings: String, defaultValue: Int): Int {
+                return Settings.Global.getInt(
+                    service.contentResolver, settings,
+                    defaultValue
+                )
+            }
+
+            fun getString(settings: String): String {
+                return Settings.Global.getString(
+                    service.contentResolver, settings
+                )?: String()
+            }
+
+            fun putBoolean(settings: String, value: Boolean) {
+                putInt(settings, if (value) 1 else 0)
+            }
+
+            fun putInt(settings: String, value: Int) {
+                putString(settings, value.toString())
+            }
+
+            fun putString(settings: String, value: String) {
+                Settings.Global.putString(
+                    service.contentResolver, settings,
+                    value
+                )
+            }
+        }
+    }
+
+    companion object {
+        const val STATE_INACTIVE = 0
+        const val STATE_ACTIVE = 1
+
+        const val DEFAULT_COLOR_ICON_TINT = "#D9D9D9"
+        const val DEFAULT_COLOR_INACTIVE_BACKGROUND = "#59595e"
+        const val DEFAULT_LABEL_TEXT_COLOR = "#D9D9D9"
+    }
+}

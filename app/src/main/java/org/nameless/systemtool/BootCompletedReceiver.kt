@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.UserHandle
 
 import org.nameless.systemtool.common.Utils.logD
+import org.nameless.systemtool.gamemode.GameAssistantService
 import org.nameless.systemtool.iris.IrisService
 import org.nameless.systemtool.iris.util.FeatureHelper
 import org.nameless.systemtool.onlineconfig.OnlineConfigService
@@ -22,6 +23,13 @@ class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED -> {
+                // Game Mode
+                logD(TAG, "Start GameAssistantService")
+                context.startServiceAsUser(
+                    Intent(context, GameAssistantService::class.java),
+                    UserHandle.CURRENT
+                )
+
                 // Windowing Mode
                 if (PopUpViewManager.FEATURE_SUPPORTED) {
                     logD(TAG, "Start WmGestureService")

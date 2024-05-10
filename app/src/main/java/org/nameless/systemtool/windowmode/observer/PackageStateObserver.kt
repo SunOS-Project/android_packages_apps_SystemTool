@@ -11,8 +11,8 @@ import android.os.Handler
 import android.os.UserHandle
 import android.os.UserManager.USER_TYPE_PROFILE_CLONE
 
+import org.nameless.systemtool.common.IconDrawableHelper
 import org.nameless.systemtool.common.Utils.logD
-import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 import org.nameless.systemtool.windowmode.util.Shared.service
 import org.nameless.systemtool.windowmode.util.Shared.userManager

@@ -18,7 +18,11 @@ android_app {
     required: [
         "privapp_whitelist_systemtool",
     ],
+    aidl: {
+        local_include_dirs: ["src/main/java"],
+    },
     srcs: [
+        "src/main/java/**/*.aidl",
         "src/main/java/**/*.java",
         "src/main/java/**/*.kt",
     ],

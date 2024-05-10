@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.windowmode.util
+package org.nameless.systemtool.common
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -18,7 +18,7 @@ import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 
 import org.nameless.systemtool.R
-import org.nameless.systemtool.common.Utils
+import org.nameless.systemtool.gamemode.tile.AppTile
 import org.nameless.systemtool.windowmode.view.CircleIconView
 
 object IconDrawableHelper {
@@ -27,7 +27,7 @@ object IconDrawableHelper {
     private val shortcutCache = mutableMapOf<Pair<String, String>, Drawable>()
     private val shortcutInfoCache = mutableMapOf<ShortcutInfo, Drawable>()
 
-    private fun getDrawable(context: Context, packageName: String): Drawable {
+    fun getDrawable(context: Context, packageName: String): Drawable {
         return packageCache.getOrPut(packageName) {
             if (Utils.PACKAGE_NAME == packageName) {
                 AppCompatResources.getDrawable(context, R.drawable.ic_more_app)
@@ -40,6 +40,24 @@ object IconDrawableHelper {
                 }
             }
         }
+    }
+
+    fun getDrawable(context: Context, launcherApps: LauncherApps, appTile: AppTile): Drawable {
+        if (appTile.shortcutId.isNotBlank() && appTile.shortcutUserId != Int.MIN_VALUE) {
+            return shortcutCache.getOrPut(
+                Pair(appTile.packageName, appTile.shortcutId)
+            ) {
+                (ShortcutHelper.getShortcuts(launcherApps, appTile.packageName)
+                    ?.find { appTile.shortcutId == it.id && appTile.shortcutUserId == it.userId }
+                    ?.let { info ->
+                        launcherApps.getShortcutBadgedIconDrawable(info, 0)
+                    } ?: context.packageManager.defaultActivityIcon).let { largeDrawable ->
+                    mergeDrawable(context, largeDrawable, getDrawable(context, appTile.packageName))
+                }
+            }
+        }
+
+        return getDrawable(context, appTile.packageName)
     }
 
     fun getDrawable(context: Context, launcherApps: LauncherApps, iconView: CircleIconView): Drawable {

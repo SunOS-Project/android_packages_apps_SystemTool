@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.windowmode.util
+package org.nameless.systemtool.common
 
 import android.content.Context
 import android.content.Intent

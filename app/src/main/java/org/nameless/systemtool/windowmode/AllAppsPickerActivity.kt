@@ -26,20 +26,20 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.Collections
 
 import org.nameless.systemtool.R
+import org.nameless.systemtool.common.BroadcastSender
+import org.nameless.systemtool.common.IconDrawableHelper
+import org.nameless.systemtool.common.ShortcutHelper
 import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.util.AdapterDifferHelper
 import org.nameless.systemtool.windowmode.view.AppHolder
 import org.nameless.systemtool.windowmode.bean.AppInfo
-import org.nameless.systemtool.windowmode.util.BroadcastSender
 import org.nameless.systemtool.windowmode.util.Config.miniWindowSystemAppsWhitelist
 import org.nameless.systemtool.windowmode.util.Config.shortcutSystemAppsBlacklist
 import org.nameless.systemtool.windowmode.util.DensityHelper
 import org.nameless.systemtool.windowmode.util.DensityHelper.DisplaySize
 import org.nameless.systemtool.windowmode.callback.IDragOverListener
 import org.nameless.systemtool.windowmode.callback.IIconClickedListener
-import org.nameless.systemtool.windowmode.util.IconDrawableHelper
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
-import org.nameless.systemtool.windowmode.util.ShortcutHelper
 import org.nameless.systemtool.windowmode.view.AllItemAdapter
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 

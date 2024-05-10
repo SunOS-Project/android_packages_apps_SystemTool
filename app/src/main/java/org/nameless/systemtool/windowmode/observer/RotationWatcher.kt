@@ -21,6 +21,8 @@ class RotationWatcher(
     private val handler: Handler
 ) : IRotationWatcher.Stub() {
 
+    private val displayRotatedCallback = Runnable { onDisplayRotated() }
+
     var registered = false
         set(value) {
             if (field == value) {
@@ -46,9 +48,10 @@ class RotationWatcher(
     private var displayRotation = Surface.ROTATION_0
         set(value) {
             field = value
-            handler.post {
-                onDisplayRotated()
+            if (handler.hasCallbacks(displayRotatedCallback)) {
+                handler.removeCallbacks(displayRotatedCallback)
             }
+            handler.postDelayed(displayRotatedCallback, 500L)
         }
 
     override fun onRotationChanged(rotation: Int) {

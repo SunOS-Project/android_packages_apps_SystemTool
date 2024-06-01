@@ -5,22 +5,16 @@
 
 package org.nameless.systemtool.windowmode.observer
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.Intent.ACTION_SCREEN_OFF
-import android.content.Intent.ACTION_SCREEN_ON
-import android.content.Intent.ACTION_USER_PRESENT
-import android.content.IntentFilter
 import android.os.Handler
 
+import com.android.internal.util.nameless.ScreenStateListener
+
 import org.nameless.systemtool.windowmode.ViewAnimator
-import org.nameless.systemtool.windowmode.util.Shared.keyguardManager
 import org.nameless.systemtool.windowmode.util.Shared.service
 
 class ScreenStateObserver(
-    private val handler: Handler
-) : BroadcastReceiver() {
+    handler: Handler
+) : ScreenStateListener(service, handler) {
 
     var registered = false
         set(value) {
@@ -28,35 +22,16 @@ class ScreenStateObserver(
                 return
             }
             field = value
-            if (value) {
-                service.registerReceiverForAllUsers(this, IntentFilter().apply {
-                    addAction(ACTION_SCREEN_OFF)
-                    addAction(ACTION_SCREEN_ON)
-                    addAction(ACTION_USER_PRESENT)
-                }, null, handler)
-            } else {
-                service.unregisterReceiver(this)
-            }
+            setListening(value)
         }
 
-    private var handledUnlock = false
+    override fun onScreenOff() {
+        ViewAnimator.allowVisible = false
+    }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        when (intent.action) {
-            ACTION_SCREEN_OFF -> {
-                handledUnlock = false
-                ViewAnimator.allowVisible = false
-            }
-            ACTION_SCREEN_ON -> {
-                if (!handledUnlock && !keyguardManager.isKeyguardLocked) {
-                    handledUnlock = true
-                    ViewAnimator.allowVisible = true
-                }
-            }
-            ACTION_USER_PRESENT -> {
-                handledUnlock = true
-                ViewAnimator.allowVisible = true
-            }
-        }
+    override fun onScreenOn() {}
+
+    override fun onScreenUnlocked() {
+        ViewAnimator.allowVisible = true
     }
 }

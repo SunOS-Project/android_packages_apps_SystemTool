@@ -17,6 +17,8 @@ import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
 
+import com.android.internal.util.nameless.ScreenStateListener
+
 import java.util.ArrayList
 
 import org.nameless.systemtool.R
@@ -25,7 +27,6 @@ import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.iris.observer.CommandReceiver
 import org.nameless.systemtool.iris.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.iris.observer.RotationWatcher
-import org.nameless.systemtool.iris.observer.ScreenStateReceiver
 import org.nameless.systemtool.iris.observer.SettingsObserver
 import org.nameless.systemtool.iris.observer.SystemStateReceiver
 import org.nameless.systemtool.iris.observer.TaskStackChangeListener
@@ -133,16 +134,16 @@ class IrisService : Service() {
             }
         }
     }
-    private val screenStateReceiver by lazy {
-        object : ScreenStateReceiver(handler) {
-            override fun onScreenStateChanged(isScreenOn: Boolean) {
-                if (!isScreenOn) {
-                    removeAllMessages()
-                    switchBypassMode()
-                    handler.sendEmptyMessage(MSG_RESTORE_REFRESH_RATE)
-                    hasShownToast = false
-                }
+    private val screenStateListener by lazy {
+        object : ScreenStateListener(this, handler) {
+            override fun onScreenOff() {
+                removeAllMessages()
+                switchBypassMode()
+                handler.sendEmptyMessage(MSG_RESTORE_REFRESH_RATE)
+                hasShownToast = false
             }
+
+            override fun onScreenOn() {}
 
             override fun onScreenUnlocked() {
                 checkTopActivity()
@@ -205,13 +206,13 @@ class IrisService : Service() {
         settingsObserver.registered = true
         taskStackChangeListener.registered = true
         commandReceiver.registered = true
-        screenStateReceiver.registered = true
+        screenStateListener.setListening(true)
         systemStateReceiver.registered = true
     }
 
     override fun onDestroy() {
         commandReceiver.registered = false
-        screenStateReceiver.registered = false
+        screenStateListener.setListening(false)
         systemStateReceiver.registered = false
         taskStackChangeListener.registered = false
         settingsObserver.registered = false

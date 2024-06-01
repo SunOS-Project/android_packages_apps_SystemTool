@@ -5,7 +5,6 @@
 
 package org.nameless.systemtool.windowmode.util
 
-import android.app.KeyguardManager
 import android.content.pm.LauncherApps
 import android.os.UserManager
 import android.view.WindowManager
@@ -24,9 +23,6 @@ object Shared {
     lateinit var leftCircle: AppLeftCircleViewGroup
     lateinit var rightCircle: AppRightCircleViewGroup
 
-    val keyguardManager: KeyguardManager by lazy {
-        service.getSystemService(KeyguardManager::class.java)!!
-    }
     val launcherApps: LauncherApps by lazy {
         service.getSystemService(LauncherApps::class.java)!!
     }

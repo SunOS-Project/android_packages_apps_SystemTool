@@ -5,7 +5,6 @@
 
 package org.nameless.systemtool.iris.util
 
-import android.app.KeyguardManager
 import android.os.PowerManager
 import android.view.LayoutInflater
 
@@ -26,9 +25,6 @@ object Shared {
     }
     val displayResolutionManager: DisplayResolutionManager by lazy {
         service.getSystemService(DisplayResolutionManager::class.java)!!
-    }
-    val keyguardManager: KeyguardManager by lazy {
-        service.getSystemService(KeyguardManager::class.java)!!
     }
     val layoutInflater: LayoutInflater by lazy {
         service.getSystemService(LayoutInflater::class.java)!!

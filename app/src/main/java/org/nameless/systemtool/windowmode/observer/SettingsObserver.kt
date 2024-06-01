@@ -70,7 +70,7 @@ class SettingsObserver(
     var gestureEnabled = true
     var userSetupCompleted = false
 
-    private val userSwitchReceiver = object: UserSwitchReceiver(service) {
+    private val userSwitchReceiver = object: UserSwitchReceiver(service, handler) {
         override fun onUserSwitched() {
             updateAll()
         }

@@ -25,7 +25,7 @@ import org.nameless.view.DisplayResolutionManager.FHD_WIDTH
 import org.nameless.view.DisplayResolutionManager.QHD_WIDTH
 
 abstract class SettingsObserver(
-    handler: Handler,
+    private val handler: Handler
 ) : ContentObserver(handler) {
 
     var registered = false
@@ -75,7 +75,7 @@ abstract class SettingsObserver(
             onSDR2HDREnabledChanged()
         }
 
-    private val userSwitchReceiver = object: UserSwitchReceiver(service) {
+    private val userSwitchReceiver = object: UserSwitchReceiver(service, handler) {
         override fun onUserSwitched() {
             updateAll()
         }

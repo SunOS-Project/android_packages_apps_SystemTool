@@ -100,14 +100,14 @@ open class AllAppsPickerActivity : Activity() {
                     recyclerView.findViewHolderForAdapterPosition(index) as AppHolder?
                 newData.add(Pair(holder?.hashCode ?: 0, index))
             }
+            recyclerView.performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
+                setEffectId(INDEXABLE_WIDGET)
+                setFallbackEffectId(TICK)
+            }.build())
             for (i in newData) {
                 val sameIndex = pinnedItemAdapter.data.indexOfFirst { i.first == it.hashCode() }
                 if (sameIndex >= 0) {
                     Collections.swap(pinnedItemAdapter.data, i.second, sameIndex)
-                    recyclerView.performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
-                        setEffectId(INDEXABLE_WIDGET)
-                        setFallbackEffectId(TICK)
-                    }.build())
                 }
             }
             return true

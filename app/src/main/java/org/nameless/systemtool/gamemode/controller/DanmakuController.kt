@@ -48,7 +48,10 @@ object DanmakuController {
                 LayoutParams.FLAG_NOT_FOCUSABLE or
                 LayoutParams.FLAG_NOT_TOUCHABLE or
                 LayoutParams.FLAG_HARDWARE_ACCELERATED
+        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+                LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
+        windowAnimations = 0
     }
 
     private var danmakuView: DanmakuView? = null

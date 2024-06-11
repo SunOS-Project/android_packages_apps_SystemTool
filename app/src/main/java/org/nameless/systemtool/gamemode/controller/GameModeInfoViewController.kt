@@ -42,6 +42,8 @@ object GameModeInfoViewController {
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        privateFlags = WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+                WindowManager.LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
         windowAnimations = 0
     }
 

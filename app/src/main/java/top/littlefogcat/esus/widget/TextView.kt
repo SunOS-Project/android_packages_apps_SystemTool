@@ -88,15 +88,10 @@ open class TextView() : View() {
 
         // draw drawable
         drawableLeft?.let {
-            // Fixme: The bitmap may be recycled. How this happens?
-            if (!(it as BitmapDrawable).bitmap.isRecycled) {
-                val padding = (height - drawableSize) / 2
-                it.setBounds(padding, padding, padding + drawableSize, padding + drawableSize)
-                it.draw(canvas)
-                x += height
-            } else {
-                Log.i(TAG, "onDraw: Bitmap is recycled! text = $text")
-            }
+            val padding = (height - drawableSize) / 2
+            it.setBounds(padding, padding, padding + drawableSize, padding + drawableSize)
+            it.draw(canvas)
+            x += height
         }
         // draw stroke
         /* --- draw stroke before text otherwise it may cover the text --- */

@@ -44,7 +44,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
         }
 
     override fun onGestureCanceled(gesture: Int) {
-        // Do nothing
+        GamePanelViewController.setPanelViewTouch(false)
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {

@@ -15,6 +15,7 @@ import android.service.notification.StatusBarNotification
 
 import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.gamemode.controller.DanmakuController
+import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.service
 
 class NotificationListener(
@@ -60,6 +61,9 @@ class NotificationListener(
             return
         }
         if (sbn.isGroup) {
+            return
+        }
+        if (sbn.packageName == currentGameInfo.packageName) {
             return
         }
 

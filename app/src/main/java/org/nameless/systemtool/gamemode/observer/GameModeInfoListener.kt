@@ -5,11 +5,12 @@
 
 package org.nameless.systemtool.gamemode.observer
 
-import android.app.ActivityTaskManager.INVALID_TASK_ID
 import android.os.Handler
 
 import org.nameless.app.IGameModeInfoListener
+import org.nameless.systemtool.gamemode.bean.GameInfo
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
+import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
 import org.nameless.systemtool.gamemode.util.Shared.newGameLaunched
 
@@ -45,13 +46,7 @@ class GameModeInfoListener(
             }
         }
 
-    data class GameInfo(
-        val packageName: String = "",
-        val taskId: Int = INVALID_TASK_ID
-    )
-
     private var lastGameInfo = GameInfo()
-    private var currentGameInfo = GameInfo()
 
     override fun onGameModeInfoChanged() {
         gameModeManager.gameModeInfo?.let {

@@ -16,6 +16,7 @@ import android.view.WindowManager
 
 import org.nameless.app.GameModeManager
 import org.nameless.systemtool.gamemode.GameAssistantService
+import org.nameless.systemtool.gamemode.bean.GameInfo
 import org.nameless.view.AppFocusManager
 import org.nameless.view.DisplayResolutionManager
 
@@ -27,6 +28,7 @@ object Shared {
     var screenShortWidth = 0
     var screenWidth = 0
 
+    var currentGameInfo = GameInfo()
     var newGameLaunched = false
 
     val appFocusManager: AppFocusManager by lazy {

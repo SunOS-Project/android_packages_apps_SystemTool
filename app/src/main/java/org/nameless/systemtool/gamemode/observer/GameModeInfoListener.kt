@@ -9,6 +9,7 @@ import android.os.Handler
 
 import org.nameless.app.IGameModeInfoListener
 import org.nameless.systemtool.gamemode.bean.GameInfo
+import org.nameless.systemtool.gamemode.controller.GameModeSideViewController
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
@@ -38,9 +39,11 @@ class GameModeInfoListener(
             handler.post {
                 if (value) {
                     GamePanelViewController.addPanelView()
+                    GameModeSideViewController.addSideView()
                     gestureListener.registered = true
                 } else {
                     gestureListener.registered = false
+                    GameModeSideViewController.removeSideView()
                     GamePanelViewController.removePanelView()
                 }
             }

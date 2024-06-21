@@ -11,7 +11,6 @@ import android.view.WindowManagerGlobal
 
 import org.nameless.systemtool.common.Utils.PACKAGE_NAME
 import org.nameless.systemtool.common.Utils.logE
-import org.nameless.systemtool.gamemode.controller.GameModeInfoViewController
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.util.Shared.appFocusManager
 import org.nameless.systemtool.gamemode.util.Shared.screenShortWidth
@@ -55,9 +54,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
         if (gesture != GESTURE_GAME_MODE) {
             return false
         }
-        if (GamePanelViewController.shownInfo &&
-                !GameModeInfoViewController.showingInfo &&
-                !GamePanelViewController.animating &&
+        if (!GamePanelViewController.animating &&
                 !GamePanelViewController.expanded &&
                 !appFocusManager.hasMiniWindowFocus()) {
             GamePanelViewController.setPanelViewTouch(true)

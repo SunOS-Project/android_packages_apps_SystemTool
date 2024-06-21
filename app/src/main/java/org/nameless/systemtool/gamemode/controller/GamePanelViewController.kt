@@ -7,7 +7,6 @@ package org.nameless.systemtool.gamemode.controller
 
 import android.animation.ValueAnimator
 import android.graphics.PixelFormat
-import android.os.Handler
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager.LayoutParams
@@ -21,7 +20,6 @@ import kotlin.math.min
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.gamemode.util.ScreenRecordHelper
-import org.nameless.systemtool.gamemode.util.Shared.newGameLaunched
 import org.nameless.systemtool.gamemode.util.Shared.portrait
 import org.nameless.systemtool.gamemode.util.Shared.screenShortWidth
 import org.nameless.systemtool.gamemode.util.Shared.screenWidth
@@ -57,12 +55,8 @@ object GamePanelViewController {
 
     private var panelView: GamePanelView? = null
 
-    @Suppress("DEPRECATION")
-    private val infoHandler = Handler()
-
     var animating = false
     var expanded = false
-    var shownInfo = false
 
     fun addPanelView() {
         if (panelView != null) {
@@ -91,15 +85,6 @@ object GamePanelViewController {
         ScreenRecordHelper.bind()
         setPanelViewTouch(false)
         expanded = false
-        if (!newGameLaunched) {
-            shownInfo = true
-        } else {
-            shownInfo = false
-            infoHandler.postDelayed({
-                shownInfo = true
-                GameModeInfoViewController.showGameModeOnInfo()
-            }, 800L)
-        }
     }
 
     fun removePanelView() {
@@ -107,12 +92,9 @@ object GamePanelViewController {
             return
         }
         logD(TAG, "removePanelView")
-        infoHandler.removeCallbacksAndMessages(null)
         panelView?.recycleViewShortcuts?.tileList?.forEach { it.onDetach() }
         ScreenRecordHelper.unbind()
         windowManager.removeView(panelView)
-        GameModeInfoViewController.forceRemoveInfoView()
-        shownInfo = false
         expanded = false
         panelView = null
     }
@@ -122,7 +104,6 @@ object GamePanelViewController {
             return
         }
         logD(TAG, "resetPanelView")
-        infoHandler.removeCallbacksAndMessages(null)
         windowManager.currentWindowMetrics.bounds.let {
             screenShortWidth = min(it.width(), it.height())
             screenWidth = it.width()
@@ -144,15 +125,11 @@ object GamePanelViewController {
         setPanelViewTouch(false)
         DanmakuController.updateLayout()
         expanded = false
-        if (!shownInfo) {
-            infoHandler.postDelayed({
-                shownInfo = true
-                GameModeInfoViewController.showGameModeOnInfo()
-            }, 500L)
-        }
+        GameModeSideViewController.resetSideView()
     }
 
     fun movePanelView(rawX: Float) {
+        GameModeSideViewController.setSideViewVisible(false)
         panelView?.let {
             it.post {
                 it.updateLayoutParams<LayoutParams> {
@@ -237,6 +214,7 @@ object GamePanelViewController {
                         expanded = false
                         panelView?.scrollViewApps?.scrollTo(0, 0)
                         setPanelViewTouch(false)
+                        GameModeSideViewController.setSideViewVisible(true)
                         endRunnable?.run()
                     }
                 }.start()

@@ -9,8 +9,8 @@ import android.content.Context
 import android.content.pm.LauncherApps
 import android.content.pm.ShortcutInfo
 import android.os.UserHandle
-import org.nameless.systemtool.gamemode.tile.AppTile
 
+import org.nameless.systemtool.gamemode.tile.AppTile
 import org.nameless.systemtool.windowmode.view.CircleIconView
 
 object ShortcutHelper {

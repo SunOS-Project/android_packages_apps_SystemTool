@@ -30,6 +30,8 @@ import org.nameless.systemtool.gamemode.tile.MuteNotificationTile
 import org.nameless.systemtool.gamemode.tile.PreventMistouchTile
 import org.nameless.systemtool.gamemode.tile.ScreenRecordTile
 import org.nameless.systemtool.gamemode.tile.ScreenshotTile
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
 
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.BUTTON_CLICK
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.CLICK
@@ -121,10 +123,10 @@ class ShortcutGridView(
                 holder.root.setOnTouchListener { _, event ->
                     when (event.actionMasked) {
                         MotionEvent.ACTION_DOWN -> {
-                            Utils.playScaleDownAnimation(holder.root)
+                            Utils.playScaleDownAnimation(holder.root, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                         }
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            Utils.playScaleUpAnimation(holder.root)
+                            Utils.playScaleUpAnimation(holder.root, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                         }
                     }
                     return@setOnTouchListener false

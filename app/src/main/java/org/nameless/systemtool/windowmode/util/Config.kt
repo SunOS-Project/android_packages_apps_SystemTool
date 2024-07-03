@@ -48,6 +48,9 @@ object Config {
     const val SCALE_REBOUND_VALUE = 1.05f
     const val SCALE_FOCUS_VALUE = 1.25f
 
+    const val ITEM_SCALE_VALUE = 0.85f
+    const val ITEM_SCALE_DURATION = 200L
+
     val miniWindowSystemAppsWhitelist = setOf(
         "com.android.chrome",
         "com.android.settings",

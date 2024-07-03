@@ -25,6 +25,8 @@ import org.nameless.provider.SettingsExt
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.gamemode.tile.BaseShortcutTile
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
 import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
 
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.BUTTON_CLICK
@@ -71,10 +73,10 @@ class BrightnessLockButton(
         setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    Utils.playScaleDownAnimation(this)
+                    Utils.playScaleDownAnimation(this, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    Utils.playScaleUpAnimation(this)
+                    Utils.playScaleUpAnimation(this, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                 }
             }
             return@setOnTouchListener false

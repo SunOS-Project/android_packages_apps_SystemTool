@@ -17,6 +17,8 @@ import org.nameless.systemtool.common.IconDrawableHelper
 import org.nameless.systemtool.common.ShortcutHelper
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
+import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
 import org.nameless.systemtool.gamemode.util.Shared.launcherApps
 
 class AppTile(
@@ -49,10 +51,10 @@ class AppTile(
         appTileIcon.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    Utils.playScaleDownAnimation(appTileIcon)
+                    Utils.playScaleDownAnimation(appTileIcon, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    Utils.playScaleUpAnimation(appTileIcon)
+                    Utils.playScaleUpAnimation(appTileIcon, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                 }
             }
             return@setOnTouchListener false

@@ -10,6 +10,8 @@ import android.view.View
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
+import org.nameless.systemtool.windowmode.util.Config.ITEM_SCALE_DURATION
+import org.nameless.systemtool.windowmode.util.Config.ITEM_SCALE_VALUE
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
 
 class AllItemAdapter : BaseItemAdapter() {
@@ -38,10 +40,10 @@ class AllItemAdapter : BaseItemAdapter() {
             holder.root.setOnTouchListener { _, event ->
                 when (event.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
-                        Utils.playScaleDownAnimation(holder.root)
+                        Utils.playScaleDownAnimation(holder.root, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        Utils.playScaleUpAnimation(holder.root)
+                        Utils.playScaleUpAnimation(holder.root, ITEM_SCALE_VALUE, ITEM_SCALE_DURATION)
                     }
                 }
                 return@setOnTouchListener false

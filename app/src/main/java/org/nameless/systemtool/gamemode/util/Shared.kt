@@ -17,7 +17,6 @@ import android.view.WindowManager
 import org.nameless.app.GameModeManager
 import org.nameless.systemtool.gamemode.GameAssistantService
 import org.nameless.systemtool.gamemode.bean.GameInfo
-import org.nameless.view.AppFocusManager
 import org.nameless.view.DisplayResolutionManager
 
 object Shared {
@@ -31,9 +30,6 @@ object Shared {
     var currentGameInfo = GameInfo()
     var newGameLaunched = false
 
-    val appFocusManager: AppFocusManager by lazy {
-        service.getSystemService(AppFocusManager::class.java)!!
-    }
     val audioManager: AudioManager by lazy {
         service.getSystemService(AudioManager::class.java)!!
     }

@@ -62,7 +62,7 @@ class IrisService : Service() {
                 }
                 removeAllMessages()
                 if (enable) {
-                    if (needOverrideRefreshRate(taskStackChangeListener.topPackage)) {
+                    if (needOverrideRefreshRate(taskStackChangeListener.topPackageName)) {
                         handler.sendEmptyMessage(MSG_SET_REFRESH_RATE)
                     }
                     handler.sendEmptyMessageDelayed(MSG_SET_MEMC_PARAMETERS, 600L)
@@ -87,12 +87,12 @@ class IrisService : Service() {
     }
     private val taskStackChangeListener by lazy {
         object : TaskStackChangeListener() {
-            override fun onTopStackChanged(packageName: String, activityName: String) {
+            override fun onFullscreenTaskChanged(packageName: String, activityName: String, taskId: Int) {
                 memcCommand = IrisConfigHolder.getMemcCommand(activityName)
                 sdr2hdrCommand = IrisConfigHolder.getSDR2HDRCommand(packageName)
 
-                inMemcList = !memcCommand.isBlank()
-                inSDR2HDRList = !sdr2hdrCommand.isBlank()
+                inMemcList = memcCommand.isNotBlank()
+                inSDR2HDRList = sdr2hdrCommand.isNotBlank()
 
                 logD(TAG, "memcCommand: ${if (inMemcList) memcCommand else "null"}, " +
                         "sdr2hdrCommand: ${if (inSDR2HDRList) sdr2hdrCommand else "null"}")
@@ -105,7 +105,7 @@ class IrisService : Service() {
                 val sdr2hdrAvailable = settingsObserver.sdr2hdrEnabled && inSDR2HDRList && !powerSaveMode
 
                 if (memcAvailable || sdr2hdrAvailable) {
-                    if (needOverrideRefreshRate(topPackage)) {
+                    if (needOverrideRefreshRate(topPackageName)) {
                         handler.sendEmptyMessageDelayed(MSG_SET_REFRESH_RATE, 400L)
                     }
                 } else {
@@ -231,7 +231,7 @@ class IrisService : Service() {
     }
 
     private fun checkTopActivity() {
-        taskStackChangeListener.forceCheckTopActivity()
+        taskStackChangeListener.forceCheck()
     }
 
     private fun handleDisplayWidthChange() {
@@ -243,7 +243,7 @@ class IrisService : Service() {
         if (inMemcList) {
             removeAllMessages()
             if (settingsObserver.memcEnabled) {
-                if (needOverrideRefreshRate(taskStackChangeListener.topPackage)) {
+                if (needOverrideRefreshRate(taskStackChangeListener.topPackageName)) {
                     handler.sendEmptyMessage(MSG_SET_REFRESH_RATE)
                 }
                 handler.sendEmptyMessage(MSG_SET_MEMC_PARAMETERS)
@@ -262,7 +262,7 @@ class IrisService : Service() {
         if (inSDR2HDRList) {
             removeAllMessages()
             if (settingsObserver.sdr2hdrEnabled) {
-                if (needOverrideRefreshRate(taskStackChangeListener.topPackage)) {
+                if (needOverrideRefreshRate(taskStackChangeListener.topPackageName)) {
                     handler.sendEmptyMessage(MSG_SET_REFRESH_RATE)
                 }
                 handler.sendEmptyMessage(MSG_SET_SDR2HDR_PARAMETERS)

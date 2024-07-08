@@ -5,11 +5,17 @@
 
 package org.nameless.systemtool.iris.observer
 
-import org.nameless.systemtool.common.Utils.logD
-import org.nameless.systemtool.iris.util.Shared.appFocusManager
-import org.nameless.view.IAppFocusObserver
+import com.android.internal.util.nameless.FullscreenTaskStackChangeListener
 
-abstract class TaskStackChangeListener {
+import org.nameless.os.DebugConstants.DEBUG_SYSTEM_TOOL
+import org.nameless.systemtool.iris.util.Shared.service
+
+abstract class TaskStackChangeListener : FullscreenTaskStackChangeListener(service, true) {
+
+    init {
+        setDebug(DEBUG_SYSTEM_TOOL)
+        setDebugTag(TAG)
+    }
 
     var registered = false
         set(value) {
@@ -17,39 +23,8 @@ abstract class TaskStackChangeListener {
                 return
             }
             field = value
-            if (value) {
-                appFocusManager.registerAppFocusObserver(appFocusObserver, true)
-            } else {
-                appFocusManager.unregisterAppFocusObserver(appFocusObserver)
-                topPackage = String()
-                topActivity = String()
-            }
+            setListening(value)
         }
-
-    var topPackage = String()
-    private var topActivity = String()
-
-    private val appFocusObserver = object : IAppFocusObserver.Stub() {
-        override fun onFullscreenFocusChanged(packageName: String?, activityName: String?) {
-            topPackage = packageName?: String()
-            logD(TAG, "Top package changed to $topPackage")
-
-            topActivity = activityName?: String()
-            logD(TAG, "Top activity changed to $topActivity")
-
-            onTopStackChanged(topPackage, topActivity)
-        }
-    }
-
-    fun forceCheckTopActivity() {
-        appFocusManager.topFullscreenAppInfo?.let {
-            topPackage = it.packageName
-            topActivity = it.activityName
-            onTopStackChanged(topPackage, topActivity)
-        }
-    }
-
-    abstract fun onTopStackChanged(packageName: String, activityName: String)
 
     companion object {
         private const val TAG = "SystemTool::Iris::TaskStackChangeListener"

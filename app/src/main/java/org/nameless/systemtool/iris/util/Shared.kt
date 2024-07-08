@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import org.nameless.content.OnlineConfigManager
 import org.nameless.display.RefreshRateManager
 import org.nameless.systemtool.iris.IrisService
-import org.nameless.view.AppFocusManager
 import org.nameless.view.DisplayResolutionManager
 
 object Shared {
@@ -20,9 +19,6 @@ object Shared {
 
     var powerSaveMode = false
 
-    val appFocusManager: AppFocusManager by lazy {
-        service.getSystemService(AppFocusManager::class.java)!!
-    }
     val displayResolutionManager: DisplayResolutionManager by lazy {
         service.getSystemService(DisplayResolutionManager::class.java)!!
     }

@@ -9,6 +9,8 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.display.DisplayManager
+import android.os.SystemClock
+import android.os.SystemProperties
 import android.os.VibrationExtInfo
 import android.util.AttributeSet
 import android.widget.SeekBar
@@ -36,6 +38,7 @@ class BrightnessSeekBar(
 
     private var animating = false
     private var userTracking = false
+    private var lastHapticTimestamp = 0L
     private var progressAnimator: ValueAnimator? = null
     private val progressListener = object : OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -82,13 +85,16 @@ class BrightnessSeekBar(
     }
 
     private fun onProgressChanged(progress: Int) {
+        val now = SystemClock.uptimeMillis()
         val percentage = (progress - min).toFloat() / (max - min)
         if (percentage == 0f || percentage == 1f) {
+            lastHapticTimestamp = now
             performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
                 setEffectId(SLIDER_EDGE)
                 setVibrationAttributes(VIBRATION_ATTRIBUTES_SLIDER)
             }.build())
-        } else {
+        } else if (now - lastHapticTimestamp > HAPTIC_MIN_INTERVAL) {
+            lastHapticTimestamp = now
             performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
                 setEffectId(SLIDER_STEP)
                 setAmplitude(percentage)
@@ -158,5 +164,8 @@ class BrightnessSeekBar(
 
     companion object {
         private const val SLIDER_ANIMATION_DURATION = 3000L
+
+        private val HAPTIC_MIN_INTERVAL = SystemProperties.getLong(
+                "sys.nameless.haptic.slider_interval", 50L)
     }
 }

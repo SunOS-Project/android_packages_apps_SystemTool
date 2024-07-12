@@ -7,6 +7,7 @@ package org.nameless.systemtool.iris
 
 import android.app.Service
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -26,7 +27,6 @@ import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.iris.observer.CommandReceiver
 import org.nameless.systemtool.iris.observer.DisplayResolutionChangeListener
-import org.nameless.systemtool.iris.observer.RotationWatcher
 import org.nameless.systemtool.iris.observer.SettingsObserver
 import org.nameless.systemtool.iris.observer.SystemStateReceiver
 import org.nameless.systemtool.iris.observer.TaskStackChangeListener
@@ -47,30 +47,6 @@ class IrisService : Service() {
         object : DisplayResolutionChangeListener(handler) {
             override fun onDisplayWidthChanged() {
                 handleDisplayWidthChange()
-            }
-        }
-    }
-    private val rotationWatcher by lazy {
-        object : RotationWatcher(handler) {
-            override fun onDisplayRotated() {
-                val enable = settingsObserver.memcEnabled
-                        && inMemcList
-                        && !powerSaveMode
-                        && isLandscape
-                if (inMemcMode == enable) {
-                    return
-                }
-                removeAllMessages()
-                if (enable) {
-                    if (needOverrideRefreshRate(taskStackChangeListener.topPackageName)) {
-                        handler.sendEmptyMessage(MSG_SET_REFRESH_RATE)
-                    }
-                    handler.sendEmptyMessageDelayed(MSG_SET_MEMC_PARAMETERS, 600L)
-                } else {
-                    switchBypassMode()
-                    handler.sendEmptyMessage(MSG_RESTORE_REFRESH_RATE)
-                    hasShownToast = false
-                }
             }
         }
     }
@@ -183,6 +159,8 @@ class IrisService : Service() {
     private var inMemcMode = false
     private var inSDR2HDRMode = false
 
+    private var orientation = Configuration.ORIENTATION_PORTRAIT
+
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onCreate() {
@@ -200,9 +178,6 @@ class IrisService : Service() {
         inSDR2HDRMode = !VIDEO_OSIE_SUPPORTED && IrisHIDLWrapper.getIrisCommand(267) != 0
 
         resolutionListener.registered = true
-        if (VIDEO_OSIE_SUPPORTED) {
-            rotationWatcher.registered = true
-        }
         settingsObserver.registered = true
         taskStackChangeListener.registered = true
         commandReceiver.registered = true
@@ -216,14 +191,38 @@ class IrisService : Service() {
         systemStateReceiver.registered = false
         taskStackChangeListener.registered = false
         settingsObserver.registered = false
-        if (VIDEO_OSIE_SUPPORTED) {
-            rotationWatcher.registered = false
-        }
         resolutionListener.registered = false
 
         restoreRefreshRate()
 
         super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        if (!VIDEO_OSIE_SUPPORTED) {
+            return
+        }
+        newConfig.orientation.takeIf { orientation != it }?.let {
+            orientation = it
+            val enable = settingsObserver.memcEnabled
+                    && inMemcList
+                    && !powerSaveMode
+                    && orientation == Configuration.ORIENTATION_LANDSCAPE
+            if (inMemcMode == enable) {
+                return
+            }
+            removeAllMessages()
+            if (enable) {
+                if (needOverrideRefreshRate(taskStackChangeListener.topPackageName)) {
+                    handler.sendEmptyMessage(MSG_SET_REFRESH_RATE)
+                }
+                handler.sendEmptyMessageDelayed(MSG_SET_MEMC_PARAMETERS, 600L)
+            } else {
+                switchBypassMode()
+                handler.sendEmptyMessage(MSG_RESTORE_REFRESH_RATE)
+                hasShownToast = false
+            }
+        }
     }
 
     private fun registerCallback() {

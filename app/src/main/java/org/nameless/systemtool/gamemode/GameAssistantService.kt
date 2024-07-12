@@ -7,14 +7,15 @@ package org.nameless.systemtool.gamemode
 
 import android.app.Service
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
 
+import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.gamemode.observer.GameModeGestureListener
 import org.nameless.systemtool.gamemode.observer.GameModeInfoListener
-import org.nameless.systemtool.gamemode.observer.RotationWatcher
 import org.nameless.systemtool.gamemode.util.Shared
 
 class GameAssistantService : Service() {
@@ -27,15 +28,14 @@ class GameAssistantService : Service() {
     private val resolutionListener by lazy {
         DisplayResolutionChangeListener(handler, gameModeInfoListener)
     }
-    private val rotationWatcher by lazy {
-        RotationWatcher(handler, gameModeInfoListener)
-    }
     private val gameModeGestureListener by lazy {
         GameModeGestureListener()
     }
     private val gameModeInfoListener by lazy {
         GameModeInfoListener(handler, gameModeGestureListener)
     }
+
+    private var orientation = Configuration.ORIENTATION_PORTRAIT
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -47,16 +47,25 @@ class GameAssistantService : Service() {
         Shared.service = this
 
         resolutionListener.registered = true
-        rotationWatcher.registered = true
         gameModeInfoListener.registered = true
     }
 
     override fun onDestroy() {
         gameModeInfoListener.registered = false
         gameModeGestureListener.registered = false
-        rotationWatcher.registered = false
         resolutionListener.registered = false
 
         super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        newConfig.orientation.takeIf { orientation != it }?.let {
+            orientation = it
+            handler.post {
+                if (gameModeInfoListener.inGame) {
+                    GamePanelViewController.resetPanelView()
+                }
+            }
+        }
     }
 }

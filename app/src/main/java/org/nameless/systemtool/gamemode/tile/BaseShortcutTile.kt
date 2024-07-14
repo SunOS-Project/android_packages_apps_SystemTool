@@ -5,7 +5,6 @@
 
 package org.nameless.systemtool.gamemode.tile
 
-import android.graphics.Color
 import android.os.UserHandle
 import android.provider.Settings
 import android.view.View
@@ -88,18 +87,18 @@ abstract class BaseShortcutTile(
 
     open fun getBackgroundColor(): Int {
         return when (state) {
-            STATE_INACTIVE -> Color.parseColor(DEFAULT_COLOR_INACTIVE_BACKGROUND)
+            STATE_INACTIVE -> service.getColor(R.color.game_panel_background_inactive_default)
             else -> service.getColor(android.R.color.system_accent1_600)
         }
     }
 
     open fun getIconRes() = defaultIconRes
 
-    open fun getIconTint() = Color.parseColor(DEFAULT_COLOR_ICON_TINT)
+    open fun getIconTint() = service.getColor(R.color.game_panel_tint_default)
 
     open fun getLabelRes() = defaultLabelRes
 
-    open fun getLabelColor() = Color.parseColor(DEFAULT_LABEL_TEXT_COLOR)
+    open fun getLabelColor() = service.getColor(R.color.game_panel_tint_default)
 
     open fun getSecondaryLabelRes(): Int {
         return when (state) {
@@ -108,7 +107,7 @@ abstract class BaseShortcutTile(
         }
     }
 
-    open fun getSecondaryLabelColor() = Color.parseColor(DEFAULT_LABEL_TEXT_COLOR)
+    open fun getSecondaryLabelColor() = service.getColor(R.color.game_panel_tint_default)
 
     abstract fun onClicked()
 
@@ -223,9 +222,5 @@ abstract class BaseShortcutTile(
     companion object {
         const val STATE_INACTIVE = 0
         const val STATE_ACTIVE = 1
-
-        const val DEFAULT_COLOR_ICON_TINT = "#D9D9D9"
-        const val DEFAULT_COLOR_INACTIVE_BACKGROUND = "#59595e"
-        const val DEFAULT_LABEL_TEXT_COLOR = "#D9D9D9"
     }
 }

@@ -5,13 +5,12 @@
 
 package org.nameless.systemtool.gamemode.tile
 
-import android.graphics.Color
-
 import com.android.systemui.screenrecord.IRecordingCallback
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.util.ScreenRecordHelper.recorder
+import org.nameless.systemtool.gamemode.util.Shared.service
 
 class ScreenRecordTile : BaseShortcutTile(
     R.string.game_tile_screenrecord_title,
@@ -63,8 +62,8 @@ class ScreenRecordTile : BaseShortcutTile(
 
     override fun getBackgroundColor(): Int {
         return when (state) {
-            STATE_ACTIVE -> Color.parseColor(COLOR_ACTIVE_BACKGROUND)
-            else -> Color.parseColor(DEFAULT_COLOR_INACTIVE_BACKGROUND)
+            STATE_ACTIVE -> service.getColor(R.color.game_panel_screenrecord_active)
+            else -> service.getColor(R.color.game_panel_background_inactive_default)
         }
     }
 
@@ -73,9 +72,5 @@ class ScreenRecordTile : BaseShortcutTile(
             STATE_ACTIVE -> R.string.game_tile_screenrecord_stop
             else -> R.string.game_tile_screenrecord_start
         }
-    }
-
-    companion object {
-        private const val COLOR_ACTIVE_BACKGROUND = "#ef4040"
     }
 }

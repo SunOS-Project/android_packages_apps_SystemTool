@@ -21,7 +21,7 @@ open class EsusSurfaceView : SurfaceView, SurfaceHolder.Callback, ISurface {
     override var w: Int = 0
     override var h: Int = 0
 
-    protected open lateinit var viewRootImpl: ViewRootImpl
+    protected open var viewRootImpl: ViewRootImpl? = null
     open val rootView: ViewGroup = FrameLayout()
 
     protected open var frameTask = object : Choreographer.FrameCallback {
@@ -51,11 +51,11 @@ open class EsusSurfaceView : SurfaceView, SurfaceHolder.Callback, ISurface {
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         w = width
         h = height
-        viewRootImpl.setView(rootView)
+        viewRootImpl?.setView(rootView)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        viewRootImpl.die()
+        viewRootImpl?.die()
         Choreographer.getInstance().removeFrameCallback(frameTask)
     }
 }

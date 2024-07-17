@@ -82,7 +82,7 @@ class DanmakuView : EsusSurfaceView, IDanmakuView {
     fun finish() {
         Choreographer.getInstance().removeFrameCallback(frameTask)
         setActionOnFrame(null)
-        viewRootImpl.die()
+        viewRootImpl?.die()
         handler.postDelayed({
             try {
                 val c = holder.lockHardwareCanvas()

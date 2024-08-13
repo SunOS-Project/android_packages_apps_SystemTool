@@ -147,7 +147,7 @@ class BrightnessSeekBar(
             }
             displayManager.registerDisplayListener(
                 brightnessChangeObserver,
-                service.handler,
+                null,
                 DisplayManager.EVENT_FLAG_DISPLAY_BRIGHTNESS
             )
             registered = true

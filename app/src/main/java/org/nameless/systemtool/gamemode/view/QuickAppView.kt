@@ -8,7 +8,6 @@ package org.nameless.systemtool.gamemode.view
 import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
-import android.os.Handler
 import android.os.UserHandle
 import android.provider.Settings
 import android.util.AttributeSet
@@ -25,7 +24,7 @@ class QuickAppView(
     attrs: AttributeSet
 ): LinearLayout(context, attrs) {
 
-    private val settingsObserver by lazy { MiniWindowSettingsObserver(handler) }
+    private val settingsObserver by lazy { MiniWindowSettingsObserver() }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -39,30 +38,22 @@ class QuickAppView(
     }
 
     private fun updateApps() {
-        handler.post {
-            removeAllViews()
-        }
+        removeAllViews()
 
         (SettingsObserver.getMiniWindowAppsSettings(service)
             ?.takeIf { it.isNotBlank() }?.split(";") ?: emptyList()).forEach { app ->
                 app.split(":").let {
                     if (it.size == 3) {
-                        handler.post {
-                            addView(AppTile(service, it[0], it[1], it[2].toInt()))
-                        }
+                        addView(AppTile(service, it[0], it[1], it[2].toInt()))
                     } else {
-                        handler.post {
-                            addView(AppTile(service, it[0]))
-                        }
+                        addView(AppTile(service, it[0]))
                     }
                 }
         }
-        handler.post {
-            addView(AppTile(service, PACKAGE_NAME))
-        }
+        addView(AppTile(service, PACKAGE_NAME))
     }
 
-    private inner class MiniWindowSettingsObserver(handler: Handler) : ContentObserver(handler) {
+    private inner class MiniWindowSettingsObserver : ContentObserver(service.mainHandler) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             if (SYSTEM_TOOL_MINI_WINDOW_APPS == uri?.lastPathSegment) {
                 updateApps()

@@ -14,7 +14,6 @@ import android.widget.Toast
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.gamemode.observer.CallStateListener
-import org.nameless.systemtool.gamemode.util.Shared
 import org.nameless.systemtool.gamemode.util.Shared.audioManager
 import org.nameless.systemtool.gamemode.util.Shared.service
 import org.nameless.systemtool.gamemode.util.Shared.telecomManager
@@ -22,7 +21,7 @@ import org.nameless.systemtool.gamemode.util.Shared.telecomManager
 @Suppress("DEPRECATION")
 object AutoCallController {
 
-    private val callStateListener by lazy { CallStateListener(Shared.service.handler) }
+    private val callStateListener by lazy { CallStateListener() }
 
     enum class Mode {
         OFF,
@@ -40,54 +39,66 @@ object AutoCallController {
 
     @SuppressLint("MissingPermission")
     fun onCallRinging(incomingNumber: String) {
-        when (mode) {
-            Mode.AUTO_ACCEPT -> {
-                telecomManager.acceptRingingCall()
-                Toast.makeText(service, service.getString(
-                        R.string.game_call_accepted_toast, incomingNumber),
-                        Toast.LENGTH_SHORT).show()
+        service.handler.post {
+            when (mode) {
+                Mode.AUTO_ACCEPT -> {
+                    telecomManager.acceptRingingCall()
+                    Toast.makeText(
+                        service, service.getString(
+                            R.string.game_call_accepted_toast, incomingNumber
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                Mode.AUTO_REJECT -> {
+                    telecomManager.endCall()
+                    Toast.makeText(
+                        service, service.getString(
+                            R.string.game_call_rejected_toast, incomingNumber
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                else -> {}
             }
-            Mode.AUTO_REJECT -> {
-                telecomManager.endCall()
-                Toast.makeText(service, service.getString(
-                        R.string.game_call_rejected_toast, incomingNumber),
-                        Toast.LENGTH_SHORT).show()
-            }
-            else -> {}
+            previousState = TelephonyManager.CALL_STATE_RINGING
         }
-        previousState = TelephonyManager.CALL_STATE_RINGING
     }
 
     fun onCallOffHook() {
-        if (mode == Mode.AUTO_ACCEPT && previousState == TelephonyManager.CALL_STATE_RINGING) {
-            if (isHeadsetPluggedIn()) {
-                audioManager.isSpeakerphoneOn = false
+        service.handler.post {
+            if (mode == Mode.AUTO_ACCEPT && previousState == TelephonyManager.CALL_STATE_RINGING) {
+                if (isHeadsetPluggedIn()) {
+                    audioManager.isSpeakerphoneOn = false
+                    AudioSystem.setForceUse(
+                        AudioSystem.FOR_COMMUNICATION,
+                        AudioSystem.FORCE_NONE
+                    )
+                } else {
+                    audioManager.isSpeakerphoneOn = true
+                    AudioSystem.setForceUse(
+                        AudioSystem.FOR_COMMUNICATION,
+                        AudioSystem.FORCE_SPEAKER
+                    )
+                }
+                audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            }
+            previousState = TelephonyManager.CALL_STATE_OFFHOOK
+        }
+    }
+
+    fun onCallIdle() {
+        service.handler.post {
+            if (mode == Mode.AUTO_ACCEPT && previousState == TelephonyManager.CALL_STATE_OFFHOOK) {
+                audioManager.mode = previousAudioMode
                 AudioSystem.setForceUse(
                     AudioSystem.FOR_COMMUNICATION,
                     AudioSystem.FORCE_NONE
                 )
-            } else {
-                audioManager.isSpeakerphoneOn = true
-                AudioSystem.setForceUse(
-                    AudioSystem.FOR_COMMUNICATION,
-                    AudioSystem.FORCE_SPEAKER
-                )
+                audioManager.isSpeakerphoneOn = false
             }
-            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+            previousState = TelephonyManager.CALL_STATE_IDLE
         }
-        previousState = TelephonyManager.CALL_STATE_OFFHOOK
-    }
-
-    fun onCallIdle() {
-        if (mode == Mode.AUTO_ACCEPT && previousState == TelephonyManager.CALL_STATE_OFFHOOK) {
-            audioManager.mode = previousAudioMode
-            AudioSystem.setForceUse(
-                AudioSystem.FOR_COMMUNICATION,
-                AudioSystem.FORCE_NONE
-            )
-            audioManager.isSpeakerphoneOn = false
-        }
-        previousState = TelephonyManager.CALL_STATE_IDLE
     }
 
     private fun isHeadsetPluggedIn(): Boolean {

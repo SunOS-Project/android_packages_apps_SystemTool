@@ -8,6 +8,6 @@
     <!-- Game Mode -->
     <color name="game_panel_background_inactive_default">#59595e</color>
     <color name="game_panel_tint_default">#D9D9D9</color>
-    <color name="game_panel_screenrecord_active">#59595e</color>
+    <color name="game_panel_screenrecord_active">#ef4040</color>
 
 </resources>

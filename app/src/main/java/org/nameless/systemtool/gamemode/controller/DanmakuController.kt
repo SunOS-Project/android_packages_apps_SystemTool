@@ -28,16 +28,29 @@ import top.littlefogcat.easydanmaku.ui.DanmakuView
 
 object DanmakuController {
 
+    private const val TEXT_SIZE_RATIO = 0.048f
+
+    private const val DISPLAY_AREA_PORT = 0.08f
+    private const val DISPLAY_AREA_LAND = 0.16f
+
+    private const val SCROLL_DURATION_PORT = 7000
+    private const val SCROLL_DURATION_LAND = 12000
+
+    private const val HEIGHT_RATIO_PORT = 0.16f
+    private const val HEIGHT_RATIO_LAND = 0.16f
+
     init {
         Danmakus.Options.apply {
             antiCoverEnabled = true
         }
-        Danmakus.Globals.baseTextSize = screenShortWidth * 0.048f
+        Danmakus.Globals.apply {
+            baseTextSize = screenShortWidth * TEXT_SIZE_RATIO
+        }
     }
 
     private const val TAG = "SystemTool::DanmakuController"
 
-    private val notificationListener by lazy { NotificationListener(service.handler) }
+    private val notificationListener by lazy { NotificationListener() }
 
     private val layoutParams = LayoutParams().apply {
         gravity = Gravity.TOP
@@ -51,7 +64,6 @@ object DanmakuController {
         privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
                 LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
-        windowAnimations = 0
     }
 
     private var danmakuView: DanmakuView? = null
@@ -61,44 +73,52 @@ object DanmakuController {
     private var runTime = 0L
 
     fun startListening() {
-        if (listening) {
-            return
-        }
-        logD(TAG, "startListening")
-        listening = true
-        val currentTime = System.currentTimeMillis()
-        danmakuView = View.inflate(service, R.layout.layout_danmaku, null) as DanmakuView?
-        danmakuView?.apply {
-            setShow(true)
-            setActionOnFrame {
-                runTime = System.currentTimeMillis() - currentTime
-                time = runTime
+        service.mainHandler.post {
+            if (listening) {
+                return@post
             }
-            setDisplayArea(if (portrait) 0.08f else 0.16f)
-            setScrollDuration(if (portrait) 7000 else 12000)
+            logD(TAG, "startListening")
+
+            listening = true
+            val currentTime = System.currentTimeMillis()
+
+            danmakuView = View.inflate(service, R.layout.layout_danmaku, null) as DanmakuView?
+            danmakuView?.apply {
+                setShow(true)
+                setActionOnFrame {
+                    runTime = System.currentTimeMillis() - currentTime
+                    time = runTime
+                }
+                setDisplayArea(if (portrait) DISPLAY_AREA_PORT else DISPLAY_AREA_LAND)
+                setScrollDuration(if (portrait) SCROLL_DURATION_PORT else SCROLL_DURATION_LAND)
+            }
+            windowManager.addView(danmakuView, LayoutParams().apply {
+                copyFrom(layoutParams)
+                width = screenWidth
+                y = if (portrait) {
+                    screenShortWidth * HEIGHT_RATIO_PORT
+                } else {
+                    screenShortWidth * HEIGHT_RATIO_LAND
+                }.toInt()
+            })
+            notificationListener.registered = true
         }
-        windowManager.addView(danmakuView, LayoutParams().apply {
-            copyFrom(layoutParams)
-            width = screenWidth
-            y = if (portrait) {
-                screenShortWidth * 0.16f
-            } else {
-                screenShortWidth * 0.1f
-            }.toInt()
-        })
-        notificationListener.registered = true
     }
 
     fun stopListening() {
-        if (!listening) {
-            return
+        service.mainHandler.post {
+            if (!listening) {
+                return@post
+            }
+            logD(TAG, "stopListening")
+
+            listening = false
+            notificationListener.registered = false
+
+            danmakuView?.finish()
+            windowManager.removeViewImmediate(danmakuView)
+            danmakuView = null
         }
-        logD(TAG, "stopListening")
-        listening = false
-        notificationListener.registered = false
-        danmakuView?.finish()
-        windowManager.removeViewImmediate(danmakuView)
-        danmakuView = null
     }
 
     fun updateLayout() {
@@ -106,9 +126,13 @@ object DanmakuController {
             return
         }
         logD(TAG, "updateLayout")
+
         notificationListener.suspended = true
+
+        // Force remove current danmaku
         danmakuView?.finish()
         windowManager.removeViewImmediate(danmakuView)
+
         val currentTime = System.currentTimeMillis()
         danmakuView = View.inflate(service, R.layout.layout_danmaku, null) as DanmakuView?
         danmakuView?.apply {
@@ -117,33 +141,38 @@ object DanmakuController {
                 runTime = System.currentTimeMillis() - currentTime
                 time = runTime
             }
-            setDisplayArea(if (portrait) 0.08f else 0.16f)
-            setScrollDuration(if (portrait) 7000 else 12000)
+            setDisplayArea(if (portrait) DISPLAY_AREA_PORT else DISPLAY_AREA_LAND)
+            setScrollDuration(if (portrait) SCROLL_DURATION_PORT else SCROLL_DURATION_LAND)
         }
         windowManager.addView(danmakuView, LayoutParams().apply {
             copyFrom(layoutParams)
             width = screenWidth
             y = if (portrait) {
-                screenShortWidth * 0.16f
+                screenShortWidth * HEIGHT_RATIO_PORT
             } else {
-                screenShortWidth * 0.1f
+                screenShortWidth * HEIGHT_RATIO_LAND
             }.toInt()
         })
+
         notificationListener.suspended = false
     }
 
     fun postDanmaku(packageName: String, content: String) {
-        logD(TAG, "postDanmaku, packageName=$packageName, content=$content")
-        val icon = IconDrawableHelper.getDrawable(service, packageName)
-        danmakuView?.setDanmakus(listOf(
-            DanmakuItem(
-                text = "  $content",
-                time = runTime,
-                type = Danmaku.TYPE_RL,
-                color = Color.WHITE,
-                priority = Danmakus.Constants.PRIORITY_MAX,
-                avatar = icon
+        service.mainHandler.post {
+            logD(TAG, "postDanmaku, packageName=$packageName, content=$content")
+            val icon = IconDrawableHelper.getDrawable(service, packageName)
+            danmakuView?.setDanmakus(
+                listOf(
+                    DanmakuItem(
+                        text = "  $content",
+                        time = runTime,
+                        type = Danmaku.TYPE_RL,
+                        color = Color.WHITE,
+                        priority = Danmakus.Constants.PRIORITY_MAX,
+                        avatar = icon
+                    )
+                )
             )
-        ))
+        }
     }
 }

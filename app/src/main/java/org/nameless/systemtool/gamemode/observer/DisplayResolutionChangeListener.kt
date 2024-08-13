@@ -5,16 +5,12 @@
 
 package org.nameless.systemtool.gamemode.observer
 
-import android.os.Handler
-
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.util.Shared.resolutionManager
+import org.nameless.systemtool.gamemode.util.Shared.service
 import org.nameless.view.IDisplayResolutionListener
 
-class DisplayResolutionChangeListener(
-    private val handler: Handler,
-    private val infoListener: GameModeInfoListener
-) : IDisplayResolutionListener.Stub() {
+class DisplayResolutionChangeListener : IDisplayResolutionListener.Stub() {
 
     var registered = false
         set(value) {
@@ -32,9 +28,9 @@ class DisplayResolutionChangeListener(
     private var displayWidth = -1
         set(value) {
             field = value
-            handler.postDelayed({
-                if (infoListener.inGame) {
-                    GamePanelViewController.resetPanelView()
+            service.mainHandler.postDelayed({
+                if (service.gameModeInfoListener.inGame) {
+                    GamePanelViewController.onConfigurationChanged()
                 }
             }, 500L)
         }

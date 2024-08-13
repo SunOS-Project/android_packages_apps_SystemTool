@@ -62,7 +62,7 @@ class ClockView(
     private var contentDescriptionFormatString: String? = null
     private var dateTimePatternGenerator: DateTimePatternGenerator? = null
     private var locale: Locale? = null
-    private val secondsHandler = Handler()
+    private val secondsHandler by lazy { Handler() }
 
     private val secondTick: Runnable = object : Runnable {
         override fun run() {
@@ -75,16 +75,12 @@ class ClockView(
 
     private val intentReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            handler ?: return
-
             when (intent.action) {
                 Intent.ACTION_TIMEZONE_CHANGED -> {
-                    handler.post {
-                        calendar = Calendar.getInstance(TimeZone.getTimeZone(
-                                intent.getStringExtra(Intent.EXTRA_TIMEZONE)))
-                        clockFormat?.apply {
-                            timeZone = calendar.timeZone
-                        }
+                    calendar = Calendar.getInstance(TimeZone.getTimeZone(
+                            intent.getStringExtra(Intent.EXTRA_TIMEZONE)))
+                    clockFormat?.apply {
+                        timeZone = calendar.timeZone
                     }
                 }
                 Intent.ACTION_CONFIGURATION_CHANGED -> {
@@ -93,18 +89,14 @@ class ClockView(
                         locale = newLocale
                         contentDescriptionFormatString = String()
                         dateTimePatternGenerator = null
-                        handler.post {
-                            updateSettings()
-                        }
+                        updateSettings()
                     }
                 }
             }
-            handler.post {
-                updateClock()
-            }
+            updateClock()
         }
     }
-    private val settingsObserver = SettingsObserver(service.handler)
+    private val settingsObserver by lazy { SettingsObserver() }
 
     init {
         includeFontPadding = false
@@ -120,7 +112,7 @@ class ClockView(
                 addAction(Intent.ACTION_TIME_CHANGED)
                 addAction(Intent.ACTION_TIMEZONE_CHANGED)
                 addAction(Intent.ACTION_CONFIGURATION_CHANGED)
-            }, null, service.handler)
+            })
 
             settingsObserver.register()
         }
@@ -331,7 +323,7 @@ class ClockView(
         return formatted
     }
 
-    private inner class SettingsObserver(handler: Handler) : ContentObserver(handler) {
+    private inner class SettingsObserver : ContentObserver(service.mainHandler) {
         override fun onChange(selfChange: Boolean, uri: Uri?) {
             updateSettings()
         }

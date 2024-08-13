@@ -11,6 +11,7 @@ import android.content.res.Configuration
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.IBinder
+import android.os.Looper
 
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.observer.DisplayResolutionChangeListener
@@ -24,16 +25,11 @@ class GameAssistantService : Service() {
         HandlerThread("SystemTool::GameAssistantService").apply { start() }
     }
     val handler by lazy { Handler(handlerThread.looper) }
+    val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 
-    private val resolutionListener by lazy {
-        DisplayResolutionChangeListener(handler, gameModeInfoListener)
-    }
-    private val gameModeGestureListener by lazy {
-        GameModeGestureListener()
-    }
-    private val gameModeInfoListener by lazy {
-        GameModeInfoListener(handler, gameModeGestureListener)
-    }
+    private val resolutionListener by lazy { DisplayResolutionChangeListener() }
+    val gameModeGestureListener by lazy { GameModeGestureListener() }
+    val gameModeInfoListener by lazy { GameModeInfoListener() }
 
     private var orientation = Configuration.ORIENTATION_PORTRAIT
 
@@ -61,10 +57,8 @@ class GameAssistantService : Service() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         newConfig.orientation.takeIf { orientation != it }?.let {
             orientation = it
-            handler.post {
-                if (gameModeInfoListener.inGame) {
-                    GamePanelViewController.resetPanelView()
-                }
+            if (gameModeInfoListener.inGame) {
+                GamePanelViewController.onConfigurationChanged()
             }
         }
     }

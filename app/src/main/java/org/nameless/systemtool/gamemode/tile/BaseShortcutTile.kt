@@ -39,43 +39,44 @@ abstract class BaseShortcutTile(
     var state: Int = STATE_INACTIVE
         set(value) {
             field = value
-            shortcutRoot?.post {
-                shortcutRoot?.background?.setTint(getBackgroundColor())
-                shortcutRoot?.invalidate()
-            }
-            shortcutIcon?.post {
-                shortcutIcon?.setImageResource(getIconRes())
-                shortcutIcon?.drawable?.setTint(getIconTint())
-                shortcutIcon?.invalidate()
-            }
-            shortcutLabel?.post {
-                shortcutLabel?.text = service.getString(getLabelRes())
-                shortcutLabel?.setTextColor(getLabelColor())
-                shortcutLabel?.invalidate()
-            }
-            shortcutSecondaryLabel?.post {
-                shortcutSecondaryLabel?.text = service.getString(getSecondaryLabelRes())
-                shortcutSecondaryLabel?.setTextColor(getSecondaryLabelColor())
-                shortcutSecondaryLabel?.invalidate()
-            }
-            service.handler.post {
+            service.mainHandler.post {
+                shortcutRoot?.apply {
+                    background?.setTint(getBackgroundColor())
+                    invalidate()
+                }
+                shortcutIcon?.apply {
+                    setImageResource(getIconRes())
+                    drawable?.setTint(getIconTint())
+                    invalidate()
+                }
+                shortcutLabel?.apply {
+                    text = service.getString(getLabelRes())
+                    setTextColor(getLabelColor())
+                    invalidate()
+                }
+                shortcutSecondaryLabel?.apply {
+                    text = service.getString(getSecondaryLabelRes())
+                    setTextColor(getSecondaryLabelColor())
+                    invalidate()
+                }
                 onStateChanged()
             }
         }
+
+    init {
+        gameModeManager.registerGameModeInfoListener(gameModeChangedCallback)
+        state = getInitialState()
+    }
 
     fun bind(root: View, icon: ImageView, label: TextView, secondaryLabel: TextView) {
         shortcutRoot = root
         shortcutIcon = icon
         shortcutLabel = label
         shortcutSecondaryLabel = secondaryLabel
-        state = getInitialState()
+        state = state
     }
 
-    open fun onAttach() {
-        gameModeManager.registerGameModeInfoListener(gameModeChangedCallback)
-    }
-
-    open fun onDetach() {
+    open fun destroy() {
         gameModeManager.unregisterGameModeInfoListener(gameModeChangedCallback)
     }
 

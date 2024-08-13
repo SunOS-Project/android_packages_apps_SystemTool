@@ -7,7 +7,6 @@ package org.nameless.systemtool.gamemode.observer
 
 import android.app.Notification
 import android.content.ComponentName
-import android.os.Handler
 import android.os.RemoteException
 import android.os.UserHandle
 import android.service.notification.NotificationListenerService
@@ -18,9 +17,7 @@ import org.nameless.systemtool.gamemode.controller.DanmakuController
 import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.service
 
-class NotificationListener(
-    private val handler: Handler
-) : NotificationListenerService() {
+class NotificationListener : NotificationListenerService() {
 
     private val postedNotifications = mutableMapOf<String, Long>()
 
@@ -98,9 +95,7 @@ class NotificationListener(
             postedNotifications.clear()
         }
         postedNotifications[danmakuText] = time
-        handler.post {
-            DanmakuController.postDanmaku(sbn.packageName, danmakuText)
-        }
+        DanmakuController.postDanmaku(sbn.packageName, danmakuText)
     }
 
     companion object {

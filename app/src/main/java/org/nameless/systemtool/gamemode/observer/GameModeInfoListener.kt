@@ -5,20 +5,16 @@
 
 package org.nameless.systemtool.gamemode.observer
 
-import android.os.Handler
-
 import org.nameless.app.IGameModeInfoListener
 import org.nameless.systemtool.gamemode.bean.GameInfo
-import org.nameless.systemtool.gamemode.controller.GameModeSideViewController
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
+import org.nameless.systemtool.gamemode.util.ScreenRecordHelper
 import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
 import org.nameless.systemtool.gamemode.util.Shared.newGameLaunched
+import org.nameless.systemtool.gamemode.util.Shared.service
 
-class GameModeInfoListener(
-    private val handler: Handler,
-    private val gestureListener: GameModeGestureListener
-) : IGameModeInfoListener.Stub() {
+class GameModeInfoListener : IGameModeInfoListener.Stub() {
 
     var registered = false
         set(value) {
@@ -36,16 +32,14 @@ class GameModeInfoListener(
     var inGame = false
         set(value) {
             field = value
-            handler.post {
-                if (value) {
-                    GamePanelViewController.addPanelView()
-                    GameModeSideViewController.addSideView()
-                    gestureListener.registered = true
-                } else {
-                    gestureListener.registered = false
-                    GameModeSideViewController.removeSideView()
-                    GamePanelViewController.removePanelView()
-                }
+            if (value) {
+                ScreenRecordHelper.bind()
+                GamePanelViewController.onGameStart()
+                service.gameModeGestureListener.registered = true
+            } else {
+                service.gameModeGestureListener.registered = false
+                GamePanelViewController.onGameStop()
+                ScreenRecordHelper.unbind()
             }
         }
 

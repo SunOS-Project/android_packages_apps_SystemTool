@@ -12,19 +12,32 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.UserHandle
 
+import com.android.systemui.screenrecord.IRecordingCallback
 import com.android.systemui.screenrecord.IRemoteRecording
 
 import org.nameless.systemtool.gamemode.util.Shared.service
 
-object ScreenRecordHelper {
+object ScreenRecordHelper : IRecordingCallback.Stub() {
 
-    var recorder: IRemoteRecording? = null
+    private var recorder: IRemoteRecording? = null
     private var isRecorderBound = false
+
+    private val callbacks = mutableListOf<ScreenRecordCallback>()
 
     private val recorderConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             try {
                 recorder = IRemoteRecording.Stub.asInterface(service)
+                recorder?.addRecordingCallback(this@ScreenRecordHelper)
+                isRecording().let { recording ->
+                    callbacks.forEach {
+                        if (recording) {
+                            it.onStartRecording()
+                        } else {
+                            it.onStopRecording()
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -33,6 +46,14 @@ object ScreenRecordHelper {
         override fun onServiceDisconnected(name: ComponentName?) {
             recorder = null
         }
+    }
+
+    override fun onRecordingStart() {
+        callbacks.forEach { it.onStartRecording() }
+    }
+
+    override fun onRecordingEnd() {
+        callbacks.forEach { it.onStopRecording() }
     }
 
     fun bind() {
@@ -48,6 +69,31 @@ object ScreenRecordHelper {
         if (isRecorderBound) {
             service.unbindService(recorderConnection)
         }
+        recorder?.removeRecordingCallback(this)
         recorder = null
+    }
+
+    fun addCallback(callback: ScreenRecordCallback) {
+        callbacks.add(callback)
+    }
+
+    fun removeCallback(callback: ScreenRecordCallback) {
+        callbacks.remove(callback)
+    }
+
+    fun isStarting() = recorder?.isStarting == true
+    fun isRecording() = recorder?.isRecording == true
+
+    fun startRecord() {
+        recorder?.startRecording()
+    }
+
+    fun stopRecord() {
+        recorder?.stopRecording()
+    }
+
+    interface ScreenRecordCallback {
+        fun onStartRecording()
+        fun onStopRecording()
     }
 }

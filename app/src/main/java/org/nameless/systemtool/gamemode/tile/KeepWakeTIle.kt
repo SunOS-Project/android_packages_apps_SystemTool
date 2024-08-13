@@ -37,7 +37,7 @@ class KeepWakeTIle : BaseShortcutTile(
         keepWake = !keepWake.also { switchState() }
     }
 
-    override fun onDetach() {
+    override fun destroy() {
         if (keepWake) {
             try {
                 wakeLock.release()
@@ -45,7 +45,7 @@ class KeepWakeTIle : BaseShortcutTile(
                 logE(TAG, "Exception on releasing wake lock", e)
             }
         }
-        super.onDetach()
+        super.destroy()
     }
 
     private fun switchState() {

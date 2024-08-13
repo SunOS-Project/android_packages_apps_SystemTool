@@ -8,6 +8,7 @@ package org.nameless.systemtool.gamemode.observer
 import android.os.RemoteException
 import android.view.MotionEvent
 import android.view.WindowManagerGlobal
+import androidx.core.view.isVisible
 
 import org.nameless.systemtool.common.Utils.PACKAGE_NAME
 import org.nameless.systemtool.common.Utils.logE
@@ -42,7 +43,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
         }
 
     override fun onGestureCanceled(gesture: Int) {
-        GamePanelViewController.setPanelViewTouch(false)
+        GamePanelViewController.setContainerTouch(false)
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {
@@ -54,8 +55,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
             return false
         }
         if (!GamePanelViewController.animating &&
-                !GamePanelViewController.expanded) {
-            GamePanelViewController.setPanelViewTouch(true)
+                !GamePanelViewController.isShowing()) {
             return true
         }
         return false
@@ -66,13 +66,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
             return
         }
         if (event.actionMasked == MotionEvent.ACTION_UP) {
-            GamePanelViewController.getLayoutParams()?.let {
-                if ((it.x + it.width) < 0.1 * screenShortWidth) {
-                    GamePanelViewController.animateHide()
-                } else {
-                    GamePanelViewController.animateShow()
-                }
-            }
+            GamePanelViewController.onGestureUp()
         } else {
             GamePanelViewController.movePanelView(event.rawX)
         }

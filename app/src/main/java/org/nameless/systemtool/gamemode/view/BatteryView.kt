@@ -39,12 +39,10 @@ class BatteryView(
     }
 
     private fun updateText() {
-        handler.post {
-            text = if (plugged) {
-                "\u26A1\uFE0E ${batteryLevel}%"
-            } else {
-                "${batteryLevel}%"
-            }
+        text = if (plugged) {
+            "\u26A1\uFE0E ${batteryLevel}%"
+        } else {
+            "${batteryLevel}%"
         }
     }
 

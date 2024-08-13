@@ -6,20 +6,36 @@
 package org.nameless.systemtool.gamemode.controller
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.graphics.PixelFormat
+import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager.LayoutParams
+import android.widget.FrameLayout
 
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 
 import kotlin.math.min
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils.logD
-import org.nameless.systemtool.gamemode.util.ScreenRecordHelper
+import org.nameless.systemtool.gamemode.util.Config.PANEL_LANDSCAPE_HEIGHT
+import org.nameless.systemtool.gamemode.util.Config.PANEL_LANDSCAPE_LEFT_PADDING
+import org.nameless.systemtool.gamemode.util.Config.PANEL_LANDSCAPE_TOP_PADDING
+import org.nameless.systemtool.gamemode.util.Config.PANEL_LANDSCAPE_WIDTH
+import org.nameless.systemtool.gamemode.util.Config.PANEL_PORTRAIT_HEIGHT
+import org.nameless.systemtool.gamemode.util.Config.PANEL_PORTRAIT_LEFT_PADDING
+import org.nameless.systemtool.gamemode.util.Config.PANEL_PORTRAIT_TOP_PADDING
+import org.nameless.systemtool.gamemode.util.Config.PANEL_PORTRAIT_WIDTH
+import org.nameless.systemtool.gamemode.util.Config.SIDE_LANDSCAPE_TOP_PADDING
+import org.nameless.systemtool.gamemode.util.Config.SIDE_PORTRAIT_TOP_PADDING
+import org.nameless.systemtool.gamemode.util.GestureResourceUtils
 import org.nameless.systemtool.gamemode.util.Shared.portrait
 import org.nameless.systemtool.gamemode.util.Shared.screenShortWidth
 import org.nameless.systemtool.gamemode.util.Shared.screenWidth
@@ -27,161 +43,229 @@ import org.nameless.systemtool.gamemode.util.Shared.service
 import org.nameless.systemtool.gamemode.util.Shared.windowManager
 import org.nameless.systemtool.gamemode.view.GamePanelView
 
+@SuppressLint("StaticFieldLeak")
 object GamePanelViewController {
 
     private const val TAG = "SystemTool::GamePanelViewController"
 
-    @Suppress("DEPRECATION")
     private val layoutParams = LayoutParams().apply {
         type = LayoutParams.TYPE_APPLICATION_OVERLAY
+        width = LayoutParams.MATCH_PARENT
+        height = LayoutParams.MATCH_PARENT
         format = PixelFormat.TRANSPARENT
         gravity = Gravity.TOP or Gravity.LEFT
         flags = LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                LayoutParams.FLAG_LAYOUT_IN_SCREEN
-        windowAnimations = 0
+                LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                LayoutParams.FLAG_HARDWARE_ACCELERATED
+        privateFlags = LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+                LayoutParams.SYSTEM_FLAG_SHOW_FOR_ALL_USERS
+        layoutInDisplayCutoutMode = LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 
-    private const val ANIMATION_DURATION = 150L
+    private val singleTapDetector by lazy {
+        GestureDetector(service, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapUp(event: MotionEvent): Boolean {
+                if (animating) {
+                    return false
+                }
+                if (event.rawX >= targetExpandedX && event.rawX <= targetExpandedX + panelWidth
+                        && event.rawY >= targetY && event.rawY <= targetY + panelHeight) {
+                    return false
+                }
+                animateHide()
+                return true
+            }
+        })
+    }
 
-    private const val PORTRAIT_WIDTH = 0.9f
-    private const val PORTRAIT_HEIGHT = 0.87f
-    private const val PORTRAIT_LEFT_PADDING = 0.05f
-    private const val PORTRAIT_TOP_PADDING = 0.15f
+    private const val ANIMATION_DURATION = 200L
 
-    private const val LANDSCAPE_WIDTH = 0.9f
-    private const val LANDSCAPE_HEIGHT = 0.87f
-    private const val LANDSCAPE_LEFT_PADDING = 0.12f
-    private const val LANDSCAPE_TOP_PADDING = 0.06f
+    var container: FrameLayout? = null
+        private set
 
     private var panelView: GamePanelView? = null
+    private var sideView: View? = null
+
+    private var targetExpandedX = 0f
+    private var targetCollapsedX = 0f
+    private var targetY = 0f
+    private var panelWidth = 0f
+    private var panelHeight = 0f
 
     var animating = false
-    var expanded = false
 
-    fun addPanelView() {
-        if (panelView != null) {
-            return
-        }
-        logD(TAG, "addPanelView")
-        panelView = LayoutInflater.from(service).inflate(R.layout.game_panel_layout, null) as GamePanelView?
-        windowManager.currentWindowMetrics.bounds.let {
-            screenShortWidth = min(it.width(), it.height())
-            screenWidth = it.width()
-            portrait = it.width() < it.height()
-        }
-        windowManager.addView(panelView, LayoutParams().apply {
-            copyFrom(layoutParams)
-            if (portrait) {
-                width = (PORTRAIT_WIDTH * screenShortWidth).toInt()
-                height = (PORTRAIT_HEIGHT * screenShortWidth).toInt()
-                y = (PORTRAIT_TOP_PADDING * screenShortWidth).toInt()
-            } else {
-                width = (LANDSCAPE_WIDTH * screenShortWidth).toInt()
-                height = (LANDSCAPE_HEIGHT * screenShortWidth).toInt()
-                y = (LANDSCAPE_TOP_PADDING * screenShortWidth).toInt()
+    @SuppressLint("ClickableViewAccessibility")
+    fun onGameStart() {
+        service.mainHandler.post {
+            if (container != null) {
+                return@post
             }
-            x = -width
-        })
-        ScreenRecordHelper.bind()
-        setPanelViewTouch(false)
-        expanded = false
+            logD(TAG, "onGameStart")
+
+            container = FrameLayout(
+                service.createWindowContext(
+                    LayoutParams.TYPE_APPLICATION_OVERLAY, null))
+            container?.apply {
+                setOnTouchListener { _, e ->
+                    singleTapDetector.onTouchEvent(e)
+                }
+            }
+            windowManager.addView(container, layoutParams)
+            setContainerTouch(false)
+
+            updateScreenWidth()
+
+            panelView = LayoutInflater.from(service)
+                    .inflate(R.layout.game_panel_layout, null) as GamePanelView?
+            updatePanelViewLayout()
+            container?.addView(panelView)
+
+            sideView = LayoutInflater.from(service).inflate(R.layout.game_side_layout, null)
+            updateSideViewLayout()
+            container?.addView(sideView)
+        }
     }
 
-    fun removePanelView() {
-        if (panelView == null) {
-            return
+    fun onGameStop() {
+        service.mainHandler.post {
+            if (container == null) {
+                return@post
+            }
+            logD(TAG, "onGameStop")
+
+            targetExpandedX = 0f
+            targetCollapsedX = 0f
+            targetY = 0f
+            panelWidth = 0f
+            panelHeight = 0f
+
+            sideView = null
+
+            panelView?.recycleViewShortcuts?.tileList?.forEach { it.destroy() }
+            panelView = null
+
+            container?.removeAllViews()
+            windowManager.removeViewImmediate(container)
+            container = null
         }
-        logD(TAG, "removePanelView")
-        panelView?.recycleViewShortcuts?.tileList?.forEach { it.onDetach() }
-        ScreenRecordHelper.unbind()
-        windowManager.removeView(panelView)
-        expanded = false
-        panelView = null
     }
 
-    fun resetPanelView() {
-        if (panelView == null) {
-            return
-        }
-        logD(TAG, "resetPanelView")
-        windowManager.currentWindowMetrics.bounds.let {
-            screenShortWidth = min(it.width(), it.height())
-            screenWidth = it.width()
-            portrait = it.width() < it.height()
-        }
-        windowManager.updateViewLayout(panelView, LayoutParams().apply {
-            copyFrom(layoutParams)
-            if (portrait) {
-                width = (PORTRAIT_WIDTH * screenShortWidth).toInt()
-                height = (PORTRAIT_HEIGHT * screenShortWidth).toInt()
-                y = (PORTRAIT_TOP_PADDING * screenShortWidth).toInt()
-            } else {
-                width = (LANDSCAPE_WIDTH * screenShortWidth).toInt()
-                height = (LANDSCAPE_HEIGHT * screenShortWidth).toInt()
-                y = (LANDSCAPE_TOP_PADDING * screenShortWidth).toInt()
+    fun onConfigurationChanged() {
+        service.mainHandler.post {
+            if (container == null) {
+                return@post
             }
-            x = -width
-        })
-        setPanelViewTouch(false)
-        DanmakuController.updateLayout()
-        expanded = false
-        GameModeSideViewController.resetSideView()
+            logD(TAG, "onConfigurationChanged")
+
+            setContainerTouch(false)
+
+            updateScreenWidth()
+            updatePanelViewLayout()
+            updateSideViewLayout()
+            DanmakuController.updateLayout()
+
+            sideView?.isVisible = true
+        }
     }
 
     fun movePanelView(rawX: Float) {
-        GameModeSideViewController.setSideViewVisible(false)
-        panelView?.let {
-            it.post {
-                it.updateLayoutParams<LayoutParams> {
-                    x = min(
-                        (screenShortWidth * if (portrait) PORTRAIT_LEFT_PADDING else LANDSCAPE_LEFT_PADDING).toInt(),
-                        rawX.toInt() - width
-                    )
-                }
-                windowManager.updateViewLayout(it, it.layoutParams)
+        service.mainHandler.post {
+            sideView?.isVisible = false
+            panelView?.apply {
+                translationX = min(targetExpandedX, rawX - targetExpandedX - panelWidth)
             }
         }
     }
 
-    fun setPanelViewTouch(touchable: Boolean) {
-        panelView?.let {
-            it.post {
-                it.updateLayoutParams<LayoutParams> {
-                    flags = if (touchable) {
-                        flags and LayoutParams.FLAG_NOT_FOCUSABLE.inv()
-                    } else {
-                        flags or LayoutParams.FLAG_NOT_FOCUSABLE
-                    }
-                }
-                windowManager.updateViewLayout(it, it.layoutParams)
+    private fun updateScreenWidth() {
+        windowManager.currentWindowMetrics.bounds.let {
+            screenShortWidth = min(it.width(), it.height())
+            screenWidth = it.width()
+            portrait = it.width() < it.height()
+        }
+    }
+
+    private fun updatePanelViewLayout() {
+        val l: Float
+        val t: Float
+        val w: Float
+        val h: Float
+        if (portrait) {
+            l = screenShortWidth * PANEL_PORTRAIT_LEFT_PADDING
+            t = screenShortWidth * PANEL_PORTRAIT_TOP_PADDING
+            w = screenShortWidth * PANEL_PORTRAIT_WIDTH
+            h = screenShortWidth * PANEL_PORTRAIT_HEIGHT
+        } else {
+            l = screenShortWidth * PANEL_LANDSCAPE_LEFT_PADDING
+            t = screenShortWidth * PANEL_LANDSCAPE_TOP_PADDING
+            w = screenShortWidth * PANEL_LANDSCAPE_WIDTH
+            h = screenShortWidth * PANEL_LANDSCAPE_HEIGHT
+        }
+
+        targetExpandedX = l
+        targetCollapsedX = -(l + w)
+        targetY = t
+        panelWidth = w
+        panelHeight = h
+
+        panelView?.apply {
+            translationX = targetCollapsedX
+            translationY = targetY
+            layoutParams = FrameLayout.LayoutParams(w.toInt(), h.toInt())
+        }
+    }
+
+    private fun updateSideViewLayout() {
+        sideView?.apply {
+            val width = GestureResourceUtils.getGameModeGestureValidDistance(service.resources) / 2
+            if (portrait) {
+                translationY = screenShortWidth * SIDE_PORTRAIT_TOP_PADDING
+                layoutParams = FrameLayout.LayoutParams(width,
+                    GestureResourceUtils.getGameModePortraitAreaBottom(
+                        service.resources) - translationY.toInt())
+            } else {
+                translationY = screenShortWidth * SIDE_LANDSCAPE_TOP_PADDING
+                layoutParams = FrameLayout.LayoutParams(width,
+                    GestureResourceUtils.getGameModeLandscapeAreaBottom(
+                        service.resources) - translationY.toInt())
             }
         }
     }
 
-    fun animateShow(endRunnable: Runnable? = null) {
-        if (animating) {
-            return
+    fun setContainerTouch(touchable: Boolean) {
+        container?.let {
+            it.updateLayoutParams<LayoutParams> {
+                flags = if (touchable) {
+                    flags and LayoutParams.FLAG_NOT_FOCUSABLE.inv() and
+                            LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+                } else {
+                    flags or LayoutParams.FLAG_NOT_FOCUSABLE or
+                            LayoutParams.FLAG_NOT_TOUCHABLE
+                }
+            }
+            windowManager.updateViewLayout(it, it.layoutParams)
         }
-        panelView?.let { v ->
-            v.post {
-                ValueAnimator.ofInt(
-                    (v.layoutParams as LayoutParams).x,
-                    (screenShortWidth * if (portrait) PORTRAIT_LEFT_PADDING else LANDSCAPE_LEFT_PADDING).toInt(),
+    }
+
+    private fun animateShow(endRunnable: Runnable? = null) {
+        service.mainHandler.post {
+            if (animating) {
+                return@post
+            }
+            panelView?.let { v ->
+                ValueAnimator.ofFloat(
+                    v.translationX, targetExpandedX
                 ).apply {
                     addUpdateListener {
-                        v.updateLayoutParams<LayoutParams> {
-                            x = it.animatedValue as Int
-                        }
-                        windowManager.updateViewLayout(v, v.layoutParams)
+                        v.translationX = it.animatedValue as Float
                     }
                     duration = ANIMATION_DURATION
                     doOnStart {
                         animating = true
-                        expanded = true
+                        setContainerTouch(true)
                     }
                     doOnEnd {
                         animating = false
-                        expanded = true
                         endRunnable?.run()
                     }
                 }.start()
@@ -190,20 +274,16 @@ object GamePanelViewController {
     }
 
     fun animateHide(endRunnable: Runnable? = null) {
-        if (animating) {
-            return
-        }
-        panelView?.let { v ->
-            v.post {
-                ValueAnimator.ofInt(
-                    (v.layoutParams as LayoutParams).x,
-                    -(v.width)
+        service.mainHandler.post {
+            if (animating || panelView?.translationX == targetCollapsedX) {
+                return@post
+            }
+            panelView?.let { v ->
+                ValueAnimator.ofFloat(
+                    v.translationX, targetCollapsedX
                 ).apply {
                     addUpdateListener {
-                        v.updateLayoutParams<LayoutParams> {
-                            x = it.animatedValue as Int
-                        }
-                        windowManager.updateViewLayout(v, v.layoutParams)
+                        v.translationX = it.animatedValue as Float
                     }
                     duration = ANIMATION_DURATION
                     doOnStart {
@@ -211,10 +291,9 @@ object GamePanelViewController {
                     }
                     doOnEnd {
                         animating = false
-                        expanded = false
                         panelView?.scrollViewApps?.scrollTo(0, 0)
-                        setPanelViewTouch(false)
-                        GameModeSideViewController.setSideViewVisible(true)
+                        sideView?.isVisible = true
+                        setContainerTouch(false)
                         endRunnable?.run()
                     }
                 }.start()
@@ -222,7 +301,15 @@ object GamePanelViewController {
         }
     }
 
-    fun getLayoutParams(): LayoutParams? {
-        return panelView?.layoutParams as LayoutParams?
+    fun onGestureUp() {
+        panelView?.let {
+            if (it.translationX + panelWidth < 0.09f * screenShortWidth) {
+                animateHide()
+            } else {
+                animateShow()
+            }
+        }
     }
+
+    fun isShowing() = panelView?.translationX == targetExpandedX
 }

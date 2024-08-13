@@ -5,6 +5,7 @@
 
 package org.nameless.systemtool.gamemode.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.VibrationExtInfo
 import android.util.AttributeSet
@@ -77,6 +78,7 @@ class ShortcutGridView(
             return ShortcutHolder(view)
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun onBindViewHolder(holder: ShortcutHolder, position: Int) {
             data[position].let { tile ->
                 holder.root.apply {
@@ -131,8 +133,6 @@ class ShortcutGridView(
                     }
                     return@setOnTouchListener false
                 }
-
-                tile.onAttach()
             }
         }
     }

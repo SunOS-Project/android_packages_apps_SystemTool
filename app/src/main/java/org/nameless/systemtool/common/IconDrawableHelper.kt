@@ -93,6 +93,9 @@ object IconDrawableHelper {
     private fun mergeDrawable(context: Context, largeDrawable: Drawable, smallDrawable: Drawable): Drawable {
         val badgedWidth = largeDrawable.intrinsicWidth
         val badgedHeight = largeDrawable.intrinsicHeight
+        if (badgedWidth <= 0 || badgedHeight <= 0) {
+            return largeDrawable
+        }
         val bitmap = Bitmap.createBitmap(badgedWidth, badgedHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         largeDrawable.setBounds(0, 0, badgedWidth, badgedHeight)

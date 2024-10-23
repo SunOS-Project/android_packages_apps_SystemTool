@@ -61,14 +61,14 @@
             android:name=".windowmode.AllAppsPickerActivity"
             android:exported="true"
             android:label="@string/all_apps_picker_title"
-            android:theme="@android:style/Theme.DeviceDefault.Settings">
+            android:theme="@style/Theme.SubSettingsBase">
         </activity>
 
         <activity
             android:name=".windowmode.ManageAppsActivity"
             android:exported="true"
             android:label="@string/manage_apps_title"
-            android:theme="@android:style/Theme.DeviceDefault.Settings">
+            android:theme="@style/Theme.SubSettingsBase">
         </activity>
 
         <service

@@ -5,13 +5,12 @@
 
 package org.nameless.systemtool.windowmode
 
-import android.app.Activity
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.os.Bundle
 import android.os.VibrationExtInfo
 import android.view.View
-import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -23,33 +22,35 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
+
 import java.util.Collections
 
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.BroadcastSender
 import org.nameless.systemtool.common.IconDrawableHelper
 import org.nameless.systemtool.common.ShortcutHelper
+import org.nameless.systemtool.windowmode.bean.AppInfo
+import org.nameless.systemtool.windowmode.callback.IDragOverListener
+import org.nameless.systemtool.windowmode.callback.IIconClickedListener
 import org.nameless.systemtool.windowmode.observer.SettingsObserver
 import org.nameless.systemtool.windowmode.util.AdapterDifferHelper
-import org.nameless.systemtool.windowmode.view.AppHolder
-import org.nameless.systemtool.windowmode.bean.AppInfo
 import org.nameless.systemtool.windowmode.util.Config.miniWindowSystemAppsWhitelist
 import org.nameless.systemtool.windowmode.util.Config.shortcutSystemAppsBlacklist
 import org.nameless.systemtool.windowmode.util.DensityHelper
 import org.nameless.systemtool.windowmode.util.DensityHelper.DisplaySize
-import org.nameless.systemtool.windowmode.callback.IDragOverListener
-import org.nameless.systemtool.windowmode.callback.IIconClickedListener
 import org.nameless.systemtool.windowmode.util.Shared.isEditing
 import org.nameless.systemtool.windowmode.view.AllItemAdapter
+import org.nameless.systemtool.windowmode.view.AppHolder
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK
 
-open class AllAppsPickerActivity : Activity() {
+open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
 
     private val root by lazy { window.decorView.rootView }
-    private val layoutLoading by lazy { findViewById<LinearLayout>(R.id.layout_loading)!! }
+    private val indicatorLoading by lazy { findViewById<ProgressBar>(R.id.indicator_loading)!! }
     private val listAllApps by lazy { findViewById<RecyclerView>(R.id.list_all_apps)!! }
     private val listAllShortcuts by lazy { findViewById<RecyclerView>(R.id.list_all_shortcuts)!! }
     private val listPinnedApps by lazy { findViewById<RecyclerView>(R.id.list_pinned_apps)!! }
@@ -126,16 +127,13 @@ open class AllAppsPickerActivity : Activity() {
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
             listPinnedApps.itemAnimator = null
-            root.post {
-                savePinnedApps()
-            }
+            savePinnedApps()
         }
     })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.all_apps_picker)
-        actionBar?.elevation = 0f
 
         isEditing = isEditOnlyMode()
         if (isEditing) {
@@ -193,9 +191,7 @@ open class AllAppsPickerActivity : Activity() {
 
                 val oldPinnedData = pinnedItemAdapter.data.toMutableList()
                 pinnedItemAdapter.data.removeAt(index)
-                root.post {
-                    savePinnedApps()
-                }
+                savePinnedApps()
                 AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
 
                 if (pinnedItemAdapter.data.size == 0 || adapter.data.size == 1) {
@@ -231,9 +227,7 @@ open class AllAppsPickerActivity : Activity() {
 
                     val oldPinnedData = pinnedItemAdapter.data.toMutableList()
                     pinnedItemAdapter.data.add(appInfo)
-                    root.post {
-                        savePinnedApps()
-                    }
+                    savePinnedApps()
                     AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
 
                     if (allAppAdapter.data.size == 0 || pinnedItemAdapter.data.size == 1) {
@@ -272,9 +266,7 @@ open class AllAppsPickerActivity : Activity() {
 
                     val oldPinnedData = pinnedItemAdapter.data.toMutableList()
                     pinnedItemAdapter.data.add(appInfo)
-                    root.post {
-                        savePinnedApps()
-                    }
+                    savePinnedApps()
                     AdapterDifferHelper(oldPinnedData, pinnedItemAdapter).start()
 
                     if (allShortcutAdapter.data.size == 0 || pinnedItemAdapter.data.size == 1) {
@@ -288,44 +280,42 @@ open class AllAppsPickerActivity : Activity() {
         textEdit.setOnClickListener {
             isEditing = !isEditing
 
-            root.post {
-                if (isEditing) {
-                    enableDragItem(true)
-                    pinnedItemAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.VISIBLE
-                    }
-                    allAppAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.VISIBLE
-                    }
-                    allShortcutAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.VISIBLE
-                    }
-                    textEdit.text = getString(R.string.finish_title)
-                } else {
-                    enableDragItem(false)
-                    pinnedItemAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.INVISIBLE
-                    }
-                    allAppAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.INVISIBLE
-                    }
-                    allShortcutAdapter.data.forEachIndexed { index, _ ->
-                        val holder =
-                            listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
-                        holder?.iconState?.visibility = View.INVISIBLE
-                    }
-                    textEdit.text = getString(R.string.edit_title)
+            if (isEditing) {
+                enableDragItem(true)
+                pinnedItemAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.VISIBLE
                 }
+                allAppAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.VISIBLE
+                }
+                allShortcutAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.VISIBLE
+                }
+                textEdit.text = getString(R.string.finish_title)
+            } else {
+                enableDragItem(false)
+                pinnedItemAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listPinnedApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.INVISIBLE
+                }
+                allAppAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listAllApps.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.INVISIBLE
+                }
+                allShortcutAdapter.data.forEachIndexed { index, _ ->
+                    val holder =
+                        listAllShortcuts.findViewHolderForAdapterPosition(index) as AppHolder?
+                    holder?.iconState?.visibility = View.INVISIBLE
+                }
+                textEdit.text = getString(R.string.edit_title)
             }
         }
 
@@ -337,12 +327,8 @@ open class AllAppsPickerActivity : Activity() {
     open fun isEditOnlyMode() = false
 
     private fun reloadApps() {
-        scrollViewApps.post {
-            scrollViewApps.isVisible = false
-        }
-        layoutLoading.post {
-            layoutLoading.isVisible = true
-        }
+        scrollViewApps.visibility = View.INVISIBLE
+        indicatorLoading.visibility = View.VISIBLE
 
         val pinnedItemList = mutableListOf<AppInfo>()
         val allAppsList = mutableListOf<AppInfo>()
@@ -430,14 +416,14 @@ open class AllAppsPickerActivity : Activity() {
                 o1.compareLabel.compareTo(o2.compareLabel)
             }
         }
-        allShortcutList.sortWith{ o1, o2 ->
+        allShortcutList.sortWith { o1, o2 ->
             if (o1.compareLabel == o2.compareLabel) {
                 o1.label.compareTo(o2.label)
             } else {
                 o1.compareLabel.compareTo(o2.compareLabel)
             }
         }
-        mergedShortcutList.sortWith{ o1, o2 ->
+        mergedShortcutList.sortWith { o1, o2 ->
             if (o1.compareLabel == o2.compareLabel) {
                 o1.label.compareTo(o2.label)
             } else {
@@ -451,15 +437,9 @@ open class AllAppsPickerActivity : Activity() {
 
         updateVisibility()
 
-        scrollViewApps.post {
-            scrollViewApps.scrollTo(0, 0)
-        }
-        layoutLoading.post {
-            layoutLoading.isVisible = false
-        }
-        scrollViewApps.post {
-            scrollViewApps.isVisible = true
-        }
+        indicatorLoading.visibility = View.INVISIBLE
+        scrollViewApps.scrollTo(0, 0)
+        scrollViewApps.visibility = View.VISIBLE
     }
 
     private fun enableDragItem(enable: Boolean) {

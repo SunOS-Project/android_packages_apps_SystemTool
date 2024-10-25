@@ -10,7 +10,6 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_SHORTCUTS" />
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
@@ -30,9 +29,7 @@
     <application
         android:label="@string/app_name"
         android:persistent="true"
-        android:supportsRtl="true"
-        android:defaultToDeviceProtectedStorage="true"
-        android:directBootAware="true">
+        android:supportsRtl="true">
 
         <receiver
             android:name=".BootCompletedReceiver"
@@ -40,7 +37,6 @@
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>

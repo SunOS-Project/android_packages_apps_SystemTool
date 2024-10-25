@@ -3,18 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.nameless.systemtool.gamemode.observer
+package org.nameless.systemtool.gamemode.util
 
+import org.nameless.app.GameModeInfo
 import org.nameless.app.IGameModeInfoListener
 import org.nameless.systemtool.gamemode.bean.GameInfo
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
-import org.nameless.systemtool.gamemode.util.ScreenRecordHelper
 import org.nameless.systemtool.gamemode.util.Shared.currentGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
+import org.nameless.systemtool.gamemode.util.Shared.inGame
+import org.nameless.systemtool.gamemode.util.Shared.lastGameInfo
 import org.nameless.systemtool.gamemode.util.Shared.newGameLaunched
 import org.nameless.systemtool.gamemode.util.Shared.service
 
-class GameModeInfoListener : IGameModeInfoListener.Stub() {
+object GameModeListenerProxy : IGameModeInfoListener.Stub() {
 
     var registered = false
         set(value) {
@@ -28,25 +30,29 @@ class GameModeInfoListener : IGameModeInfoListener.Stub() {
                 gameModeManager.unregisterGameModeInfoListener(this)
             }
         }
-
-    var inGame = false
-        set(value) {
-            field = value
-            if (value) {
-                ScreenRecordHelper.bind()
-                GamePanelViewController.onGameStart()
-                service.gameModeGestureListener.registered = true
+    var gameModeInfo: GameModeInfo? = null
+        get() {
+            return if (field != null) {
+                field
             } else {
-                service.gameModeGestureListener.registered = false
-                GamePanelViewController.onGameStop()
-                ScreenRecordHelper.unbind()
+                gameModeManager.gameModeInfo
             }
         }
+        private set
 
-    private var lastGameInfo = GameInfo()
+    private val callbacks = mutableSetOf<Callback>()
+
+    fun addCallback(callback: Callback) {
+        callbacks.add(callback)
+    }
+
+    fun removeCallback(callback: Callback) {
+        callbacks.remove(callback)
+    }
 
     override fun onGameModeInfoChanged() {
-        gameModeManager.gameModeInfo?.let {
+        gameModeInfo = gameModeManager.gameModeInfo
+        gameModeInfo?.let {
             if (it.isInGame) {
                 lastGameInfo = currentGameInfo.copy()
                 currentGameInfo = GameInfo(
@@ -57,7 +63,25 @@ class GameModeInfoListener : IGameModeInfoListener.Stub() {
             }
             if (inGame != it.isInGame) {
                 inGame = it.isInGame
+                handleInGameChanged()
             }
         }
+        callbacks.forEach { it.onGameModeInfoChanged() }
+    }
+
+    private fun handleInGameChanged() {
+        if (inGame) {
+            ScreenRecordHelper.bind()
+            GamePanelViewController.onGameStart()
+            service.gameModeGestureListener.registered = true
+        } else {
+            service.gameModeGestureListener.registered = false
+            GamePanelViewController.onGameStop()
+            ScreenRecordHelper.unbind()
+        }
+    }
+
+    interface Callback {
+        fun onGameModeInfoChanged()
     }
 }

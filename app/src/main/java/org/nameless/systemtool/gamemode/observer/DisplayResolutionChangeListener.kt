@@ -6,6 +6,7 @@
 package org.nameless.systemtool.gamemode.observer
 
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
+import org.nameless.systemtool.gamemode.util.Shared.inGame
 import org.nameless.systemtool.gamemode.util.Shared.resolutionManager
 import org.nameless.systemtool.gamemode.util.Shared.service
 import org.nameless.view.IDisplayResolutionListener
@@ -29,7 +30,7 @@ class DisplayResolutionChangeListener : IDisplayResolutionListener.Stub() {
         set(value) {
             field = value
             service.mainHandler.postDelayed({
-                if (service.gameModeInfoListener.inGame) {
+                if (inGame) {
                     GamePanelViewController.onConfigurationChanged()
                 }
             }, 500L)

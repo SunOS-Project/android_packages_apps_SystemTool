@@ -14,14 +14,13 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ImageView
 
-import org.nameless.app.IGameModeInfoListener
 import org.nameless.os.CustomVibrationAttributes.VIBRATION_ATTRIBUTES_QS_TILE
 import org.nameless.provider.SettingsExt
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.Utils
 import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
 import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
-import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
+import org.nameless.systemtool.gamemode.util.GameModeListenerProxy
 
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.BUTTON_CLICK
 import vendor.nameless.hardware.vibratorExt.V1_0.Effect.CLICK
@@ -32,9 +31,9 @@ class BrightnessLockButton(
     attrs: AttributeSet
 ) : ImageView(context, attrs) {
 
-    private val gameModeInfoListener = object : IGameModeInfoListener.Stub() {
+    private val gameModeInfoListener = object : GameModeListenerProxy.Callback {
         override fun onGameModeInfoChanged() {
-            brightnessLocked = gameModeManager.gameModeInfo?.shouldDisableAutoBrightness() ?: false
+            brightnessLocked = GameModeListenerProxy.gameModeInfo?.shouldDisableAutoBrightness() ?: false
         }
     }
 
@@ -42,13 +41,13 @@ class BrightnessLockButton(
 
     init {
         background = context.getDrawable(R.drawable.bg_brightness_lock)
-        brightnessLocked = gameModeManager.gameModeInfo?.shouldDisableAutoBrightness() ?: false
+        brightnessLocked = GameModeListenerProxy.gameModeInfo?.shouldDisableAutoBrightness() ?: false
         updateResources()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        gameModeManager.registerGameModeInfoListener(gameModeInfoListener)
+        GameModeListenerProxy.addCallback(gameModeInfoListener)
         setOnClickListener {
             performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
                 setEffectId(BUTTON_CLICK)
@@ -81,7 +80,7 @@ class BrightnessLockButton(
         super.onDetachedFromWindow()
         setOnTouchListener(null)
         setOnClickListener(null)
-        gameModeManager.unregisterGameModeInfoListener(gameModeInfoListener)
+        GameModeListenerProxy.removeCallback(gameModeInfoListener)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

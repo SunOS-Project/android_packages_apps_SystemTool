@@ -12,9 +12,8 @@ import android.widget.ImageView
 import android.widget.TextView
 
 import org.nameless.app.GameModeInfo
-import org.nameless.app.IGameModeInfoListener
 import org.nameless.systemtool.R
-import org.nameless.systemtool.gamemode.util.Shared.gameModeManager
+import org.nameless.systemtool.gamemode.util.GameModeListenerProxy
 import org.nameless.systemtool.gamemode.util.Shared.service
 
 abstract class BaseShortcutTile(
@@ -28,9 +27,9 @@ abstract class BaseShortcutTile(
     private var shortcutLabel: TextView? = null
     private var shortcutSecondaryLabel: TextView? = null
 
-    private val gameModeChangedCallback = object : IGameModeInfoListener.Stub() {
+    private val gameModeChangedCallback = object : GameModeListenerProxy.Callback {
         override fun onGameModeInfoChanged() {
-            gameModeManager.gameModeInfo?.let {
+            GameModeListenerProxy.gameModeInfo?.let {
                 this@BaseShortcutTile.onGameModeInfoChanged(it)
             }
         }
@@ -64,7 +63,7 @@ abstract class BaseShortcutTile(
         }
 
     init {
-        gameModeManager.registerGameModeInfoListener(gameModeChangedCallback)
+        GameModeListenerProxy.addCallback(gameModeChangedCallback)
         state = getInitialState()
     }
 
@@ -77,7 +76,7 @@ abstract class BaseShortcutTile(
     }
 
     open fun destroy() {
-        gameModeManager.unregisterGameModeInfoListener(gameModeChangedCallback)
+        GameModeListenerProxy.removeCallback(gameModeChangedCallback)
     }
 
     open fun onGameModeInfoChanged(info: GameModeInfo) {}

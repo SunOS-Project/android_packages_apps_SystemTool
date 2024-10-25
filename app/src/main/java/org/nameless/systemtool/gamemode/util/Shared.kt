@@ -28,7 +28,9 @@ object Shared {
     var screenWidth = 0
 
     var currentGameInfo = GameInfo()
+    var lastGameInfo = GameInfo()
     var newGameLaunched = false
+    var inGame = false
 
     val audioManager: AudioManager by lazy {
         service.getSystemService(AudioManager::class.java)!!

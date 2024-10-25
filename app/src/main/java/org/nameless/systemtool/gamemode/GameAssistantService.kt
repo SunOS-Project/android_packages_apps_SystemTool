@@ -16,7 +16,7 @@ import android.os.Looper
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.gamemode.observer.GameModeGestureListener
-import org.nameless.systemtool.gamemode.observer.GameModeInfoListener
+import org.nameless.systemtool.gamemode.util.GameModeListenerProxy
 import org.nameless.systemtool.gamemode.util.Shared
 
 class GameAssistantService : Service() {
@@ -29,7 +29,6 @@ class GameAssistantService : Service() {
 
     private val resolutionListener by lazy { DisplayResolutionChangeListener() }
     val gameModeGestureListener by lazy { GameModeGestureListener() }
-    val gameModeInfoListener by lazy { GameModeInfoListener() }
 
     private var orientation = Configuration.ORIENTATION_PORTRAIT
 
@@ -43,11 +42,11 @@ class GameAssistantService : Service() {
         Shared.service = this
 
         resolutionListener.registered = true
-        gameModeInfoListener.registered = true
+        GameModeListenerProxy.registered = true
     }
 
     override fun onDestroy() {
-        gameModeInfoListener.registered = false
+        GameModeListenerProxy.registered = false
         gameModeGestureListener.registered = false
         resolutionListener.registered = false
 
@@ -57,7 +56,7 @@ class GameAssistantService : Service() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         newConfig.orientation.takeIf { orientation != it }?.let {
             orientation = it
-            if (gameModeInfoListener.inGame) {
+            if (Shared.inGame) {
                 GamePanelViewController.onConfigurationChanged()
             }
         }

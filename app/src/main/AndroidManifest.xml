@@ -46,15 +46,18 @@
         </receiver>
 
         <service
-            android:name=".gamemode.GameAssistantService">
+            android:name=".gamemode.GameAssistantService"
+            android:exported="false">
         </service>
 
         <service
-            android:name=".iris.IrisService">
+            android:name=".iris.IrisService"
+            android:exported="false">
         </service>
 
         <service
-            android:name=".onlineconfig.OnlineConfigService">
+            android:name=".onlineconfig.OnlineConfigService"
+            android:exported="false">
         </service>
 
         <activity
@@ -72,7 +75,8 @@
         </activity>
 
         <service
-            android:name=".windowmode.WmGestureService">
+            android:name=".windowmode.WmGestureService"
+            android:exported="false">
         </service>
     </application>
 </manifest>

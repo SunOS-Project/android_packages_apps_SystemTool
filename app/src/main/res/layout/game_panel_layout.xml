@@ -13,6 +13,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clickable="true"
         android:orientation="horizontal">
 
         <ScrollView
@@ -42,6 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_panel_frame"
+                android:clickable="true"
                 android:orientation="horizontal">
                 <org.nameless.systemtool.gamemode.view.ClockView
                     android:layout_width="wrap_content"
@@ -66,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_panel_frame"
+                android:clickable="true"
                 android:orientation="horizontal">
                 <org.nameless.systemtool.gamemode.view.BrightnessSeekBar
                     android:layout_width="0dp"
@@ -88,6 +91,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginVertical="10dp"
                 android:background="@drawable/bg_panel_frame"
+                android:clickable="true"
                 android:overScrollMode="never" />
         </LinearLayout>
     </LinearLayout>

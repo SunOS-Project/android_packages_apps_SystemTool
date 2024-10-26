@@ -7,13 +7,13 @@ package org.nameless.systemtool.gamemode.observer
 
 import android.os.RemoteException
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.WindowManagerGlobal
-import androidx.core.view.isVisible
 
 import org.nameless.systemtool.common.Utils.PACKAGE_NAME
 import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController
-import org.nameless.systemtool.gamemode.util.Shared.screenShortWidth
+import org.nameless.systemtool.gamemode.view.GamePanelView
 import org.nameless.view.ISystemGestureListener
 
 class GameModeGestureListener : ISystemGestureListener.Stub() {
@@ -42,12 +42,14 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
             }
         }
 
+    private var velocityTracker: VelocityTracker? = null
+
     override fun onGestureCanceled(gesture: Int) {
         GamePanelViewController.setContainerTouch(false)
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {
-        // Do nothing
+        velocityTracker = VelocityTracker.obtain()
     }
 
     override fun onGesturePreTriggerBefore(gesture: Int, event: MotionEvent): Boolean {
@@ -65,10 +67,20 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
         if (gesture != GESTURE_GAME_MODE) {
             return
         }
-        if (event.actionMasked == MotionEvent.ACTION_UP) {
-            GamePanelViewController.onGestureUp()
+        if (event.actionMasked == MotionEvent.ACTION_MOVE) {
+            velocityTracker?.apply {
+                addMovement(event)
+                computeCurrentVelocity(GamePanelView.VELOCITY_UNIT_MS)
+            }
+            GamePanelViewController.expandPanelView(event)
         } else {
-            GamePanelViewController.movePanelView(event.rawX)
+            velocityTracker?.apply {
+                computeCurrentVelocity(GamePanelView.VELOCITY_UNIT_MS)
+                GamePanelViewController.onGestureUp(xVelocity)
+                clear()
+                recycle()
+            }
+            velocityTracker = null
         }
     }
 

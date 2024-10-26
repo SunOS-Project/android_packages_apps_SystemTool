@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager.LayoutParams
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 
 import androidx.core.animation.doOnEnd
@@ -80,16 +81,15 @@ object GamePanelViewController {
 
     private const val ANIMATION_DURATION = 200L
 
-    var container: FrameLayout? = null
-        private set
+    private var container: FrameLayout? = null
 
     private var panelView: GamePanelView? = null
     private var sideView: View? = null
 
-    private var targetExpandedX = 0f
-    private var targetCollapsedX = 0f
+    var targetExpandedX = 0f
+    var targetCollapsedX = 0f
     private var targetY = 0f
-    private var panelWidth = 0f
+    var panelWidth = 0f
     private var panelHeight = 0f
 
     var animating = false
@@ -168,12 +168,10 @@ object GamePanelViewController {
         }
     }
 
-    fun movePanelView(rawX: Float) {
+    fun expandPanelView(event: MotionEvent) {
         service.mainHandler.post {
             sideView?.isVisible = false
-            panelView?.apply {
-                translationX = min(targetExpandedX, rawX - targetExpandedX - panelWidth)
-            }
+            panelView?.expandPanelView(event)
         }
     }
 
@@ -247,7 +245,7 @@ object GamePanelViewController {
         }
     }
 
-    private fun animateShow(endRunnable: Runnable? = null) {
+    fun animateShow(endRunnable: Runnable? = null) {
         service.mainHandler.post {
             if (animating) {
                 return@post
@@ -260,6 +258,7 @@ object GamePanelViewController {
                         v.translationX = it.animatedValue as Float
                     }
                     duration = ANIMATION_DURATION
+                    interpolator = DecelerateInterpolator()
                     doOnStart {
                         animating = true
                         setContainerTouch(true)
@@ -286,6 +285,7 @@ object GamePanelViewController {
                         v.translationX = it.animatedValue as Float
                     }
                     duration = ANIMATION_DURATION
+                    interpolator = DecelerateInterpolator()
                     doOnStart {
                         animating = true
                     }
@@ -301,14 +301,8 @@ object GamePanelViewController {
         }
     }
 
-    fun onGestureUp() {
-        panelView?.let {
-            if (it.translationX + panelWidth < 0.09f * screenShortWidth) {
-                animateHide()
-            } else {
-                animateShow()
-            }
-        }
+    fun onGestureUp(velocityX: Float) {
+        panelView?.onFingerUpWhenExpand(velocityX)
     }
 
     fun isShowing() = panelView?.translationX == targetExpandedX

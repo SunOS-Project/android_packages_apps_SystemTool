@@ -6,11 +6,13 @@
 package org.nameless.systemtool.gamemode.tile
 
 import android.content.Context
+import android.os.VibrationExtInfo
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.LinearLayout
 
+import org.nameless.os.CustomVibrationAttributes.VIBRATION_ATTRIBUTES_QS_TILE
 import org.nameless.systemtool.R
 import org.nameless.systemtool.common.BroadcastSender
 import org.nameless.systemtool.common.IconDrawableHelper
@@ -20,6 +22,9 @@ import org.nameless.systemtool.gamemode.controller.GamePanelViewController
 import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
 import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
 import org.nameless.systemtool.gamemode.util.Shared.launcherApps
+
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.BUTTON_CLICK
+import vendor.nameless.hardware.vibratorExt.V1_0.Effect.CLICK
 
 class AppTile(
     context: Context,
@@ -40,6 +45,11 @@ class AppTile(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         appTileIcon.setOnClickListener {
+            performHapticFeedbackExt(VibrationExtInfo.Builder().apply {
+                setEffectId(BUTTON_CLICK)
+                setFallbackEffectId(CLICK)
+                setVibrationAttributes(VIBRATION_ATTRIBUTES_QS_TILE)
+            }.build())
             GamePanelViewController.animateHide {
                 if (shortcutId.isNotBlank() && shortcutUserId != Int.MIN_VALUE) {
                     ShortcutHelper.startShortcut(context, this)

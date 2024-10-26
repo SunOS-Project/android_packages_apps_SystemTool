@@ -292,12 +292,30 @@ object GamePanelViewController {
                     doOnEnd {
                         animating = false
                         panelView?.scrollViewApps?.scrollTo(0, 0)
-                        sideView?.isVisible = true
+                        animateShowSideView()
                         setContainerTouch(false)
                         endRunnable?.run()
                     }
                 }.start()
             }
+        }
+    }
+
+    private fun animateShowSideView() {
+        sideView?.let { v ->
+            ValueAnimator.ofFloat(
+                -v.width.toFloat(), 0f
+            ).apply {
+                addUpdateListener {
+                    v.translationX = it.animatedValue as Float
+                }
+                duration = ANIMATION_DURATION
+                interpolator = DecelerateInterpolator()
+                doOnStart {
+                    v.translationX = -v.width.toFloat()
+                    v.isVisible = true
+                }
+            }.start()
         }
     }
 

@@ -20,5 +20,5 @@ object Config {
     const val PANEL_LANDSCAPE_TOP_PADDING = 0.06f
 
     const val SIDE_PORTRAIT_TOP_PADDING = 0.2f
-    const val SIDE_LANDSCAPE_TOP_PADDING = 0.1f
+    const val SIDE_LANDSCAPE_TOP_PADDING = 0.15f
 }

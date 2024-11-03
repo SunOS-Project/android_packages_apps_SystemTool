@@ -86,6 +86,9 @@ object GamePanelViewController {
     private var panelView: GamePanelView? = null
     private var sideView: View? = null
 
+    var sideViewFullyShowing = false
+        private set
+
     var targetExpandedX = 0f
     var targetCollapsedX = 0f
     private var targetY = 0f
@@ -117,10 +120,12 @@ object GamePanelViewController {
 
             panelView = LayoutInflater.from(service)
                     .inflate(R.layout.game_panel_layout, null) as GamePanelView?
-            updatePanelViewLayout()
+            updatePanelViewLayout(false)
             container?.addView(panelView)
 
             sideView = LayoutInflater.from(service).inflate(R.layout.game_side_layout, null)
+            sideView?.isVisible = false
+            sideViewFullyShowing = false
             updateSideViewLayout()
             container?.addView(sideView)
         }
@@ -157,20 +162,24 @@ object GamePanelViewController {
             }
             logD(TAG, "onConfigurationChanged")
 
-            setContainerTouch(false)
+            val wasExpanded = isShowing()
+            setContainerTouch(wasExpanded)
 
             updateScreenWidth()
-            updatePanelViewLayout()
-            updateSideViewLayout()
-            DanmakuController.updateLayout()
+            updatePanelViewLayout(wasExpanded)
 
-            sideView?.isVisible = true
+            sideView?.isVisible = false
+            sideViewFullyShowing = false
+            updateSideViewLayout()
+
+            DanmakuController.updateLayout()
         }
     }
 
     fun expandPanelView(event: MotionEvent) {
         service.mainHandler.post {
             sideView?.isVisible = false
+            sideViewFullyShowing = false
             panelView?.expandPanelView(event)
         }
     }
@@ -180,10 +189,15 @@ object GamePanelViewController {
             screenShortWidth = min(it.width(), it.height())
             screenWidth = it.width()
             portrait = it.width() < it.height()
+            logD(TAG, "updateScreenWidth, screenShortWidth=${screenShortWidth}" +
+                    ", screenWidth=${screenWidth}, portrait=${portrait}")
         }
     }
 
-    private fun updatePanelViewLayout() {
+    private fun updatePanelViewLayout(wasExpanded: Boolean) {
+        panelView?.clearAnimation()
+        animating = false
+
         val l: Float
         val t: Float
         val w: Float
@@ -206,8 +220,13 @@ object GamePanelViewController {
         panelWidth = w
         panelHeight = h
 
+        logD(TAG, "updatePanelViewLayout, wasExpanded=${wasExpanded}" +
+                ", targetExpandedX=${targetExpandedX}" +
+                ", targetCollapsedX=${targetCollapsedX}, targetY=${targetY}" +
+                ", panelWidth=${panelWidth}, panelHeight=${panelHeight}")
+
         panelView?.apply {
-            translationX = targetCollapsedX
+            translationX = if (wasExpanded) targetExpandedX else targetCollapsedX
             translationY = targetY
             layoutParams = FrameLayout.LayoutParams(w.toInt(), h.toInt())
         }
@@ -227,6 +246,9 @@ object GamePanelViewController {
                     GestureResourceUtils.getGameModeLandscapeAreaBottom(
                         service.resources) - translationY.toInt())
             }
+            logD(TAG, "updateSideViewLayout, translationY=${translationY}")
+
+            service.mainHandler.postDelayed({ animateShowSideView(width.toFloat()) }, 1000L)
         }
     }
 
@@ -248,9 +270,11 @@ object GamePanelViewController {
     fun animateShow(endRunnable: Runnable? = null) {
         service.mainHandler.post {
             if (animating) {
+                logD(TAG, "animateShow, return: already animating")
                 return@post
             }
             panelView?.let { v ->
+                logD(TAG, "animateShow, from=${v.translationX}, to=${targetExpandedX}")
                 ValueAnimator.ofFloat(
                     v.translationX, targetExpandedX
                 ).apply {
@@ -274,10 +298,12 @@ object GamePanelViewController {
 
     fun animateHide(endRunnable: Runnable? = null) {
         service.mainHandler.post {
-            if (animating || panelView?.translationX == targetCollapsedX) {
+            if (animating) {
+                logD(TAG, "animateHide, return: already animating")
                 return@post
             }
             panelView?.let { v ->
+                logD(TAG, "animateHide, from=${v.translationX}, to=${targetCollapsedX}")
                 ValueAnimator.ofFloat(
                     v.translationX, targetCollapsedX
                 ).apply {
@@ -301,10 +327,16 @@ object GamePanelViewController {
         }
     }
 
-    private fun animateShowSideView() {
+    private fun animateShowSideView(width: Float = 0f) {
+        if (!isCollapsed()) {
+            logD(TAG, "animateShowSideView, return: panel view is not collapsed")
+            return
+        }
         sideView?.let { v ->
+            val from = if (width > 0f) -width else -v.width.toFloat()
+            logD(TAG, "animateShowSideView, from=${from}, to=0.0")
             ValueAnimator.ofFloat(
-                -v.width.toFloat(), 0f
+                from, 0f
             ).apply {
                 addUpdateListener {
                     v.translationX = it.animatedValue as Float
@@ -312,8 +344,12 @@ object GamePanelViewController {
                 duration = ANIMATION_DURATION
                 interpolator = DecelerateInterpolator()
                 doOnStart {
-                    v.translationX = -v.width.toFloat()
+                    sideViewFullyShowing = false
+                    v.translationX = from
                     v.isVisible = true
+                }
+                doOnEnd {
+                    sideViewFullyShowing = true
                 }
             }.start()
         }
@@ -322,6 +358,8 @@ object GamePanelViewController {
     fun onGestureUp(velocityX: Float) {
         panelView?.onFingerUpWhenExpand(velocityX)
     }
+
+    private fun isCollapsed() = panelView?.translationX == targetCollapsedX
 
     fun isShowing() = panelView?.translationX == targetExpandedX
 }

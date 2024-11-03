@@ -18,11 +18,13 @@ import kotlin.math.max
 import kotlin.math.min
 
 import org.nameless.systemtool.R
+import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController.animateHide
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController.animateShow
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController.panelWidth
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController.targetCollapsedX
 import org.nameless.systemtool.gamemode.controller.GamePanelViewController.targetExpandedX
+import org.nameless.systemtool.gamemode.util.Shared.portrait
 import org.nameless.systemtool.gamemode.util.Shared.screenShortWidth
 
 class GamePanelView(
@@ -107,13 +109,12 @@ class GamePanelView(
     }
 
     fun expandPanelView(event: MotionEvent) {
-        val ratio = min(1f, event.rawX / panelWidth)
-        val speed = 0.9f + 0.5f * ratio
-        val x = event.rawX * speed
+        val x = event.rawX + panelWidth * (if (portrait) 0.08f else 0.16f)
         translationX = min(targetExpandedX, x - targetExpandedX - panelWidth)
     }
 
     fun onFingerUpWhenExpand(velocityX: Float) {
+        logD(TAG, "onFingerUpWhenExpand, velocityX=${velocityX}")
         if (velocityX < VELOCITY_X_FLING && translationX + panelWidth < 0.09f * screenShortWidth) {
             animateHide()
         } else {
@@ -122,6 +123,7 @@ class GamePanelView(
     }
 
     private fun onFingerUpWhenMove(velocityX: Float) {
+        logD(TAG, "onFingerUpWhenMove, velocityX=${velocityX}")
         if (velocityX <= -VELOCITY_X_FLING || translationX + panelWidth < 0.6f * screenShortWidth) {
             animateHide()
         } else {
@@ -130,6 +132,8 @@ class GamePanelView(
     }
 
     companion object {
+        private const val TAG = "SystemTool::GamePanelView"
+
         const val VELOCITY_UNIT_MS = 1000
         const val VELOCITY_X_FLING = 1000f
     }

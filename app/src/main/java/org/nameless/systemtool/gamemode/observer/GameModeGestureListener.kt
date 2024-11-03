@@ -57,7 +57,8 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
             return false
         }
         if (!GamePanelViewController.animating &&
-                !GamePanelViewController.isShowing()) {
+                !GamePanelViewController.isShowing() &&
+                GamePanelViewController.sideViewFullyShowing) {
             return true
         }
         return false

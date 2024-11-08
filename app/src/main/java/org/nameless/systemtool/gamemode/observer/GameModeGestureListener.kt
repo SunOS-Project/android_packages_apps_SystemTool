@@ -49,6 +49,9 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
     }
 
     override fun onGesturePreTrigger(gesture: Int, event: MotionEvent) {
+        if (gesture != GESTURE_GAME_MODE) {
+            return
+        }
         velocityTracker = VelocityTracker.obtain()
     }
 

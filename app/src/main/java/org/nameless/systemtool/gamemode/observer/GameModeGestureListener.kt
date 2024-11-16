@@ -71,7 +71,8 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
         if (gesture != GESTURE_GAME_MODE) {
             return
         }
-        if (event.actionMasked == MotionEvent.ACTION_MOVE) {
+        if (event.actionMasked != MotionEvent.ACTION_UP &&
+                event.actionMasked != MotionEvent.ACTION_CANCEL) {
             velocityTracker?.apply {
                 addMovement(event)
                 computeCurrentVelocity(GamePanelView.VELOCITY_UNIT_MS)

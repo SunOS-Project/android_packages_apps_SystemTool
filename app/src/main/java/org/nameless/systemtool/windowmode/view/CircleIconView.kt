@@ -97,7 +97,7 @@ class CircleIconView(
             duration = FOCUS_ANIMATION_DURATION
             interpolator = PathInterpolator(0.17f, 0.0f, 0.53f, 0.7f)
         }
-        val borderAnimator = ValueAnimator.ofFloat(0f, width * 0.08f).apply {
+        val borderAnimator = ValueAnimator.ofFloat(0f, width * (SCALE_FOCUS_VALUE - 1f) / 2).apply {
             addUpdateListener {
                 (it.animatedValue as Float).toInt().let { v ->
                     if (borderWidth < v) {

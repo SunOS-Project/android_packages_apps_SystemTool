@@ -7,7 +7,7 @@ package org.nameless.systemtool.windowmode.util
 
 object Config {
 
-    const val ICON_SIZE_RATIO = 0.0986f  // 142 / 1440
+    const val ICON_SIZE_RATIO = 0.1f  // 144 / 1440
 
     const val CIRCLE_CENTER_X_PORT = 1.04f
     const val CIRCLE_CENTER_X_LAND = 1.0f
@@ -38,7 +38,7 @@ object Config {
 
     const val HIDE_ANIMATION_DURATION = 100L
     const val REBOUND_ANIMATION_DURATION = 250L
-    const val SHOW_ANIMATION_DURATION = 130L
+    const val SHOW_ANIMATION_DURATION = 120L
     const val FOCUS_ANIMATION_DURATION = 130L
 
     const val ROTATE_START_ANGLE = -270f
@@ -46,7 +46,7 @@ object Config {
 
     const val SCALE_START_VALUE = 0.8f
     const val SCALE_REBOUND_VALUE = 1.05f
-    const val SCALE_FOCUS_VALUE = 1.25f
+    const val SCALE_FOCUS_VALUE = 1.16f
 
     const val ITEM_SCALE_VALUE = 0.85f
     const val ITEM_SCALE_DURATION = 200L

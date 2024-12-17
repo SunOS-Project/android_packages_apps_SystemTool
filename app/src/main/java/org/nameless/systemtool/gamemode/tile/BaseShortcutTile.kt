@@ -76,6 +76,9 @@ abstract class BaseShortcutTile(
     }
 
     open fun destroy() {
+        GameModeListenerProxy.gameModeInfo?.let {
+            onGameModeInfoChanged(it)
+        }
         GameModeListenerProxy.removeCallback(gameModeChangedCallback)
     }
 

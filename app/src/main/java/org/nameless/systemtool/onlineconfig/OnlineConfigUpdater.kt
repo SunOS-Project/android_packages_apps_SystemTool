@@ -46,9 +46,9 @@ object OnlineConfigUpdater {
             getConfigInfo(it.localConfigPath + ".tmp").let { info ->
                 val systemTimestamp = getConfigInfo(it.systemConfigPath).second
                 val localTimestamp = getConfigInfo(it.localConfigPath, true).second
-                if (info.first > it.version) {
-                    // Online config requires higher framework config version, skip update
-                    logD(TAG, "online config version ${info.first} > framework config " +
+                if (info.first != it.version) {
+                    // Online config version doesn't match framework config version, skip update
+                    logD(TAG, "online config version ${info.first} != framework config " +
                             "version ${it.version}, skip update")
                     cleanTmpLocalConfig(it)
                 } else if (info.second <= systemTimestamp) {

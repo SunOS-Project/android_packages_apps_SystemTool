@@ -22,6 +22,8 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+import com.android.internal.util.nameless.HanziToPinyin
+
 import com.android.settingslib.collapsingtoolbar.CollapsingToolbarBaseActivity
 
 import java.util.Collections
@@ -74,6 +76,8 @@ open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
     private val launcherApps by lazy {
         getSystemService(LauncherApps::class.java)!!
     }
+
+    private val hanziToPinyin by lazy { HanziToPinyin.getInstance() }
 
     private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -345,7 +349,7 @@ open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
             val label = it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String()
             AppInfo(
                 label,
-                label,
+                hanziToPinyin.transliterate(label),
                 it.packageName,
                 IconDrawableHelper.getDrawable(this, it.applicationInfo)
             )

@@ -30,7 +30,7 @@ import org.nameless.systemtool.iris.observer.DisplayResolutionChangeListener
 import org.nameless.systemtool.iris.observer.SettingsObserver
 import org.nameless.systemtool.iris.observer.SystemStateReceiver
 import org.nameless.systemtool.iris.observer.TaskStackChangeListener
-import org.nameless.systemtool.iris.pixelworks.IrisHIDLWrapper
+import org.nameless.systemtool.iris.pixelworks.IrisHelper
 import org.nameless.systemtool.iris.util.FeatureHelper.VIDEO_OSIE_SUPPORTED
 import org.nameless.systemtool.iris.util.RefreshRateHelper
 import org.nameless.systemtool.iris.util.Shared.layoutInflater
@@ -38,8 +38,6 @@ import org.nameless.systemtool.iris.util.Shared.onlineConfigManager
 import org.nameless.systemtool.iris.util.Shared.powerSaveMode
 import org.nameless.systemtool.iris.util.Shared.service
 import org.nameless.view.DisplayResolutionManager.QHD_WIDTH
-
-import vendor.pixelworks.hardware.display.V1_0.IIrisCallback
 
 class IrisService : Service() {
 
@@ -102,11 +100,11 @@ class IrisService : Service() {
     private val commandReceiver by lazy {
         object : CommandReceiver(handler) {
             override fun onGetCommand(type: Int): Int {
-                return IrisHIDLWrapper.getIrisCommand(type)
+                return IrisHelper.getIrisCommand(type)
             }
 
             override fun onSetCommand(command: String): Int {
-                return IrisHIDLWrapper.setIrisCommand(command)
+                return IrisHelper.setIrisCommand(command)
             }
         }
     }
@@ -173,9 +171,9 @@ class IrisService : Service() {
 
         handler.sendMessage(handler.obtainMessage(MSG_REGISTER_CALLBACK))
 
-        inBypassMode = IrisHIDLWrapper.getIrisCommand(56) == 1
-        inMemcMode = IrisHIDLWrapper.getIrisCommand(258) != 0
-        inSDR2HDRMode = !VIDEO_OSIE_SUPPORTED && IrisHIDLWrapper.getIrisCommand(267) != 0
+        inBypassMode = IrisHelper.getIrisCommand(56) == 1
+        inMemcMode = IrisHelper.getIrisCommand(258) != 0
+        inSDR2HDRMode = !VIDEO_OSIE_SUPPORTED && IrisHelper.getIrisCommand(267) != 0
 
         resolutionListener.registered = true
         settingsObserver.registered = true
@@ -226,7 +224,17 @@ class IrisService : Service() {
     }
 
     private fun registerCallback() {
-        IrisHIDLWrapper.registerCallback(IrisCallback())
+        IrisHelper.registerCallback(object : IrisCallback {
+            override fun onFeatureChanged(type: Int, values: ArrayList<Int>) {
+                logD(TAG, "onFeatureChanged, type: $type")
+                handler.sendMessage(handler.obtainMessage(MSG_FEATURE_CHANGE).apply {
+                    data = Bundle().apply {
+                        putInt("type", type)
+                        putIntegerArrayList("values", values)
+                    }
+                })
+            }
+        })
     }
 
     private fun checkTopActivity() {
@@ -285,7 +293,7 @@ class IrisService : Service() {
 
     private fun removeSdr2hdrParameters() {
         if (inSDR2HDRMode) {
-            if (IrisHIDLWrapper.setIrisCommand("267-3-0") >= 0) {
+            if (IrisHelper.setIrisCommand("267-3-0") >= 0) {
                 inSDR2HDRMode = false
             }
         }
@@ -302,7 +310,7 @@ class IrisService : Service() {
     private fun setMemcParameters() {
         if (inMemcList) {
             switchPtMode()
-            if (IrisHIDLWrapper.setIrisCommand(memcCommand) >= 0) {
+            if (IrisHelper.setIrisCommand(memcCommand) >= 0) {
                 inMemcMode = true
             }
         }
@@ -312,7 +320,7 @@ class IrisService : Service() {
         if (!inSDR2HDRList) {
             return;
         }
-        if (IrisHIDLWrapper.setIrisCommand(sdr2hdrCommand) >= 0) {
+        if (IrisHelper.setIrisCommand(sdr2hdrCommand) >= 0) {
             inSDR2HDRMode = true
         }
     }
@@ -322,23 +330,23 @@ class IrisService : Service() {
             return
         }
         if (inSDR2HDRMode) {
-            if (IrisHIDLWrapper.setIrisCommand("267-3-0") >= 0) {
+            if (IrisHelper.setIrisCommand("267-3-0") >= 0) {
                 inSDR2HDRMode = false
             }
         }
         if (inMemcMode) {
-            if (IrisHIDLWrapper.setIrisCommand("258-0") >= 0) {
+            if (IrisHelper.setIrisCommand("258-0") >= 0) {
                 inMemcMode = false
             }
         }
-        if (IrisHIDLWrapper.setIrisCommand("56-1") >= 0) {
+        if (IrisHelper.setIrisCommand("56-1") >= 0) {
             inBypassMode = true
         }
     }
 
     private fun switchPtMode() {
         if (inBypassMode) {
-            if (IrisHIDLWrapper.setIrisCommand("56-0") >= 0) {
+            if (IrisHelper.setIrisCommand("56-0") >= 0) {
                 inBypassMode = false
             }
         }
@@ -401,19 +409,8 @@ class IrisService : Service() {
         }
     }
 
-    private inner class IrisCallback : IIrisCallback.Stub() {
-        override fun onFeatureChanged(type: Int, values: ArrayList<Int>?) {
-            if (values.isNullOrEmpty()) {
-                return
-            }
-            logD(TAG, "onFeatureChanged, type: $type")
-            handler.sendMessage(handler.obtainMessage(MSG_FEATURE_CHANGE).apply {
-                data = Bundle().apply {
-                    putInt("type", type)
-                    putIntegerArrayList("values", values)
-                }
-            })
-        }
+    interface IrisCallback {
+        fun onFeatureChanged(type: Int, values: ArrayList<Int>)
     }
 
     companion object {

@@ -1,16 +1,12 @@
 /*
- * Copyright (C) 2023-2024 The Nameless-AOSP Project
+ * Copyright (C) 2025 The Nameless-CLO Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.nameless.systemtool.iris.pixelworks
 
 import java.util.ArrayList
-import java.util.Arrays
 
-import kotlin.math.min
-
-import org.nameless.systemtool.common.Utils.logD
 import org.nameless.systemtool.common.Utils.logE
 import org.nameless.systemtool.iris.util.Constants.IRIS_COOKIE
 
@@ -19,21 +15,20 @@ import vendor.pixelworks.hardware.display.V1_0.IIrisCallback
 import vendor.pixelworks.hardware.feature.V1_0.IIrisFeature
 
 @Suppress("DEPRECATION")
-object IrisHIDLWrapper {
+class IrisHIDLWrapper : BaseIrisWrapper<IIrisCallback.Stub>() {
 
-    private const val TAG = "SystemTool::IrisHIDLWrapper"
+    override val tag = "SystemTool::IrisHIDLWrapper"
 
     private var iIris: IIris? = null
         get() {
             if (field == null) {
                 try {
                     field = IIris.getService()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
                 }
             }
             if (field == null) {
-                logE(TAG, "Failed to get IIris service")
+                logE(tag, "Failed to get iris HIDL")
             }
             return field
         }
@@ -43,83 +38,55 @@ object IrisHIDLWrapper {
             if (field == null) {
                 try {
                     field = IIrisFeature.getService()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
                 }
             }
             if (field == null) {
-                logE(TAG, "Failed to get IIrisFeature service")
+                logE(tag, "Failed to get iris feature HIDL")
             }
             return field
         }
 
-    private fun irisConfigureGet(type: Int, values: IntArray?, count: Int): Int {
-        if (values == null) {
-            logE(TAG, "irisConfigureGet failed, invalid parameter")
-            return -1
-        }
-        logD(TAG, "irisConfigureGet, type: $type, values: ${Arrays.toString(values)}, count: $count")
+    override fun isSupported(): Boolean {
+        return iIris != null && iIrisFeature != null
+    }
+
+    override fun irisConfigureGetInternal(type: Int, values: IntArray): IrisGetResult {
         val arrayList = values.toCollection(ArrayList())
-        val callback = IrisConfigureGetCallback()
+        val ret = IrisGetResult()
         try {
-            iIris?.irisConfigureGet(type, arrayList, callback) ?: return -1
-            val len = min(count, callback.values?.size ?: count)
-            for (i in 0 until len) {
-                values[i] = callback.values?.get(i) ?: values[i]
-            }
-            return callback.result
+            iIris?.irisConfigureGet(type, arrayList) { result, valuesArr ->
+                if (valuesArr != null) {
+                    ret.ret = result
+                    ret.values = valuesArr.toIntArray()
+                }
+            } ?: return IrisGetResult()
+            return ret
         } catch (e: Exception) {
-            logE(TAG, "irisConfigureGet failed")
-            return -1
+            logE(tag, "irisConfigureGet failed")
+            return IrisGetResult()
         }
     }
 
-    private fun irisConfigureSet(type: Int, values: IntArray?): Int {
-        if (values == null) {
-            logE(TAG, "irisConfigureSet failed, invalid parameter")
-            return -1
-        }
-        logD(TAG, "irisConfigureSet, type: $type, values: ${Arrays.toString(values)}")
+    override fun irisConfigureSetInternal(type: Int, values: IntArray): Int {
         val arrayList = values.toCollection(ArrayList())
         return try {
             iIris?.irisConfigureSet(type, arrayList) ?: -1
         } catch (e: Exception) {
-            logE(TAG, "irisConfigureSet failed")
+            logE(tag, "irisConfigureSet failed")
             -1
         }
     }
 
-    fun getIrisCommand(type: Int): Int {
-        val values = IntArray(1)
-        val result = irisConfigureGet(type, values, values.size)
-        if (result < 0) {
-            logE(TAG, "getIrisCommand failed, result: $result")
-            return result
+    override fun getChipFeatureInternal(): Int {
+        val callback = object : IIrisFeature.GetFeatureCallback {
+            var result = -1
+            var feature = -1
+            override fun onValues(result: Int, feature: Int) {
+                this.result = result
+                this.feature = feature
+            }
         }
-        return values[0]
-    }
-
-    fun setIrisCommand(cmd: String?): Int {
-        if (cmd.isNullOrBlank()) {
-            logE(TAG, "setIrisCommand failed, cmd string is empty")
-            return -1
-        }
-        val cmdArr = cmd.split("-")
-        if (cmdArr.isEmpty() || cmdArr[0].isBlank()) {
-            logE(TAG, "setIrisCommand failed, cmd string is empty")
-            return -1
-        }
-        val type = cmdArr[0].toInt()
-        val values = cmdArr.filterIndexed { index, _ -> index > 0 }.map { it.toInt() }
-        val result = irisConfigureSet(type, values.toIntArray())
-        if (result < 0) {
-            logE(TAG, "setIrisCommand failed, result: $result")
-        }
-        return result
-    }
-
-    private fun getChipFeature(): Int {
-        val callback = GetFeatureCallback()
         try {
             iIrisFeature?.getFeature(callback) ?: return -1
             return if (callback.result >= 0) {
@@ -128,20 +95,16 @@ object IrisHIDLWrapper {
                 -1
             }
         } catch (e: Exception) {
-            logE(TAG, "getChipFeature failed")
+            logE(tag, "getChipFeature failed")
             return -1
         }
     }
 
-    fun registerCallback(callback: IIrisCallback.Stub) {
-        if (getChipFeature() <= 0) {
-            logE(TAG, "getChipFeature failed. Skip register callback")
-            return
-        }
+    override fun registerCallbackInternal(callback: IIrisCallback.Stub) {
         try {
             iIris?.registerCallback2(IRIS_COOKIE, callback)
         } catch (e: Exception) {
-            logE(TAG, "registerCallback failed")
+            logE(tag, "registerCallback failed")
         }
     }
 }

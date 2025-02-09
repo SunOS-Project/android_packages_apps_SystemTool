@@ -9,7 +9,7 @@ import java.util.ArrayList
 
 import vendor.pixelworks.hardware.display.V1_0.IIris
 
-class IrisConfigureGetCallback : IIris.irisConfigureGetCallback {
+class IrisConfigureGetCallback : IIris.IrisConfigureGetCallback {
 
     var result = -1
     var values: ArrayList<Int>? = null

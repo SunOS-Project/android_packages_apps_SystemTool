@@ -27,6 +27,7 @@ android_app {
         "src/main/java/**/*.kt",
     ],
     static_libs: [
+        "android.hidl.manager-V1.0-java",
         "androidx.core_core-ktx",
         "androidx.appcompat_appcompat",
         "androidx.cardview_cardview",
@@ -35,8 +36,6 @@ android_app {
         "androidx.preference_preference",
         "androidx.recyclerview_recyclerview",
         "com.google.android.material_material",
-        "vendor.pixelworks.hardware.display-V1.0-java",
-        "vendor.pixelworks.hardware.feature-V1.0-java",
     ],
     resource_dirs: ["src/main/res", "src/main/res-sdk"],
     manifest: "src/main/AndroidManifest.xml",

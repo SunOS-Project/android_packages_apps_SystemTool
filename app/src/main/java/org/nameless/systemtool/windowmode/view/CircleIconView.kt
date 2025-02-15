@@ -26,8 +26,8 @@ import org.nameless.systemtool.windowmode.util.Config.FOCUS_ANIMATION_DURATION
 import org.nameless.systemtool.windowmode.util.Config.SCALE_FOCUS_VALUE
 import org.nameless.systemtool.windowmode.util.Shared.launcherApps
 
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK
+import vendor.nameless.hardware.vibratorExt.Effect.INDEXABLE_WIDGET
+import vendor.nameless.hardware.vibratorExt.Effect.TICK
 
 class CircleIconView(
     context: Context,

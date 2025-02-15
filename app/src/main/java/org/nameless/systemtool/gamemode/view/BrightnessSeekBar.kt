@@ -27,8 +27,8 @@ import org.nameless.systemtool.gamemode.util.BrightnessHelper
 import org.nameless.systemtool.gamemode.util.Shared.displayManager
 import org.nameless.systemtool.gamemode.util.Shared.service
 
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.SLIDER_EDGE
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.SLIDER_STEP
+import vendor.nameless.hardware.vibratorExt.Effect.SLIDER_EDGE
+import vendor.nameless.hardware.vibratorExt.Effect.SLIDER_STEP
 
 @SuppressLint("AppCompatCustomView")
 class BrightnessSeekBar(

@@ -46,8 +46,8 @@ import org.nameless.systemtool.windowmode.view.AllItemAdapter
 import org.nameless.systemtool.windowmode.view.AppHolder
 import org.nameless.systemtool.windowmode.view.PinnedItemAdapter
 
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.INDEXABLE_WIDGET
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.TICK
+import vendor.nameless.hardware.vibratorExt.Effect.INDEXABLE_WIDGET
+import vendor.nameless.hardware.vibratorExt.Effect.TICK
 
 open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
 

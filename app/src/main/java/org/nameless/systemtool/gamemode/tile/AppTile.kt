@@ -23,8 +23,8 @@ import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_DURATION
 import org.nameless.systemtool.gamemode.util.Config.ITEM_SCALE_VALUE
 import org.nameless.systemtool.gamemode.util.Shared.launcherApps
 
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.BUTTON_CLICK
-import vendor.nameless.hardware.vibratorExt.V1_0.Effect.CLICK
+import vendor.nameless.hardware.vibratorExt.Effect.BUTTON_CLICK
+import vendor.nameless.hardware.vibratorExt.Effect.CLICK
 
 class AppTile(
     context: Context,

@@ -7,10 +7,10 @@ package org.nameless.systemtool.iris.util
 
 import org.nameless.display.DisplayFeatureManager
 
-import vendor.nameless.hardware.displayfeature.V1_0.Feature.MEMC_FHD
-import vendor.nameless.hardware.displayfeature.V1_0.Feature.MEMC_QHD
-import vendor.nameless.hardware.displayfeature.V1_0.Feature.SDR2HDR
-import vendor.nameless.hardware.displayfeature.V1_0.Feature.VIDEO_OSIE
+import vendor.nameless.hardware.displayfeature.Feature.MEMC_FHD
+import vendor.nameless.hardware.displayfeature.Feature.MEMC_QHD
+import vendor.nameless.hardware.displayfeature.Feature.SDR2HDR
+import vendor.nameless.hardware.displayfeature.Feature.VIDEO_OSIE
 
 object FeatureHelper {
 

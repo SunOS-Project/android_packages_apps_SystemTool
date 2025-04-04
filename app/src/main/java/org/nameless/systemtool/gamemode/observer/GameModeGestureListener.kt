@@ -44,7 +44,7 @@ class GameModeGestureListener : ISystemGestureListener.Stub() {
 
     private var velocityTracker: VelocityTracker? = null
 
-    override fun onGestureCanceled(gesture: Int) {
+    override fun onGestureCanceled(gesture: Int, event: MotionEvent) {
         GamePanelViewController.setContainerTouch(false)
     }
 

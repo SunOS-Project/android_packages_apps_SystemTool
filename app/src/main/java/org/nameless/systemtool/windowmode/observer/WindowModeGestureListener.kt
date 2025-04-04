@@ -46,7 +46,7 @@ class WindowModeGestureListener : ISystemGestureListener.Stub() {
 
     private var triggered = false
 
-    override fun onGestureCanceled(gesture: Int) {
+    override fun onGestureCanceled(gesture: Int, evennt: MotionEvent) {
         if (gesture != GESTURE_WINDOW_MODE) {
             return
         }

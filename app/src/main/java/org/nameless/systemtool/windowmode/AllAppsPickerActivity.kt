@@ -5,6 +5,7 @@
 
 package org.nameless.systemtool.windowmode
 
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.os.Bundle
@@ -339,12 +340,19 @@ open class AllAppsPickerActivity : CollapsingToolbarBaseActivity() {
         val allShortcutList = mutableListOf<AppInfo>()
         val pinnedAppsSettings = SettingsObserver.getMiniWindowAppsSettings(this)
             ?.takeIf { it.isNotBlank() }?.split(";")?.toSet() ?: emptySet()
+        val launchableApps = packageManager.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+            }, 0
+        ).map { it.activityInfo?.packageName }.toSet()
         val apps = packageManager.getInstalledPackages(0).filter {
             val isSystemApp = it.applicationInfo?.flags?.let { flags ->
                 (flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
                 (flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
             } ?: false
             miniWindowSystemAppsWhitelist.contains(it.packageName) || !isSystemApp
+        }.filter {
+            launchableApps.contains(it.packageName)
         }.map {
             val label = it.applicationInfo?.loadLabel(packageManager)?.toString() ?: String()
             AppInfo(

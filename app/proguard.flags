@@ -1,25 +1,25 @@
 -keep,allowoptimization,allowaccessmodification class de.hdodenhof.circleimageview.CircleImageView
 
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.BootCompletedReceiver
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.BootCompletedReceiver
 
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.GameAssistantService
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.BatteryView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.BrightnessLockButton
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.BrightnessSeekBar
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.ClockView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.DelayableMarqueeTextView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.GamePanelView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.QuickAppView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.ShortcutGridView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.ShortcutTileView
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.gamemode.view.TemperatureView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.GameAssistantService
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.BatteryView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.BrightnessLockButton
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.BrightnessSeekBar
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.ClockView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.DelayableMarqueeTextView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.GamePanelView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.QuickAppView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.ShortcutGridView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.ShortcutTileView
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.gamemode.view.TemperatureView
 
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.iris.IrisService
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.iris.IrisService
 
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.onlineconfig.OnlineConfigService
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.onlineconfig.OnlineConfigService
 
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.AllAppsPickerActivity
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.ManageAppsActivity
--keep,allowoptimization,allowaccessmodification class org.nameless.systemtool.windowmode.WmGestureService
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.windowmode.AllAppsPickerActivity
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.windowmode.ManageAppsActivity
+-keep,allowoptimization,allowaccessmodification class org.sun.systemtool.windowmode.WmGestureService
 
 -keep,allowoptimization,allowaccessmodification class top.littlefogcat.**

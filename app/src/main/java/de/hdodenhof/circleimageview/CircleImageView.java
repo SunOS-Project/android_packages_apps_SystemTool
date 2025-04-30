@@ -47,7 +47,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import org.nameless.systemtool.R;
+import org.sun.systemtool.R;
 
 @SuppressWarnings("UnusedDeclaration")
 public class CircleImageView extends ImageView {

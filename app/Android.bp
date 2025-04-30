@@ -44,6 +44,6 @@ android_app {
 prebuilt_etc {
     name: "privapp_whitelist_systemtool",
     sub_dir: "permissions",
-    src: "privapp-permissions-org.nameless.systemtool.xml",
+    src: "privapp-permissions-org.sun.systemtool.xml",
     filename_from_src: true,
 }

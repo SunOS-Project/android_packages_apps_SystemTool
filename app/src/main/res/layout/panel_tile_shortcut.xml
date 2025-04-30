@@ -25,7 +25,7 @@
         android:paddingRight="10dp"
         android:orientation="vertical">
 
-        <org.nameless.systemtool.gamemode.view.DelayableMarqueeTextView
+        <org.sun.systemtool.gamemode.view.DelayableMarqueeTextView
             android:id="@+id/text_shortcut_label"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -38,7 +38,7 @@
             android:focusable="false"
             android:singleLine="true" />
 
-        <org.nameless.systemtool.gamemode.view.DelayableMarqueeTextView
+        <org.sun.systemtool.gamemode.view.DelayableMarqueeTextView
             android:id="@+id/text_shortcut_secondary_label"
             android:layout_width="match_parent"
             android:layout_height="0dp"

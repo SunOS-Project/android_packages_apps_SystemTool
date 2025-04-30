@@ -16,7 +16,7 @@ android {
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "org.nameless.systemtool"
+        applicationId = "org.sun.systemtool"
         minSdk = 33
         targetSdk = 33
         versionCode = 1

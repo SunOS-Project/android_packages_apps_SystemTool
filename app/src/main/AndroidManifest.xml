@@ -6,7 +6,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:sharedUserId="android.uid.system"
-    package="org.nameless.systemtool"
+    package="org.sun.systemtool"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -23,9 +23,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
-    <protected-broadcast android:name="org.nameless.systemtool.intent.IRIS_GET_COMMAND" />
-    <protected-broadcast android:name="org.nameless.systemtool.intent.IRIS_SET_COMMAND" />
-    <protected-broadcast android:name="org.nameless.systemtool.intent.ONLINE_CONFIG_DEBUG_MODE" />
+    <protected-broadcast android:name="org.sun.systemtool.intent.IRIS_GET_COMMAND" />
+    <protected-broadcast android:name="org.sun.systemtool.intent.IRIS_SET_COMMAND" />
+    <protected-broadcast android:name="org.sun.systemtool.intent.ONLINE_CONFIG_DEBUG_MODE" />
 
     <application
         android:label="@string/app_name"

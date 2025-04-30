@@ -3,7 +3,7 @@
     Copyright (C) 2024 The Nameless-AOSP Project
     SPDX-License-Identifier: Apache-2.0
 -->
-<org.nameless.systemtool.gamemode.view.GamePanelView
+<org.sun.systemtool.gamemode.view.GamePanelView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/game_panel_root"
     android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:overScrollMode="never"
             android:scrollbars="none">
 
-            <org.nameless.systemtool.gamemode.view.QuickAppView
+            <org.sun.systemtool.gamemode.view.QuickAppView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical" />
@@ -45,7 +45,7 @@
                 android:background="@drawable/bg_panel_frame"
                 android:clickable="true"
                 android:orientation="horizontal">
-                <org.nameless.systemtool.gamemode.view.ClockView
+                <org.sun.systemtool.gamemode.view.ClockView
                     android:layout_width="wrap_content"
                     android:layout_height="24dp"
                     android:layout_marginLeft="20dp"
@@ -54,7 +54,7 @@
                     android:text="12:00"
                     android:textSize="12dp"
                     android:textColor="@android:color/white" />
-                <org.nameless.systemtool.gamemode.view.BatteryView
+                <org.sun.systemtool.gamemode.view.BatteryView
                     android:layout_width="match_parent"
                     android:layout_height="24dp"
                     android:layout_marginRight="20dp"
@@ -72,12 +72,12 @@
                 android:background="@drawable/bg_panel_frame"
                 android:clickable="true"
                 android:orientation="horizontal">
-                <org.nameless.systemtool.gamemode.view.BrightnessSeekBar
+                <org.sun.systemtool.gamemode.view.BrightnessSeekBar
                     android:layout_width="0dp"
                     android:layout_height="20dp"
                     android:layout_weight="1"
                     android:layout_gravity="center_vertical" />
-                <org.nameless.systemtool.gamemode.view.BrightnessLockButton
+                <org.sun.systemtool.gamemode.view.BrightnessLockButton
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginVertical="12dp"
@@ -87,7 +87,7 @@
                     android:scaleType="centerInside" />
             </LinearLayout>
 
-            <org.nameless.systemtool.gamemode.view.ShortcutGridView
+            <org.sun.systemtool.gamemode.view.ShortcutGridView
                 android:id="@+id/rv_shortcut_tiles"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -98,4 +98,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</org.nameless.systemtool.gamemode.view.GamePanelView>
+</org.sun.systemtool.gamemode.view.GamePanelView>
